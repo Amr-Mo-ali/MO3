@@ -1,0 +1,674 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --red:#E8001C;--red2:#FF1A35;--red-dim:#8B0011;
+  --black:#000000;--bg:#0D0D0D;--bg2:#141414;--bg3:#1C1C1C;--bg4:#242424;
+  --white:#FFFFFF;--white2:#E8E4DE;--white3:#A09A92;--white4:#4A4540;
+  --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.25);--border-red:rgba(232,0,28,0.35);
+  --font:'Cairo',sans-serif;--r:4px;--rl:8px;
+}
+html{font-size:16px;}
+body{background:var(--bg);color:var(--white);font-family:var(--font);line-height:1.6;min-height:100vh;-webkit-text-size-adjust:100%;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--black);}::-webkit-scrollbar-thumb{background:var(--red);}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(0,0,0,0.97);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1rem;height:56px;
+}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+.logo-img{width:38px;height:38px;object-fit:contain;border-radius:50%;border:1px solid var(--border-red);}
+.logo-text{display:flex;flex-direction:column;line-height:1;}
+.logo-main{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--white);}
+.logo-main span{color:var(--red);}
+.logo-sub{font-size:9px;color:var(--white3);letter-spacing:2px;text-transform:uppercase;}
+.nav-actions{display:flex;gap:8px;align-items:center;}
+
+/* BUTTONS */
+.btn{
+  font-family:var(--font);font-weight:600;
+  padding:8px 16px;border-radius:var(--r);
+  border:1px solid var(--border2);
+  background:transparent;color:var(--white);
+  cursor:pointer;transition:all 0.2s;
+  font-size:13px;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  min-height:40px;
+}
+.btn:hover{background:rgba(255,255,255,0.1);}
+.btn:active{transform:scale(0.97);}
+.btn-red{background:var(--red);border-color:var(--red);color:var(--white);}
+.btn-red:hover{background:var(--red2);border-color:var(--red2);}
+.btn-red-outline{border-color:var(--red);color:var(--red);}
+.btn-red-outline:hover{background:var(--red);color:var(--white);}
+.btn-sm{padding:6px 12px;font-size:12px;min-height:34px;}
+.btn-danger{border-color:#ff4444;color:#ff4444;}
+.btn-danger:hover{background:#ff4444;color:#fff;}
+
+/* HERO */
+.hero{
+  padding:3rem 1.25rem 2.5rem;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,0,28,0.12) 0%,transparent 65%);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.025) 40px),
+             repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.025) 40px);
+  pointer-events:none;
+}
+.hero-logo-wrap{margin-bottom:1.25rem;display:flex;justify-content:center;}
+.hero-logo-img{width:90px;height:90px;object-fit:contain;border-radius:50%;border:2px solid var(--border-red);}
+.hero-logo-fallback{
+  width:90px;height:90px;border-radius:50%;background:var(--black);border:2px solid var(--red);
+  display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:var(--white);
+}
+.hero-logo-fallback span{color:var(--red);}
+.hero-eyebrow{font-size:10px;letter-spacing:4px;color:var(--red);text-transform:uppercase;margin-bottom:0.75rem;}
+.hero-title{font-size:clamp(52px,14vw,88px);font-weight:900;letter-spacing:4px;color:var(--white);line-height:1;margin-bottom:0.75rem;}
+.hero-title span{color:var(--red);}
+.hero-tagline{font-size:clamp(14px,4vw,18px);font-weight:400;color:var(--white3);margin-bottom:0.25rem;letter-spacing:1px;}
+.hero-tagline b{color:var(--white);font-weight:600;}
+.hero-tagline .shoot{color:var(--red);font-weight:700;}
+.hero-sub{color:var(--white4);font-size:13px;max-width:400px;margin:0.75rem auto 0;padding:0 0.5rem;}
+
+/* STATS */
+.stats-bar{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--black);}
+.stat{flex:1;min-width:80px;padding:0.9rem 0.5rem;border-right:1px solid var(--border);text-align:center;}
+.stat:last-child{border-right:none;}
+.stat-num{font-size:clamp(20px,5vw,28px);font-weight:900;color:var(--red);line-height:1;}
+.stat-label{font-size:9px;color:var(--white4);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+
+/* ADMIN BAR */
+.admin-bar{
+  background:rgba(232,0,28,0.08);border-bottom:1px solid var(--border-red);
+  padding:10px 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;
+}
+.admin-indicator{display:flex;align-items:center;gap:8px;color:var(--red);font-size:12px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 1.5s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* CONTROLS */
+.controls{
+  padding:1rem;display:flex;gap:10px;flex-direction:column;
+  border-bottom:1px solid var(--border);background:var(--bg2);
+  position:sticky;top:56px;z-index:90;
+}
+.search-wrap{position:relative;width:100%;}
+.search-wrap input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+  padding:10px 14px 10px 38px;
+  color:var(--white);font-family:var(--font);font-size:15px;
+  outline:none;transition:border-color 0.2s;
+  -webkit-appearance:none;
+}
+.search-wrap input:focus{border-color:var(--red-dim);}
+.search-wrap input::placeholder{color:var(--white4);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--white4);font-size:15px;pointer-events:none;}
+.filter-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.tab{
+  font-family:var(--font);font-size:11px;font-weight:600;letter-spacing:0.5px;
+  padding:7px 12px;border-radius:var(--r);
+  border:1px solid var(--border);background:transparent;color:var(--white3);
+  cursor:pointer;transition:all 0.2s;text-transform:uppercase;
+  min-height:34px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.tab:hover{border-color:var(--red);color:var(--white);}
+.tab.active{background:var(--red);color:var(--white);border-color:var(--red);}
+
+/* GRID */
+.grid-wrap{padding:1rem;}
+.results-count{font-size:10px;color:var(--white4);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.75rem;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));
+  gap:1px;background:var(--border);
+}
+.empty-state{text-align:center;padding:4rem 1rem;color:var(--white4);}
+.empty-icon{font-size:40px;margin-bottom:1rem;}
+
+/* CARD */
+.card{background:var(--bg2);cursor:pointer;position:relative;overflow:hidden;}
+.card:active{background:var(--bg3);}
+@media(hover:hover){.card:hover{background:var(--bg3);}.card:hover .thumb img{transform:scale(1.04);}.card:hover .play-overlay{opacity:1;}}
+.thumb{width:100%;aspect-ratio:16/9;background:var(--bg4);position:relative;overflow:hidden;}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s;}
+.thumb-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--white4);}
+.cat-badge{
+  position:absolute;top:8px;left:8px;
+  background:var(--red);color:var(--white);
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:2px;
+}
+.play-overlay{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity 0.25s;background:rgba(0,0,0,0.3);
+}
+.play-circle{width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;}
+.play-tri{width:0;height:0;border-style:solid;border-width:9px 0 9px 16px;border-color:transparent transparent transparent #fff;margin-left:3px;}
+.card-body{padding:12px 14px 14px;}
+.card-title{font-size:15px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:3px;}
+.card-client{font-size:11px;color:var(--red);font-weight:600;letter-spacing:0.5px;}
+.card-desc{font-size:11px;color:var(--white4);margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-admin{display:flex;gap:6px;padding:0 14px 12px;}
+
+/* MODAL BACKDROP */
+.modal-backdrop{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.95);
+  align-items:flex-end;justify-content:center;
+  padding:0;
+  overscroll-behavior:contain;
+}
+.modal-backdrop.open{display:flex;}
+
+/* MODAL — sheet style on mobile */
+.modal{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-top:2px solid var(--red);
+  border-radius:12px 12px 0 0;
+  width:100%;max-width:100%;
+  max-height:92vh;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.modal-header{
+  padding:1rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--bg2);z-index:2;
+}
+.modal-handle{
+  width:36px;height:4px;border-radius:2px;background:var(--white4);
+  margin:0.75rem auto 0;
+}
+.modal-title{font-size:17px;font-weight:900;color:var(--white);letter-spacing:1px;}
+.modal-title span{color:var(--red);}
+.modal-close{
+  background:none;border:none;color:var(--white4);font-size:20px;
+  cursor:pointer;padding:4px 8px;border-radius:var(--r);transition:color 0.2s;
+  min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.modal-close:hover{color:var(--white);}
+.modal-video{aspect-ratio:16/9;width:100%;background:#000;display:none;}
+.modal-video iframe{width:100%;height:100%;border:none;}
+.modal-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;display:none;}
+.modal-body{padding:1.25rem;}
+.modal-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0.75rem;align-items:center;}
+.badge{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:2px;}
+.badge-red{background:var(--red);color:#fff;}
+.badge-outline{border:1px solid var(--border2);color:var(--white3);}
+.modal-desc{color:var(--white3);font-size:14px;line-height:1.8;}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--white4);}
+.field input,.field select,.field textarea{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+  padding:11px 12px;color:var(--white);font-family:var(--font);font-size:15px;
+  outline:none;transition:border-color 0.2s;resize:vertical;
+  -webkit-appearance:none;min-height:44px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red-dim);}
+.field select option{background:var(--bg3);}
+.field .hint{font-size:11px;color:var(--white4);margin-top:2px;line-height:1.4;}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:6px;flex-wrap:wrap;}
+.form-actions .btn{flex:1;text-align:center;justify-content:center;display:flex;align-items:center;}
+.form-error{background:rgba(232,0,28,0.12);border:1px solid var(--border-red);border-radius:var(--r);padding:10px 14px;font-size:13px;color:#ff6666;margin-bottom:12px;display:none;}
+
+/* PIN */
+.pin-overlay{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,0.97);
+  align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+.pin-overlay.open{display:flex;}
+.pin-box{
+  background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--red);
+  border-radius:var(--rl);padding:2rem 1.5rem;
+  width:100%;max-width:320px;text-align:center;
+}
+.pin-logo{margin-bottom:1.25rem;}
+.pin-logo-img{width:68px;height:68px;border-radius:50%;border:2px solid var(--border-red);object-fit:contain;}
+.pin-logo-fallback{
+  width:68px;height:68px;border-radius:50%;background:var(--black);border:2px solid var(--red);
+  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;
+  color:var(--white);margin:0 auto;
+}
+.pin-logo-fallback span{color:var(--red);}
+.pin-title{font-size:16px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.pin-sub{font-size:11px;color:var(--white4);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;}
+.pin-input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;text-align:center;font-size:24px;letter-spacing:8px;color:var(--red);
+  font-family:var(--font);font-weight:900;outline:none;transition:border-color 0.2s;margin-bottom:0.75rem;
+  -webkit-appearance:none;min-height:52px;
+}
+.pin-input:focus{border-color:var(--red-dim);}
+.pin-error{font-size:12px;color:#ff4444;margin-bottom:0.75rem;min-height:18px;}
+
+/* DELETE MODAL */
+.delete-modal-inner{max-width:100%;}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--border);padding:2rem 1.25rem;background:var(--black);text-align:center;}
+.footer-logo{font-size:28px;font-weight:900;letter-spacing:3px;color:var(--white);margin-bottom:4px;}
+.footer-logo span{color:var(--red);}
+.footer-tagline{font-size:10px;color:var(--white4);letter-spacing:3px;text-transform:uppercase;margin-bottom:1.25rem;}
+.footer-links{display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;}
+.footer-links a{color:var(--white4);font-size:12px;text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s;min-height:40px;display:flex;align-items:center;}
+.footer-links a:hover{color:var(--red);}
+
+/* DESKTOP OVERRIDES */
+@media(min-width:640px){
+  nav{padding:0 2rem;height:64px;}
+  .logo-img{width:44px;height:44px;}
+  .logo-main{font-size:22px;}
+  .logo-sub{font-size:10px;}
+  .hero{padding:4.5rem 2rem 3rem;}
+  .hero-logo-img{width:110px;height:110px;}
+  .hero-logo-fallback{width:110px;height:110px;font-size:32px;}
+  .controls{flex-direction:row;padding:1.25rem 2rem;top:64px;}
+  .search-wrap{flex:1;}
+  .grid-wrap{padding:2rem;}
+  .card-title{font-size:16px;}
+  /* Modal: center on desktop */
+  .modal-backdrop{align-items:center;padding:1.5rem;}
+  .modal{border-radius:var(--rl);max-width:700px;max-height:90vh;}
+  .modal-handle{display:none;}
+  .form-grid{grid-template-columns:1fr 1fr;}
+  .form-actions .btn{flex:initial;}
+  .stat-label{font-size:10px;letter-spacing:2px;}
+}
+@media(min-width:1024px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr));}
+  .hero-logo-img{width:130px;height:130px;}
+}
+</style>
+
+<div id="app">
+
+<nav>
+  <div class="logo" onclick="scrollTo(0,0)">
+    <img class="logo-img" src="/mnt/user-data/uploads/MO_3_20260325_195138_0000.png" alt="MO3" onerror="this.style.display='none'">
+    <div class="logo-text">
+      <div class="logo-main">MO<span>3</span></div>
+      <div class="logo-sub">Media Production</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <span id="admin-nav-btn"><button class="btn btn-sm" onclick="openAdmin()">Admin</button></span>
+    <span id="logout-btn" style="display:none"><button class="btn btn-sm btn-danger" onclick="logout()">Exit</button></span>
+  </div>
+</nav>
+
+<div class="admin-bar" id="admin-bar" style="display:none">
+  <div class="admin-indicator"><div class="dot"></div><span>Admin Mode Active</span></div>
+  <button class="btn btn-red btn-sm" onclick="openAddForm()">+ Add Work</button>
+</div>
+
+<div class="hero">
+  <div class="hero-logo-wrap">
+    <img class="hero-logo-img" src="/mnt/user-data/uploads/MO_3_20260325_195138_0000.png" alt="MO3 Logo" onerror="this.style.display='none';document.getElementById('hero-fb').style.display='flex'">
+    <div class="hero-logo-fallback" id="hero-fb" style="display:none">MO<span>3</span></div>
+  </div>
+  <div class="hero-eyebrow">Visual Storytelling Studio</div>
+  <div class="hero-title">MO<span>3</span></div>
+  <div class="hero-tagline"><b>Pre</b> · <span class="shoot">shoot</span> · <b>Post</b></div>
+  <div class="hero-sub">Architects of emotion — crafting moments that resonate and endure.</div>
+</div>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="search" id="search-input" placeholder="Search title, client, keyword..." oninput="applyFilters()" autocomplete="off">
+  </div>
+  <div class="filter-tabs" id="filter-tabs"></div>
+</div>
+
+<div class="grid-wrap">
+  <div class="results-count" id="results-count"></div>
+  <div class="grid" id="card-grid"></div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div class="empty-icon">◻</div>
+    <div style="font-size:17px;color:var(--white3);margin-bottom:8px;">No results found</div>
+    <div style="font-size:13px;">Try adjusting your search or filter.</div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-logo">MO<span>3</span></div>
+  <div class="footer-tagline">Media Outlet · Pre · Shoot · Post</div>
+  <div class="footer-links">
+    <a href="#">WhatsApp</a>
+    <a href="#">Behance</a>
+    <a href="#">Instagram</a>
+    <a href="#">Facebook</a>
+  </div>
+</div>
+
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-backdrop" id="view-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="vm-title">—</div>
+      <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
+    </div>
+    <div class="modal-video" id="vm-video"></div>
+    <img class="modal-thumb" id="vm-thumb" alt="">
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="badge badge-red" id="vm-cat">—</span>
+        <span class="badge badge-outline" id="vm-client">—</span>
+      </div>
+      <div class="modal-desc" id="vm-desc">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM MODAL -->
+<div class="modal-backdrop" id="form-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="form-modal-title">ADD <span>WORK</span></div>
+      <button class="modal-close" onclick="closeModal('form-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-error" id="form-error"></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Title *</label>
+          <input id="f-title" type="text" placeholder="Project title" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Client *</label>
+          <input id="f-client" type="text" placeholder="Client | Industry" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Category *</label>
+          <select id="f-cat">
+            <option value="Commercial Ad">Commercial Ad</option>
+            <option value="Reel">Reel</option>
+            <option value="Podcast">Podcast</option>
+            <option value="Video Clip">Video Clip</option>
+            <option value="Photography">Photography</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Thumbnail URL</label>
+          <input id="f-thumb" type="url" placeholder="https://image-link.com/..." autocomplete="off">
+          <span class="hint">Direct image link</span>
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label>Video Link</label>
+          <input id="f-video" type="url" placeholder="YouTube, Vimeo or Google Drive link" autocomplete="off">
+          <span class="hint">Any Drive/YouTube/Vimeo link is auto-converted</span>
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label>Description</label>
+          <textarea id="f-desc" rows="3" placeholder="Brief description..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeModal('form-modal')">Cancel</button>
+        <button class="btn btn-red" onclick="saveItem()">Save Work</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-backdrop" id="delete-modal">
+  <div class="modal delete-modal-inner">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--red)">DELETE</div>
+      <button class="modal-close" onclick="closeModal('delete-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="color:var(--white3);margin-bottom:1.5rem;font-size:15px;line-height:1.7;">
+        Delete <strong style="color:var(--white)" id="del-title"></strong>? This cannot be undone.
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeModal('delete-modal')">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIN -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-logo">
+      <img class="pin-logo-img" src="/mnt/user-data/uploads/MO_3_20260325_195138_0000.png" alt="MO3" onerror="this.style.display='none';document.getElementById('pin-fb').style.display='flex'">
+      <div class="pin-logo-fallback" id="pin-fb" style="display:none">MO<span>3</span></div>
+    </div>
+    <div class="pin-title">Admin Access</div>
+    <div class="pin-sub">Enter your PIN</div>
+    <input class="pin-input" id="pin-input" type="password" maxlength="10" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkPin()" inputmode="text">
+    <div class="pin-error" id="pin-error"></div>
+    <button class="btn btn-red" style="width:100%;font-size:15px;padding:13px;min-height:48px;" onclick="checkPin()">ENTER</button>
+  </div>
+</div>
+
+<script>
+const PIN='mo3admin',SK='mo3_v2';
+const DEFAULTS=[
+  {id:1,title:'Rich Key Luxury Residences',client:'Rich Key | Real Estate',cat:'Commercial Ad',thumb:'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=640&q=80',video:'',desc:'Cinematic commercial for a luxury real estate brand with aerial and interior shots.'},
+  {id:2,title:'The Smart Living Campaign',client:'Rich Key | Real Estate',cat:'Commercial Ad',thumb:'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=640&q=80',video:'',desc:'Campaign focusing on smart home integration and modern urban living.'},
+  {id:3,title:'Architecture in Motion',client:'Rich Key | Real Estate',cat:'Commercial Ad',thumb:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=640&q=80',video:'',desc:'Architectural storytelling through dynamic camera movement and precision editing.'},
+  {id:4,title:'AS Digital Learning',client:'AS | Education',cat:'Reel',thumb:'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=640&q=80',video:'',desc:'High-energy social reel for an online education platform.'},
+  {id:5,title:'Smart Comfort Collection',client:'Smart | Furniture',cat:'Reel',thumb:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=640&q=80',video:'',desc:'Product showcase reel for a modern furniture brand.'},
+  {id:6,title:'Building Tomorrow',client:'Enjaz | Construction',cat:'Reel',thumb:'https://images.unsplash.com/photo-1590496793929-36417d3117de?w=640&q=80',video:'',desc:'Brand reel highlighting major construction projects and engineering excellence.'},
+  {id:7,title:'Code Your Future',client:'EraSoft | Courses',cat:'Reel',thumb:'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=640&q=80',video:'',desc:'Motivational reel targeting young developers and software bootcamps.'},
+  {id:8,title:'New City — New Life',client:'New City | Real Estate',cat:'Reel',thumb:'https://images.unsplash.com/photo-1580041065738-e72023775cdc?w=640&q=80',video:'',desc:'Lifestyle reel for a new residential development.'},
+  {id:9,title:'Ottroja Flavors',client:'Ottroja | F&B',cat:'Reel',thumb:'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=640&q=80',video:'',desc:'Food-style reel with dynamic cutting for a premium restaurant brand.'},
+  {id:10,title:'Purity Taste Experience',client:'Purity | F&B',cat:'Reel',thumb:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=640&q=80',video:'',desc:'Clean minimal reel for a health-focused food & beverage brand.'},
+  {id:11,title:'Cezar Champions',client:'Cezar | Sport',cat:'Reel',thumb:'https://images.unsplash.com/photo-1526676037777-05a232554f77?w=640&q=80',video:'',desc:'Adrenaline sports reel with fast cuts and impact sound design.'},
+  {id:12,title:'Prof99 MasterClass',client:'Prof99 | Education',cat:'Reel',thumb:'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=640&q=80',video:'',desc:'Education brand reel positioning instructors and course quality.'},
+  {id:13,title:'Mawtin Community',client:'Mawtin | Real Estate',cat:'Reel',thumb:'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=640&q=80',video:'',desc:'Community-focused reel for an affordable housing developer.'},
+  {id:14,title:'Sketoo Bites',client:'Sketoo | F&B',cat:'Reel',thumb:'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=640&q=80',video:'',desc:'Fun snack brand reel with vibrant energy and social-first framing.'},
+  {id:15,title:'The EraaSoft Podcast',client:'EraSoft | Tech',cat:'Podcast',thumb:'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=640&q=80',video:'',desc:'Full podcast production with multi-camera setup and branded post-production.'},
+  {id:16,title:'Industry Voices',client:'MO3 | Original',cat:'Podcast',thumb:'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=640&q=80',video:'',desc:'Original podcast series with regional industry leaders.'},
+  {id:17,title:'Frames of Cairo',client:'MO3 | Original',cat:'Video Clip',thumb:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=640&q=80',video:'',desc:'Cinematic video clip exploring urban Egypt — showcasing narrative filmmaking range.'},
+];
+
+let items=[],isAdmin=false,activeFilter='All',editingId=null,deletingId=null;
+
+function load(){try{const s=localStorage.getItem(SK);items=s?JSON.parse(s):[...DEFAULTS];}catch(e){items=[...DEFAULTS];}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(items));}catch(e){}}
+
+function convertURL(url){
+  if(!url||!url.trim())return'';url=url.trim();
+  if(url.includes('/embed/')||url.includes('/preview'))return url;
+  const df=/drive\.google\.com\/file\/d\/([^\/\?]+)/i.exec(url);
+  if(df)return'https://drive.google.com/file/d/'+df[1]+'/preview';
+  const do2=/drive\.google\.com\/open\?id=([^&]+)/i.exec(url);
+  if(do2)return'https://drive.google.com/file/d/'+do2[1]+'/preview';
+  const yt=/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i.exec(url);
+  if(yt)return'https://www.youtube.com/embed/'+yt[1];
+  const vm=/vimeo\.com\/(\d+)/i.exec(url);
+  if(vm)return'https://player.vimeo.com/video/'+vm[1];
+  return url;
+}
+
+const ICONS={'Commercial Ad':'📺','Reel':'🎬','Podcast':'🎙','Video Clip':'▶','Photography':'📷'};
+
+function getCats(){return['All',...new Set(items.map(i=>i.cat))];}
+
+function renderTabs(){
+  document.getElementById('filter-tabs').innerHTML=getCats().map(c=>
+    `<button class="tab${activeFilter===c?' active':''}" onclick="setFilter('${c}')">${c}</button>`
+  ).join('');
+}
+
+function renderStats(){
+  const cats=['Commercial Ad','Reel','Podcast','Video Clip','Photography'];
+  const counts=[{label:'Total',val:items.length},...cats.map(c=>({label:c,val:items.filter(i=>i.cat===c).length})).filter(x=>x.val>0)].slice(0,5);
+  document.getElementById('stats-bar').innerHTML=counts.map(c=>
+    `<div class="stat"><div class="stat-num">${c.val}</div><div class="stat-label">${c.label}</div></div>`
+  ).join('');
+}
+
+function getFiltered(){
+  const q=document.getElementById('search-input').value.toLowerCase();
+  return items.filter(i=>{
+    const mc=activeFilter==='All'||i.cat===activeFilter;
+    const mq=!q||[i.title,i.client,i.cat,i.desc||''].some(f=>f.toLowerCase().includes(q));
+    return mc&&mq;
+  });
+}
+
+function renderGrid(){
+  const grid=document.getElementById('card-grid');
+  const empty=document.getElementById('empty-state');
+  const filtered=getFiltered();
+  document.getElementById('results-count').textContent=filtered.length+' work'+(filtered.length!==1?'s':'')+(activeFilter!=='All'?' — '+activeFilter:'');
+  if(!filtered.length){grid.style.display='none';empty.style.display='block';return;}
+  grid.style.display='grid';empty.style.display='none';
+  grid.innerHTML=filtered.map(item=>`
+    <div class="card">
+      <div class="thumb" onclick="openItem(${item.id})">
+        ${item.thumb?`<img src="${item.thumb}" alt="${item.title}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=thumb-ph>${ICONS[item.cat]||'▶'}</div>'">`:
+          `<div class="thumb-ph">${ICONS[item.cat]||'▶'}</div>`}
+        <span class="cat-badge">${item.cat}</span>
+        <div class="play-overlay"><div class="play-circle"><div class="play-tri"></div></div></div>
+      </div>
+      <div class="card-body" onclick="openItem(${item.id})">
+        <div class="card-title">${item.title}</div>
+        <div class="card-client">${item.client}</div>
+        ${item.desc?`<div class="card-desc">${item.desc}</div>`:''}
+      </div>
+      ${isAdmin?`<div class="card-admin">
+        <button class="btn btn-sm" onclick="event.stopPropagation();openEditForm(${item.id})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();openDeleteConfirm(${item.id})">Delete</button>
+      </div>`:''}
+    </div>
+  `).join('');
+}
+
+function render(){renderTabs();renderStats();renderGrid();}
+function setFilter(c){activeFilter=c;render();}
+function applyFilters(){renderGrid();}
+
+function openItem(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  document.getElementById('vm-title').textContent=item.title;
+  document.getElementById('vm-cat').textContent=item.cat;
+  document.getElementById('vm-client').textContent=item.client;
+  document.getElementById('vm-desc').textContent=item.desc||'No description provided.';
+  const vv=document.getElementById('vm-video'),vt=document.getElementById('vm-thumb');
+  const em=convertURL(item.video||'');
+  if(em){vv.innerHTML=`<iframe src="${em}" allowfullscreen allow="autoplay;encrypted-media"></iframe>`;vv.style.display='block';vt.style.display='none';}
+  else if(item.thumb){vt.src=item.thumb;vt.style.display='block';vv.style.display='none';}
+  else{vv.innerHTML=`<div style="height:160px;display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--white4)">${ICONS[item.cat]||'▶'}</div>`;vv.style.display='block';vt.style.display='none';}
+  document.getElementById('view-modal').classList.add('open');
+}
+
+function openAdmin(){
+  document.getElementById('pin-overlay').classList.add('open');
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-error').textContent='';
+  setTimeout(()=>document.getElementById('pin-input').focus(),300);
+}
+function checkPin(){
+  if(document.getElementById('pin-input').value===PIN){
+    isAdmin=true;
+    document.getElementById('pin-overlay').classList.remove('open');
+    document.getElementById('admin-bar').style.display='flex';
+    document.getElementById('admin-nav-btn').style.display='none';
+    document.getElementById('logout-btn').style.display='inline';
+    render();
+  }else{
+    document.getElementById('pin-error').textContent='Incorrect PIN. Try again.';
+    document.getElementById('pin-input').value='';
+    document.getElementById('pin-input').focus();
+  }
+}
+function logout(){
+  isAdmin=false;
+  document.getElementById('admin-bar').style.display='none';
+  document.getElementById('admin-nav-btn').style.display='inline';
+  document.getElementById('logout-btn').style.display='none';
+  render();
+}
+
+function clearForm(){
+  ['title','client','desc','thumb','video'].forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.value='';});
+  const c=document.getElementById('f-cat');if(c)c.value='Commercial Ad';
+  const e=document.getElementById('form-error');if(e){e.style.display='none';e.textContent='';}
+}
+function openAddForm(){
+  editingId=null;
+  document.getElementById('form-modal-title').innerHTML='ADD <span>WORK</span>';
+  clearForm();
+  document.getElementById('form-modal').classList.add('open');
+}
+function openEditForm(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  editingId=id;
+  document.getElementById('form-modal-title').innerHTML='EDIT <span>WORK</span>';
+  document.getElementById('f-title').value=item.title||'';
+  document.getElementById('f-client').value=item.client||'';
+  document.getElementById('f-cat').value=item.cat||'Commercial Ad';
+  document.getElementById('f-thumb').value=item.thumb||'';
+  document.getElementById('f-video').value=item.video||'';
+  document.getElementById('f-desc').value=item.desc||'';
+  const e=document.getElementById('form-error');if(e)e.style.display='none';
+  document.getElementById('form-modal').classList.add('open');
+}
+function saveItem(){
+  const title=(document.getElementById('f-title').value||'').trim();
+  const client=(document.getElementById('f-client').value||'').trim();
+  const cat=document.getElementById('f-cat').value||'Commercial Ad';
+  const thumb=(document.getElementById('f-thumb').value||'').trim();
+  const video=(document.getElementById('f-video').value||'').trim();
+  const desc=(document.getElementById('f-desc').value||'').trim();
+  const errEl=document.getElementById('form-error');
+  if(!title||!client){errEl.textContent='Title and Client are required.';errEl.style.display='block';return;}
+  errEl.style.display='none';
+  if(editingId!==null){
+    const idx=items.findIndex(i=>i.id===editingId);
+    if(idx>-1)items[idx]={id:editingId,title,client,cat,thumb,video,desc};
+  }else{
+    items.unshift({id:Date.now(),title,client,cat,thumb,video,desc});
+  }
+  save();closeModal('form-modal');render();
+}
+function openDeleteConfirm(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  deletingId=id;
+  document.getElementById('del-title').textContent=item.title;
+  document.getElementById('delete-modal').classList.add('open');
+}
+function confirmDelete(){items=items.filter(i=>i.id!==deletingId);save();closeModal('delete-modal');render();}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='view-modal'){document.getElementById('vm-video').innerHTML='';document.getElementById('vm-video').style.display='none';document.getElementById('vm-thumb').style.display='none';}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['view-modal','form-modal','delete-modal'].forEach(m=>closeModal(m));});
+document.querySelectorAll('.modal-backdrop').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id);});});
+
+load();render();
+</script>
