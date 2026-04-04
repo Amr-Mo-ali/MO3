@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #000000;
+  --foreground: #ffffff;
+  --color-black: #000000;
+  --color-surface: #0D0D0D;
+  --color-surface-2: #161616;
+  --color-border: #1F1F1F;
+  --color-red: #E31212;
+  --color-red-dim: #8B0000;
+  --color-white: #FFFFFF;
+  --color-gray: #888888;
+  --color-gray-light: #CCCCCC;
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-bebas-neue);
+  --background: var(--color-black);
+  --foreground: var(--color-white);
+}
+
+html.light {
+  color-scheme: light;
+  --background: #F0F0F0;
+  --foreground: #0D0D0D;
+  --color-black: #F0F0F0;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F5F5F0;
+  --color-border: #E0E0E0;
+  --color-red: #E31212;
+  --color-red-dim: #8B0000;
+  --color-white: #0D0D0D;
+  --color-gray: #555555;
+  --color-gray-light: #CCCCCC;
+}
+
+html.light [class*="bg-[#111111]"],
+html.light [class*="bg-[#121212]"],
+html.light [class*="bg-[#0f0f0f]"],
+html.light [class*="bg-[#141414]"],
+html.light [class*="bg-[#101010]"],
+html.light [class*="bg-slate-900"],
+html.light [class*="bg-slate-950"],
+html.light [class*="bg-slate-800"],
+html.light [class*="bg-slate-700"],
+html.light [class*="bg-slate-600"] {
+  background-color: var(--card-bg) !important;
+}
+
+html.light [class*="border-slate-"],
+html.light [class*="border-white/10"],
+html.light [class*="border-white/5"] {
+  border-color: var(--border-color) !important;
+}
+
+html.light [class*="text-slate-100"],
+html.light [class*="text-slate-200"],
+html.light [class*="text-slate-300"],
+html.light [class*="text-slate-400"],
+html.light [class*="text-slate-500"],
+html.light [class*="text-slate-600"],
+html.light [class*="text-slate-700"] {
+  color: var(--muted) !important;
+}
+
+html.light [class*="text-white"] {
+  color: var(--foreground) !important;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-bebas-neue);
+}
+
+* {
+  box-sizing: border-box;
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  color: var(--foreground);
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
+::selection {
+  background: var(--color-red);
+  color: var(--color-white);
+}
+
+.film-grain {
+  position: fixed;
+  inset: 0;
+  opacity: 0.04;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 6px 6px;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.logo-pulse {
+  animation: logo-pulse 6s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+.text-stroke-white {
+  color: transparent;
+  -webkit-text-stroke: 1px #ffffff;
+}
+
+.text-stroke-red {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-red);
+}
+
+.marquee {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: inline-flex;
+  gap: 1.5rem;
+  animation: marquee-left 30s linear infinite;
+}
+
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.scroll-indicator {
+  animation: scroll-pulse 1.6s infinite;
+}
+
+@keyframes scroll-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 0.75;
+  }
+}
+
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-white);
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-ring {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(227, 18, 18, 0.95);
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+  opacity: 0.9;
+}
+
+.cursor-active {
+  width: 54px;
+  height: 54px;
+}
