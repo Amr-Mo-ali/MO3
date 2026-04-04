@@ -26,10 +26,10 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid settings payload." }, { status: 400 });
   }
 
-  const entries = Object.entries(values).filter(([, value]) => typeof value === "string") as Array<[string, string]>;
+  const entries = Object.entries(values).filter(([, value]: any) => typeof value === "string") as Array<[string, string]>;
 
   await Promise.all(
-    entries.map(([key, value]) =>
+    entries.map(([key, value]: any) =>
       prisma.siteConfig.upsert({
         where: { key },
         update: { value },

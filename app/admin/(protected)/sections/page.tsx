@@ -141,7 +141,7 @@ export default function AdminSectionsPage() {
   }, []);
 
   const openAddDrawer = () => {
-    const nextOrder = sections.length ? Math.max(...sections.map((item) => item.order)) + 1 : 1;
+    const nextOrder = sections.length ? Math.max(...sections.map((item: any) => item.order)) + 1 : 1;
     setIsEditing(false);
     setActiveSection(null);
     setFormState({ title: "", slug: "", order: nextOrder, isVisible: true });
@@ -221,7 +221,7 @@ export default function AdminSectionsPage() {
         throw new Error("Unable to update visibility");
       }
       setSections((current) =>
-        current.map((item) =>
+        current.map((item: any) =>
           item.id === section.id ? { ...item, isVisible: !item.isVisible } : item
         )
       );
@@ -244,7 +244,7 @@ export default function AdminSectionsPage() {
       if (!response.ok) {
         throw new Error(result.error || "Unable to delete section");
       }
-      setSections((current) => current.filter((item) => item.id !== deleteTarget.id));
+      setSections((current) => current.filter((item: any) => item.id !== deleteTarget.id));
       toast.success("Section deleted.");
     } catch (error) {
       toast.error(String(error));
@@ -265,7 +265,7 @@ export default function AdminSectionsPage() {
     setSections(next);
 
     try {
-      const ids = next.map((item) => item.id);
+      const ids = next.map((item: any) => item.id);
       const response = await fetch("/api/admin/sections/reorder", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -333,8 +333,8 @@ export default function AdminSectionsPage() {
               </tr>
             ) : (
               <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-                <SortableContext items={orderedSections.map((item) => item.id.toString())} strategy={verticalListSortingStrategy}>
-                  {orderedSections.map((section) => (
+                <SortableContext items={orderedSections.map((item: any) => item.id.toString())} strategy={verticalListSortingStrategy}>
+                  {orderedSections.map((section: any) => (
                     <SortableRow
                       key={section.id}
                       section={section}

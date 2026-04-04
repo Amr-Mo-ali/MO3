@@ -30,7 +30,7 @@ export default function AdminSettingsPage() {
       const response = await fetch("/api/admin/settings", { cache: "no-store" });
       if (!response.ok) throw new Error("Unable to load settings");
       const data: Array<{ key: string; value: string }> = await response.json();
-      const values = Object.fromEntries(data.map((item) => [item.key, item.value]));
+      const values = Object.fromEntries(data.map((item: any) => [item.key, item.value]));
       setFormState({
         aboutText: (values.aboutText as string) ?? "",
         whatsapp: (values.whatsapp as string) ?? "",

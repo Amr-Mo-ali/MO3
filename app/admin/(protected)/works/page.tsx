@@ -380,7 +380,7 @@ export default function AdminWorksPage() {
         throw new Error("Unable to update visibility");
       }
       setWorks((current) =>
-        current.map((work) => (work.id === id ? { ...work, isVisible: value } : work))
+        current.map((work: any) => (work.id === id ? { ...work, isVisible: value } : work))
       );
       toast.success("Visibility updated.");
     } catch (error) {
@@ -395,7 +395,7 @@ export default function AdminWorksPage() {
 
     try {
       await Promise.all(
-        selectedIds.map((id) =>
+        selectedIds.map((id: any) =>
           fetch(`/api/admin/works/${id}`, {
             method: "DELETE",
           })
@@ -416,7 +416,7 @@ export default function AdminWorksPage() {
 
     try {
       await Promise.all(
-        selectedIds.map((id) =>
+        selectedIds.map((id: any) =>
           fetch(`/api/admin/works/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -426,7 +426,7 @@ export default function AdminWorksPage() {
       );
       toast.success("Visibility updated for selected works.");
       setWorks((current) =>
-        current.map((work) =>
+        current.map((work: any) =>
           selectedIds.includes(work.id) ? { ...work, isVisible: newValue } : work
         )
       );
@@ -445,8 +445,8 @@ export default function AdminWorksPage() {
     if (oldIndex === -1 || newIndex === -1) return;
 
     const reordered = arrayMove(works, oldIndex, newIndex);
-    const items = reordered.map((work, index) => ({ id: work.id, order: index + 1 }));
-    setWorks(reordered.map((work, index) => ({ ...work, order: index + 1 })));
+    const items = reordered.map((work: any, index: any) => ({ id: work.id, order: index + 1 }));
+    setWorks(reordered.map((work: any, index: any) => ({ ...work, order: index + 1 })));
 
     try {
       const response = await fetch("/api/admin/works/reorder", {
@@ -466,7 +466,7 @@ export default function AdminWorksPage() {
 
   function toggleSelect(id: number) {
     setSelectedIds((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+      current.includes(id) ? current.filter((item: any) => item !== id) : [...current, id]
     );
   }
 
@@ -474,7 +474,7 @@ export default function AdminWorksPage() {
     if (allSelected) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(works.map((work) => work.id));
+      setSelectedIds(works.map((work: any) => work.id));
     }
   }
 
@@ -507,7 +507,7 @@ export default function AdminWorksPage() {
               className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212] sm:w-auto"
             >
               <option value="">All Sections</option>
-              {sections.map((section) => (
+              {sections.map((section: any) => (
                 <option key={section.id} value={section.id}>
                   {section.title}
                 </option>
@@ -559,8 +559,8 @@ export default function AdminWorksPage() {
             </thead>
             <tbody>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={works.map((work) => work.id)} strategy={verticalListSortingStrategy}>
-                  {filteredWorks.map((work) => (
+                <SortableContext items={works.map((work: any) => work.id)} strategy={verticalListSortingStrategy}>
+                  {filteredWorks.map((work: any) => (
                     <SortableWorkRow
                       key={work.id}
                       work={work}
@@ -626,7 +626,7 @@ export default function AdminWorksPage() {
                     className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                   >
                     <option value="">Select a section</option>
-                    {sections.map((section) => (
+                    {sections.map((section: any) => (
                       <option key={section.id} value={section.id}>
                         {section.title}
                       </option>

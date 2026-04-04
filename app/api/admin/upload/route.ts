@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   params.sort(([a], [b]) => a.localeCompare(b));
-  const signatureBase = params.map(([key, value]) => `${key}=${value}`).join("&");
+  const signatureBase = params.map(([key, value]: any) => `${key}=${value}`).join("&");
   const signature = crypto
     .createHash("sha1")
     .update(signatureBase + apiSecret)

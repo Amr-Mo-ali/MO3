@@ -280,7 +280,7 @@ export default function AdminClientsPage() {
       if (!response.ok) {
         throw new Error("Unable to update visibility");
       }
-      setClients((current) => current.map((client) => (client.id === id ? { ...client, isVisible: value } : client)));
+      setClients((current) => current.map((client: any) => (client.id === id ? { ...client, isVisible: value } : client)));
       toast.success("Visibility updated.");
     } catch (error) {
       toast.error("Unable to update visibility.");
@@ -297,8 +297,8 @@ export default function AdminClientsPage() {
     if (oldIndex === -1 || newIndex === -1) return;
 
     const reordered = arrayMove(clients, oldIndex, newIndex);
-    const items = reordered.map((item, index) => ({ id: item.id, order: index + 1 }));
-    setClients(reordered.map((item, index) => ({ ...item, order: index + 1 })));
+    const items = reordered.map((item: any, index: any) => ({ id: item.id, order: index + 1 }));
+    setClients(reordered.map((item: any, index: any) => ({ ...item, order: index + 1 })));
 
     try {
       const response = await fetch("/api/admin/clients/reorder", {
@@ -337,7 +337,7 @@ export default function AdminClientsPage() {
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={clients.map((client) => client.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={clients.map((client: any) => client.id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-hidden rounded-3xl border border-slate-800 bg-[#111111]">
             <div className="overflow-x-auto">
               <table className="min-w-full border-collapse text-left text-sm">
@@ -351,7 +351,7 @@ export default function AdminClientsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {clients.map((client) => (
+                  {clients.map((client: any) => (
                     <SortableClientRow
                       key={client.id}
                       client={client}

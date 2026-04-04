@@ -13,13 +13,13 @@ async function requireSession() {
 
 function parseTags(value: unknown) {
   if (Array.isArray(value)) {
-    return value.map((tag) => String(tag).trim()).filter((tag) => tag.length > 0);
+    return value.map((tag: any) => String(tag).trim()).filter((tag: any) => tag.length > 0);
   }
   if (typeof value === "string") {
     return value
       .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+      .map((tag: any) => tag.trim())
+      .filter((tag: any) => tag.length > 0);
   }
   return [];
 }

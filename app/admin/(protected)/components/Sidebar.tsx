@@ -25,7 +25,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-2">
-        {navItems.map((item) => {
+        {navItems.map((item: any) => {
           const isActive = pathname === item.href;
           return (
             <Link

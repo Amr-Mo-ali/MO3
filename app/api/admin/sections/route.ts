@@ -53,7 +53,7 @@ export async function GET() {
     include: { _count: { select: { works: true } } },
   });
 
-  const payload = sections.map((section) => ({
+  const payload = sections.map((section: any) => ({
     id: section.id,
     title: section.title,
     slug: section.slug,
