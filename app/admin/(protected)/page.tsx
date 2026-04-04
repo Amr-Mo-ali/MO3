@@ -51,7 +51,7 @@ export default async function AdminOverviewPage() {
 
         <div className="mt-8 space-y-4">
           {recentWorks.length > 0 ? (
-            recentWorks.map((work) => (
+            recentWorks.map((work: any) => (
               <div
                 key={work.id}
                 className="flex flex-col gap-3 rounded-3xl border border-[color:var(--border-color)] bg-[color:var(--surface)] p-5 sm:flex-row sm:items-center sm:justify-between"

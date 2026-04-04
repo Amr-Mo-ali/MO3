@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MO3 Production
 
 A dark cinematic portfolio and admin dashboard for MO3 Production built with Next.js 14, TypeScript, Tailwind CSS, Prisma, NextAuth.js, Cloudinary, and dnd-kit.
@@ -96,3 +97,6 @@ Update the following variables in `.env.local`:
 - The public homepage pulls content from the database and only displays items where `isVisible = true`.
 - The admin dashboard uses credential-based login with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 - Cloudinary is used for image uploads and thumbnails.
+=======
+# MO3
+>>>>>>> 7046d4c0773d5e4db5f8a85669286af10b5bbd00
