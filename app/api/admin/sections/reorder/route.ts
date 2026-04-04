@@ -18,15 +18,15 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const ids = Array.isArray(body.ids) ? body.ids.map(Number) : [];
+  const ids = Array.isArray(body.ids) ? body.ids.map(String) : [];
 
-  if (!ids.length || ids.some((id: number) => Number.isNaN(id))) {
+  if (!ids.length || ids.some((id: string) => !id)) {
     return NextResponse.json({ error: "Invalid ids payload" }, { status: 400 });
   }
 
   try {
     await Promise.all(
-      ids.map((id: number, index: number) =>
+      ids.map((id: string, index: number) =>
         prisma.section.update({ where: { id }, data: { order: index + 1 } })
       )
     );

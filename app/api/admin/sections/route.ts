@@ -14,7 +14,7 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-async function generateUniqueSlug(title: string, excludeId?: number) {
+async function generateUniqueSlug(title: string, excludeId?: string) {
   const baseSlug = slugify(title) || "section";
   let slug = baseSlug;
   let count = 1;

@@ -14,7 +14,7 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-async function generateUniqueSlug(title: string, excludeId: number) {
+async function generateUniqueSlug(title: string, excludeId?: string) {
   const baseSlug = slugify(title) || "section";
   let slug = baseSlug;
   let count = 1;
@@ -23,7 +23,7 @@ async function generateUniqueSlug(title: string, excludeId: number) {
     await prisma.section.findFirst({
       where: {
         slug,
-        id: { not: excludeId },
+        id: excludeId ? { not: excludeId } : undefined,
       },
     })
   ) {
@@ -48,8 +48,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const sectionId = Number(params.id);
-  if (Number.isNaN(sectionId)) {
+  const sectionId = params.id;
+  if (!sectionId) {
     return NextResponse.json({ error: "Invalid section id" }, { status: 400 });
   }
 
@@ -102,8 +102,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const sectionId = Number(params.id);
-  if (Number.isNaN(sectionId)) {
+  const sectionId = params.id;
+  if (!sectionId) {
     return NextResponse.json({ error: "Invalid section id" }, { status: 400 });
   }
 

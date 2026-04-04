@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const updates = items.map((item: any) =>
       prisma.work.update({
-        where: { id: Number(item.id) },
+        where: { id: String(item.id) },
         data: { order: Number(item.order) },
       })
     );

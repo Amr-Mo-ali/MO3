@@ -14,7 +14,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid reorder payload." }, { status: 400 });
   }
 
-  const updates = body.items.map((item: { id: number; order: number }) =>
+  const updates = body.items.map((item: { id: string; order: number }) =>
     prisma.client.update({ where: { id: item.id }, data: { order: item.order } })
   );
 

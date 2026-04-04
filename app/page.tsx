@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Client, Section } from "@/types";
 import Homepage from "@/components/Homepage";
 
 export default async function Home() {

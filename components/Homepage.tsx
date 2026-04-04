@@ -8,38 +8,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
 import CustomCursor from "@/components/CustomCursor";
-
-type Work = {
-  id: string;
-  title: string;
-  client: string | null;
-  videoUrl: string | null;
-  thumbnail: string | null;
-  description: string | null;
-  tags: string[];
-  isVisible: boolean;
-  order: number;
-  sectionId: string;
-};
-
-type Section = {
-  id: string;
-  title: string;
-  slug: string;
-  order: number;
-  isVisible: boolean;
-  works: Work[];
-};
-
-type Client = {
-  id: string;
-  name: string;
-  logo: string;
-  order: number;
-  isVisible: boolean;
-};
-
-type SectionWithWorks = Section & { works: Work[] };
+import type { Client, SectionWithWorks, Work } from "@/types";
 
 interface SiteConfigValues {
   aboutText: string;

@@ -7,7 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import toast, { Toaster } from "react-hot-toast";
 
 interface ClientItem {
-  id: number;
+  id: string;
   name: string;
   logo: string;
   order: number;
@@ -25,7 +25,7 @@ function SortableClientRow({
   onDelete,
 }: {
   client: ClientItem;
-  onToggleVisible: (id: number, value: boolean) => void;
+  onToggleVisible: (id: string, value: boolean) => void;
   onEdit: (client: ClientItem) => void;
   onDelete: (client: ClientItem) => void;
 }) {
@@ -98,7 +98,7 @@ export default function AdminClientsPage() {
   const [clients, setClients] = useState<ClientItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentClientId, setCurrentClientId] = useState<number | null>(null);
+  const [currentClientId, setCurrentClientId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoPreview, setLogoPreview] = useState("");
@@ -270,7 +270,7 @@ export default function AdminClientsPage() {
     }
   }
 
-  async function handleToggleVisibility(id: number, value: boolean) {
+  async function handleToggleVisibility(id: string, value: boolean) {
     try {
       const response = await fetch(`/api/admin/clients/${id}`, {
         method: "PUT",
@@ -288,9 +288,10 @@ export default function AdminClientsPage() {
   }
 
   async function handleDragEnd(event: any) {
-    const activeId = Number(event.active.id);
-    const overId = Number(event.over?.id);
-    if (activeId === overId || !event.over) return;
+    if (!event.over) return;
+    const activeId = String(event.active.id);
+    const overId = String(event.over.id);
+    if (activeId === overId) return;
 
     const oldIndex = clients.findIndex((item) => item.id === activeId);
     const newIndex = clients.findIndex((item) => item.id === overId);

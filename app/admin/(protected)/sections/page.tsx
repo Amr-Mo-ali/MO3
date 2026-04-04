@@ -12,7 +12,7 @@ import { CSS } from "@dnd-kit/utilities";
 import toast, { Toaster } from "react-hot-toast";
 
 interface SectionItem {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   order: number;

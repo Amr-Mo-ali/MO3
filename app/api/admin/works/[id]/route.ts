@@ -33,7 +33,7 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const id = Number(params.id);
+  const id = params.id;
   if (!id) {
     return NextResponse.json({ error: "Invalid work id" }, { status: 400 });
   }
@@ -62,7 +62,7 @@ export async function PUT(
   if (typeof body.order === "number") {
     updates.order = body.order;
   }
-  if (typeof body.sectionId === "number") {
+  if (typeof body.sectionId === "string" && body.sectionId.trim()) {
     const section = await prisma.section.findUnique({ where: { id: body.sectionId } });
     if (!section) {
       return NextResponse.json({ error: "Section not found" }, { status: 404 });
@@ -98,7 +98,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const id = Number(params.id);
+  const id = params.id;
   if (!id) {
     return NextResponse.json({ error: "Invalid work id" }, { status: 400 });
   }

@@ -30,8 +30,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const sectionIdParam = req.nextUrl.searchParams.get("sectionId");
-  const sectionId = sectionIdParam ? Number(sectionIdParam) : undefined;
+  const sectionId = req.nextUrl.searchParams.get("sectionId") ?? undefined;
   const where = sectionId ? { sectionId } : undefined;
 
   const works = await prisma.work.findMany({
@@ -62,7 +61,7 @@ export async function POST(req: NextRequest) {
   const videoUrl = String(body.videoUrl || "").trim();
   const thumbnail = String(body.thumbnail || "").trim();
   const description = String(body.description || "").trim();
-  const sectionId = Number(body.sectionId ?? 0);
+  const sectionId = String(body.sectionId ?? "");
   const isVisible = typeof body.isVisible === "boolean" ? body.isVisible : true;
   const order = typeof body.order === "number" ? body.order : undefined;
   const tags = parseTags(body.tags);

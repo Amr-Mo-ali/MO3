@@ -9,8 +9,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const clientId = Number(params.id);
-  if (Number.isNaN(clientId)) {
+  const clientId = params.id;
+  if (!clientId) {
     return NextResponse.json({ error: "Invalid client ID." }, { status: 400 });
   }
 
@@ -40,8 +40,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const clientId = Number(params.id);
-  if (Number.isNaN(clientId)) {
+  const clientId = params.id;
+  if (!clientId) {
     return NextResponse.json({ error: "Invalid client ID." }, { status: 400 });
   }
 

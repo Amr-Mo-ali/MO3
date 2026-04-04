@@ -7,7 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import toast, { Toaster } from "react-hot-toast";
 
 interface SectionItem {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   order: number;
@@ -16,7 +16,7 @@ interface SectionItem {
 }
 
 interface WorkItem {
-  id: number;
+  id: string;
   title: string;
   client: string;
   videoUrl: string;
@@ -25,9 +25,9 @@ interface WorkItem {
   tags: string[];
   isVisible: boolean;
   order: number;
-  sectionId: number;
+  sectionId: string;
   section: {
-    id: number;
+    id: string;
     title: string;
   };
 }
@@ -46,8 +46,8 @@ function SortableWorkRow({
 }: {
   work: WorkItem;
   selected: boolean;
-  onToggleSelect: (id: number) => void;
-  onToggleVisible: (id: number, value: boolean) => void;
+  onToggleSelect: (id: string) => void;
+  onToggleVisible: (id: string, value: boolean) => void;
   onEdit: (work: WorkItem) => void;
   onDelete: (work: WorkItem) => void;
 }) {
@@ -135,10 +135,10 @@ export default function AdminWorksPage() {
   const [works, setWorks] = useState<WorkItem[]>([]);
   const [sections, setSections] = useState<SectionItem[]>([]);
   const [selectedSectionId, setSelectedSectionId] = useState<string>("");
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentWorkId, setCurrentWorkId] = useState<number | null>(null);
+  const [currentWorkId, setCurrentWorkId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
@@ -221,7 +221,7 @@ export default function AdminWorksPage() {
     setFormState({
       title: work.title,
       client: work.client,
-      sectionId: work.sectionId.toString(),
+      sectionId: work.sectionId,
       videoUrl: work.videoUrl,
       thumbnail: work.thumbnail,
       description: work.description,
@@ -317,7 +317,7 @@ export default function AdminWorksPage() {
     const payload = {
       title: formState.title.trim(),
       client: formState.client.trim(),
-      sectionId: Number(formState.sectionId),
+      sectionId: formState.sectionId,
       videoUrl: formState.videoUrl.trim(),
       thumbnail: formState.thumbnail.trim(),
       description: formState.description.trim(),
@@ -369,7 +369,7 @@ export default function AdminWorksPage() {
     }
   }
 
-  async function handleToggleVisibility(id: number, value: boolean) {
+  async function handleToggleVisibility(id: string, value: boolean) {
     try {
       const response = await fetch(`/api/admin/works/${id}`, {
         method: "PUT",
@@ -395,7 +395,7 @@ export default function AdminWorksPage() {
 
     try {
       await Promise.all(
-        selectedIds.map((id: any) =>
+        selectedIds.map((id: string) =>
           fetch(`/api/admin/works/${id}`, {
             method: "DELETE",
           })
@@ -436,8 +436,9 @@ export default function AdminWorksPage() {
   }
 
   async function handleDragEnd(event: any) {
-    const activeId = Number(event.active.id);
-    const overId = Number(event.over?.id);
+    if (!event.over) return;
+    const activeId = String(event.active.id);
+    const overId = String(event.over.id);
     if (activeId === overId) return;
 
     const oldIndex = works.findIndex((work) => work.id === activeId);
@@ -464,9 +465,9 @@ export default function AdminWorksPage() {
     }
   }
 
-  function toggleSelect(id: number) {
+  function toggleSelect(id: string) {
     setSelectedIds((current) =>
-      current.includes(id) ? current.filter((item: any) => item !== id) : [...current, id]
+      current.includes(id) ? current.filter((item: string) => item !== id) : [...current, id]
     );
   }
 
