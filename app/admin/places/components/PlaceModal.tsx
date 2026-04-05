@@ -2,21 +2,19 @@
 
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import { useMapEvents } from 'react-leaflet'
 import { WorkLocation, WorkLocationForm, CategoryType } from '@/types/place'
 import { X } from 'lucide-react'
 
-const MapContainer = dynamic(
-  () => import('react-leaflet').then(mod => mod.MapContainer),
-  { ssr: false }
-)
-const TileLayer = dynamic(
-  () => import('react-leaflet').then(mod => mod.TileLayer),
-  { ssr: false }
-)
-const Marker = dynamic(
-  () => import('react-leaflet').then(mod => mod.Marker),
-  { ssr: false }
+const MiniMapComponent = dynamic(
+  () => import('@/components/MiniMapComponent'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center bg-[#0a0a0a]">
+        <p className="text-gray-400 text-sm">Loading map...</p>
+      </div>
+    )
+  }
 )
 
 const CATEGORIES: CategoryType[] = ['Commercial Ad', 'Reel', 'Podcast', 'Video Clip', 'Other']
@@ -36,7 +34,7 @@ export default function PlaceModal({
   editingLocation,
   isLoading = false,
 }: PlaceModalProps) {
-  const [formData, setFormData] = useState<WorkLocationForm>(
+  const [form, setForm] = useState<WorkLocationForm>(
     editingLocation
       ? {
           project_name: editingLocation.project_name,
@@ -62,33 +60,18 @@ export default function PlaceModal({
         }
   )
 
-  const handleMapClick = (e: any) => {
-    setFormData(prev => ({
-      ...prev,
-      lat: parseFloat(e.latlng.lat.toFixed(4)),
-      lng: parseFloat(e.latlng.lng.toFixed(4)),
-    }))
-  }
-
-  function MapClickHandler({ onClick }: { onClick: (e: any) => void }) {
-    useMapEvents({
-      click: onClick,
-    })
-    return null
-  }
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.project_name || !formData.client_name || !formData.city) {
+    if (!form.project_name || !form.client_name || !form.city) {
       alert('Project name, client, and city are required')
       return
     }
-    onSubmit(formData)
+    onSubmit(form)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({
+    setForm(prev => ({
       ...prev,
       [name]: name === 'lat' || name === 'lng' ? parseFloat(value) : value,
     }))
@@ -122,7 +105,7 @@ export default function PlaceModal({
             <input
               type="text"
               name="project_name"
-              value={formData.project_name}
+              value={form.project_name}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
               placeholder="e.g., Brand Identity Film"
@@ -138,7 +121,7 @@ export default function PlaceModal({
             <input
               type="text"
               name="client_name"
-              value={formData.client_name}
+              value={form.client_name}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
               placeholder="e.g., Acme Corporation"
@@ -155,7 +138,7 @@ export default function PlaceModal({
               <input
                 type="text"
                 name="city"
-                value={formData.city}
+                value={form.city}
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
                 placeholder="e.g., Cairo"
@@ -169,7 +152,7 @@ export default function PlaceModal({
               <input
                 type="text"
                 name="governorate"
-                value={formData.governorate}
+                value={form.governorate}
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
                 placeholder="e.g., القاهرة"
@@ -184,7 +167,7 @@ export default function PlaceModal({
             </label>
             <select
               name="category"
-              value={formData.category}
+              value={form.category}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-red-600"
             >
@@ -203,7 +186,7 @@ export default function PlaceModal({
             </label>
             <textarea
               name="description"
-              value={formData.description}
+              value={form.description}
               onChange={handleChange}
               maxLength={200}
               rows={3}
@@ -211,7 +194,7 @@ export default function PlaceModal({
               placeholder="Short description of the project..."
             />
             <p className="text-xs text-gray-500 mt-1">
-              {formData.description.length} / 200
+              {form.description.length} / 200
             </p>
           </div>
 
@@ -223,7 +206,7 @@ export default function PlaceModal({
             <input
               type="url"
               name="project_url"
-              value={formData.project_url}
+              value={form.project_url}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
               placeholder="https://example.com"
@@ -235,23 +218,14 @@ export default function PlaceModal({
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Location on Map (click to pin) *
             </label>
-            <div className="h-64 rounded border border-gray-700 overflow-hidden">
-              <MapContainer
-                center={[formData.lat, formData.lng]}
-                zoom={6}
-                style={{ width: '100%', height: '100%' }}
-              >
-                <MapClickHandler onClick={handleMapClick} />
-                <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  maxZoom={19}
-                />
-                {formData.lat && formData.lng && (
-                  <Marker position={[formData.lat, formData.lng]}>
-                  </Marker>
-                )}
-              </MapContainer>
+            <div className="h-48 w-full overflow-hidden rounded-lg border border-[#333]">
+              <MiniMapComponent
+                onLocationSelect={(lat, lng) => {
+                  setForm(prev => ({ ...prev, lat, lng }))
+                }}
+                selectedLat={form.lat}
+                selectedLng={form.lng}
+              />
             </div>
           </div>
 
@@ -264,7 +238,7 @@ export default function PlaceModal({
               <input
                 type="number"
                 name="lat"
-                value={formData.lat}
+                value={form.lat}
                 onChange={handleChange}
                 step="0.0001"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
@@ -278,7 +252,7 @@ export default function PlaceModal({
               <input
                 type="number"
                 name="lng"
-                value={formData.lng}
+                value={form.lng}
                 onChange={handleChange}
                 step="0.0001"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:border-red-600"

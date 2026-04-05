@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,10 +7,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || 
+        !process.env.CLOUDINARY_API_KEY || 
+        !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: 'Cloudinary is not configured. Check environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const file = formData.get('file') as File | null
 
     if (!file) {
       return NextResponse.json(
@@ -19,10 +28,24 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    const allowedTypes = [
+      'image/jpeg', 
+      'image/png', 
+      'image/webp', 
+      'image/gif'
+    ]
+    
+    if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Cloudinary not configured' },
-        { status: 500 }
+        { error: 'Invalid file type. Only JPEG, PNG, WebP, GIF allowed.' },
+        { status: 400 }
+      )
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 10MB.' },
+        { status: 400 }
       )
     }
 
@@ -33,14 +56,21 @@ export async function POST(request: Request) {
 
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: 'mo3-production',
-      resource_type: 'auto',
+      resource_type: 'image',
+      transformation: [
+        { quality: 'auto', fetch_format: 'auto' }
+      ]
     })
 
-    return NextResponse.json({ url: result.secure_url })
+    return NextResponse.json({ 
+      url: result.secure_url,
+      publicId: result.public_id
+    })
+
   } catch (error: any) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: error.message || 'Upload failed' },
+      { error: error?.message || 'Upload failed. Please try again.' },
       { status: 500 }
     )
   }

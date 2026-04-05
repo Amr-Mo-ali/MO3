@@ -10,6 +10,29 @@ import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 
 export default function AdminPlacesPage() {
+  const [hydrated, setHydrated] = useState(false)
+  
+  useEffect(() => {
+    setHydrated(true)
+  }, [])
+  
+  if (!hydrated) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-white">Work Locations</h1>
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-16 bg-gray-800 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return <AdminPlacesPageContent />
+}
+
+function AdminPlacesPageContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   
