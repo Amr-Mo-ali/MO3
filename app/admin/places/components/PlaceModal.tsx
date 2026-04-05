@@ -1,7 +1,8 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
+import { useMapEvents } from 'react-leaflet'
 import { WorkLocation, WorkLocationForm, CategoryType } from '@/types/place'
 import { X } from 'lucide-react'
 
@@ -61,14 +62,19 @@ export default function PlaceModal({
         }
   )
 
-  const mapRef = useRef<any>(null)
-
   const handleMapClick = (e: any) => {
     setFormData(prev => ({
       ...prev,
       lat: parseFloat(e.latlng.lat.toFixed(4)),
       lng: parseFloat(e.latlng.lng.toFixed(4)),
     }))
+  }
+
+  function MapClickHandler({ onClick }: { onClick: (e: any) => void }) {
+    useMapEvents({
+      click: onClick,
+    })
+    return null
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -234,9 +240,8 @@ export default function PlaceModal({
                 center={[formData.lat, formData.lng]}
                 zoom={6}
                 style={{ width: '100%', height: '100%' }}
-                onClick={handleMapClick}
-                ref={mapRef}
               >
+                <MapClickHandler onClick={handleMapClick} />
                 <TileLayer
                   url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
