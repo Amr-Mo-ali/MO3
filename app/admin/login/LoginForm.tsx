@@ -20,7 +20,7 @@ export default function LoginForm() {
       redirect: false,
       email,
       password,
-      callbackUrl: "/admin/overview",
+      callbackUrl: "/admin",
     });
 
     setIsSubmitting(false);
@@ -30,7 +30,7 @@ export default function LoginForm() {
       return;
     }
 
-    router.push("/admin/overview");
+    router.push("/admin");
   }
 
   return (
