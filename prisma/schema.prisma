@@ -3,14 +3,16 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Section {
   id        String   @id @default(cuid())
   title     String
   slug      String   @unique
-  order     Int
+  order     Int      @default(0)
   isVisible Boolean  @default(true)
   works     Work[]
   createdAt DateTime @default(now())
@@ -20,14 +22,14 @@ model Section {
 model Work {
   id          String   @id @default(cuid())
   title       String
-  client      String
-  videoUrl    String
-  thumbnail   String
-  description String
+  client      String?
+  videoUrl    String?
+  thumbnail   String?
+  description String?
   tags        String[]
   isVisible   Boolean  @default(true)
-  order       Int
-  section     Section  @relation(fields: [sectionId], references: [id])
+  order       Int      @default(0)
+  section     Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   sectionId   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

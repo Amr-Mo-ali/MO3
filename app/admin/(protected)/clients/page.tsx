@@ -156,51 +156,41 @@ export default function AdminClientsPage() {
   }
 
   async function uploadLogoFile(file: File) {
-    setUploadingLogo(true);
-    const previewUrl = URL.createObjectURL(file);
-    setLogoPreview(previewUrl);
+    setUploadingLogo(true)
+    const previewUrl = URL.createObjectURL(file)
+    setLogoPreview(previewUrl)
 
     try {
-      const signatureResponse = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, folder: "mo3/clients" }),
-      });
+      const formData = new FormData()
+      formData.append('file', file)
 
-      if (!signatureResponse.ok) {
-        throw new Error("Unable to sign upload request");
-      }
-
-      const uploadConfig = await signatureResponse.json();
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("api_key", uploadConfig.apiKey);
-      formData.append("timestamp", String(uploadConfig.timestamp));
-      formData.append("signature", uploadConfig.signature);
-      if (uploadConfig.folder) formData.append("folder", uploadConfig.folder);
-      if (uploadConfig.uploadPreset) formData.append("upload_preset", uploadConfig.uploadPreset);
-
-      const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${uploadConfig.cloudName}/auto/upload`, {
-        method: "POST",
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
         body: formData,
-      });
+      })
 
-      if (!cloudinaryResponse.ok) {
-        throw new Error("Cloudinary upload failed");
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Upload failed')
       }
 
-      const uploaded = await cloudinaryResponse.json();
-      const logoUrl = uploaded.secure_url || uploaded.url;
-      if (!logoUrl) throw new Error("Cloudinary returned no image URL");
+      const data = await response.json()
+      const logoUrl = data.url
 
-      setFormState((current) => ({ ...current, logo: logoUrl }));
-      setLogoPreview(logoUrl);
-      toast.success("Logo uploaded successfully.");
-    } catch (error) {
-      toast.error("Logo upload failed.");
-      setFormState((current) => ({ ...current, logo: "" }));
+      if (!logoUrl) {
+        throw new Error('No URL returned from upload')
+      }
+
+      setFormState((current) => ({ ...current, logo: logoUrl }))
+      setLogoPreview(logoUrl)
+      toast.success('Logo uploaded successfully.')
+    } catch (error: any) {
+      console.error('Upload error:', error)
+      toast.error(error.message || 'Logo upload failed')
+      setFormState((current) => ({ ...current, logo: '' }))
+      setLogoPreview('')
     } finally {
-      setUploadingLogo(false);
+      setUploadingLogo(false)
     }
   }
 

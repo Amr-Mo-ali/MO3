@@ -6,6 +6,44 @@ import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } 
 import { CSS } from "@dnd-kit/utilities";
 import toast, { Toaster } from "react-hot-toast";
 
+function classNames(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function VideoPreview({ url }: { url: string }) {
+  if (!url) return null;
+
+  let embedUrl = "";
+
+  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+    const videoId = url.includes("youtu.be")
+      ? url.split("youtu.be/")[1]?.split("?")[0]
+      : url.split("v=")[1]?.split("&")[0];
+    if (videoId) {
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+  } else if (url.includes("vimeo.com")) {
+    const videoId = url.split("vimeo.com/")[1]?.split("?")[0];
+    if (videoId) {
+      embedUrl = `https://player.vimeo.com/video/${videoId}`;
+    }
+  }
+
+  if (!embedUrl) return null;
+
+  return (
+    <div className="mt-2 aspect-video w-full overflow-hidden rounded-lg bg-slate-950">
+      <iframe
+        src={embedUrl}
+        title="Video preview"
+        className="h-full w-full"
+        allowFullScreen
+        allow="autoplay"
+      />
+    </div>
+  );
+}
+
 interface SectionItem {
   id: string;
   title: string;
@@ -30,10 +68,6 @@ interface WorkItem {
     id: string;
     title: string;
   };
-}
-
-function classNames(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
 }
 
 function SortableWorkRow({
@@ -240,59 +274,40 @@ export default function AdminWorksPage() {
   }
 
   async function uploadThumbnailFile(file: File) {
-    setUploadingThumbnail(true);
-    const localUrl = URL.createObjectURL(file);
-    setThumbnailPreview(localUrl);
+    setUploadingThumbnail(true)
+    const localUrl = URL.createObjectURL(file)
+    setThumbnailPreview(localUrl)
 
     try {
-      const signatureResponse = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, folder: "mo3/works" }),
-      });
-      if (!signatureResponse.ok) {
-        throw new Error("Unable to sign upload request");
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Upload failed')
       }
 
-      const uploadConfig = await signatureResponse.json();
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("api_key", uploadConfig.apiKey);
-      formData.append("timestamp", String(uploadConfig.timestamp));
-      formData.append("signature", uploadConfig.signature);
-      if (uploadConfig.folder) {
-        formData.append("folder", uploadConfig.folder);
-      }
-      if (uploadConfig.uploadPreset) {
-        formData.append("upload_preset", uploadConfig.uploadPreset);
-      }
+      const data = await response.json()
+      const imageUrl = data.url
 
-      const cloudinaryResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${uploadConfig.cloudName}/auto/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!cloudinaryResponse.ok) {
-        throw new Error("Cloudinary upload failed");
-      }
-
-      const uploaded = await cloudinaryResponse.json();
-      const imageUrl = uploaded.secure_url || uploaded.url;
       if (!imageUrl) {
-        throw new Error("Cloudinary returned no image URL");
+        throw new Error('No URL returned from upload')
       }
 
-      setFormState((current) => ({ ...current, thumbnail: imageUrl }));
-      setThumbnailPreview(imageUrl);
-      toast.success("Thumbnail uploaded successfully.");
-    } catch (error) {
-      toast.error("Thumbnail upload failed.");
-      setFormState((current) => ({ ...current, thumbnail: "" }));
+      setFormState((current) => ({ ...current, thumbnail: imageUrl }))
+      setThumbnailPreview(imageUrl)
+      toast.success('Thumbnail uploaded successfully.')
+    } catch (error: any) {
+      console.error('Upload error:', error)
+      toast.error(error.message || 'Thumbnail upload failed')
+      setFormState((current) => ({ ...current, thumbnail: '' }))
     } finally {
-      setUploadingThumbnail(false);
+      setUploadingThumbnail(false)
     }
   }
 
@@ -642,6 +657,7 @@ export default function AdminWorksPage() {
                     className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                     placeholder="YouTube or Vimeo link"
                   />
+                  <VideoPreview url={formState.videoUrl} />
                 </label>
               </div>
 

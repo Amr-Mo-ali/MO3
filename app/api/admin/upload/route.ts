@@ -1,44 +1,47 @@
-import crypto from "crypto";
-import { NextRequest, NextResponse } from "next/server";
+import { v2 as cloudinary } from 'cloudinary'
+import { NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
-  const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
-  const folder = typeof body.folder === "string" ? body.folder : undefined;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
-  if (!cloudName || !apiKey || !apiSecret) {
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData()
+    const file = formData.get('file') as File
+
+    if (!file) {
+      return NextResponse.json(
+        { error: 'No file provided' },
+        { status: 400 }
+      )
+    }
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: 'Cloudinary not configured' },
+        { status: 500 }
+      )
+    }
+
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    const base64 = buffer.toString('base64')
+    const dataUri = `data:${file.type};base64,${base64}`
+
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: 'mo3-production',
+      resource_type: 'auto',
+    })
+
+    return NextResponse.json({ url: result.secure_url })
+  } catch (error: any) {
+    console.error('Upload error:', error)
     return NextResponse.json(
-      { error: "Cloudinary environment variables are not configured." },
+      { error: error.message || 'Upload failed' },
       { status: 500 }
-    );
+    )
   }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const params: Array<[string, string]> = [["timestamp", String(timestamp)]];
-
-  if (folder) {
-    params.push(["folder", folder]);
-  }
-  if (uploadPreset) {
-    params.push(["upload_preset", uploadPreset]);
-  }
-
-  params.sort(([a], [b]) => a.localeCompare(b));
-  const signatureBase = params.map(([key, value]: any) => `${key}=${value}`).join("&");
-  const signature = crypto
-    .createHash("sha1")
-    .update(signatureBase + apiSecret)
-    .digest("hex");
-
-  return NextResponse.json({
-    cloudName,
-    apiKey,
-    signature,
-    timestamp,
-    folder,
-    uploadPreset,
-  });
 }

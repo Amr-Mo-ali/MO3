@@ -8,6 +8,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
 import CustomCursor from "@/components/CustomCursor";
+import { PlaceholderWorkCard } from "@/components/Placeholders";
 import type { Client, SectionWithWorks, Work } from "@/types";
 
 interface SiteConfigValues {
@@ -444,45 +445,79 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                   </a>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                  {section.works.map((work) => (
-                    <button
-                      key={work.id}
-                      type="button"
-                      onClick={() => setSelectedWork(work)}
-                      className="group relative overflow-hidden rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] text-left transition duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-red)]/40"
-                    >
-                      <div className="relative aspect-[16/9] overflow-hidden bg-black">
-                        {work.thumbnail ? (
-                          <Image
-                            src={work.thumbnail}
-                            alt={work.title}
-                            fill
-                            className="object-cover transition duration-700 group-hover:scale-105"
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                          />
-                        ) : (
-                          <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">No thumbnail</div>
-                        )}
-                        <div className="absolute inset-0 bg-black/25 transition duration-300 group-hover:bg-black/70" />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover:opacity-100">
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-red)] text-white shadow-[0_0_0_8px_rgba(227,18,18,0.12)] transition duration-300 group-hover:scale-105">
-                            <svg viewBox="0 0 24 24" className="h-7 w-7 fill-white" aria-hidden="true">
-                              <path d="M8 5v14l11-7z" />
-                            </svg>
+                  {section.works.length > 0 ? (
+                    section.works.map((work) => (
+                      <button
+                        key={work.id}
+                        type="button"
+                        onClick={() => setSelectedWork(work)}
+                        className="group relative overflow-hidden rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] text-left transition duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-red)]/40"
+                      >
+                        <div className="relative aspect-[16/9] overflow-hidden bg-black">
+                          {work.thumbnail ? (
+                            <Image
+                              src={work.thumbnail}
+                              alt={work.title}
+                              fill
+                              className="object-cover transition duration-700 group-hover:scale-105"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                            />
+                          ) : (
+                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">No thumbnail</div>
+                          )}
+                          <div className="absolute inset-0 bg-black/25 transition duration-300 group-hover:bg-black/70" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover:opacity-100">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-red)] text-white shadow-[0_0_0_8px_rgba(227,18,18,0.12)] transition duration-300 group-hover:scale-105">
+                              <svg viewBox="0 0 24 24" className="h-7 w-7 fill-white" aria-hidden="true">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="p-6">
-                        <p className="text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-red)]">{work.client}</p>
-                        <h4 className="mt-4 text-xl font-semibold text-white">{work.title}</h4>
-                      </div>
-                    </button>
-                  ))}
+                        <div className="p-6">
+                          <p className="text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-red)]">{work.client}</p>
+                          <h4 className="mt-4 text-xl font-semibold text-white">{work.title}</h4>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    [0, 1, 2].map((i) => <PlaceholderWorkCard key={i} />)
+                  )}
                 </div>
               </motion.div>
             ))
           ) : (
-            <p className="text-sm text-[color:var(--color-gray)]">No visible work sections are available yet.</p>
+            <div className="space-y-24">
+              {[
+                { title: "Commercial Ads", number: "01" },
+                { title: "Reels", number: "02" },
+                { title: "Podcast", number: "03" },
+              ].map((section) => (
+                <motion.div
+                  key={section.number}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.7 }}
+                >
+                  <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="relative overflow-visible">
+                      <span className="pointer-events-none absolute left-0 top-0 z-0 text-[120px] font-[400] leading-[0.9] text-[color:var(--color-border)] opacity-40">
+                        {section.number}
+                      </span>
+                      <h3 className="relative text-[40px] leading-[0.95] tracking-[-1px] text-white sm:text-[56px] md:text-[64px]">
+                        {section.title}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                    {[0, 1, 2].map((i) => (
+                      <PlaceholderWorkCard key={i} />
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
         </div>
       </section>

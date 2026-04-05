@@ -7,7 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import MO3Logo from "@/components/MO3Logo";
 
 const navItems = [
-  { label: "Overview", href: "/admin/overview" },
+  { label: "Overview", href: "/admin" },
   { label: "Sections", href: "/admin/sections" },
   { label: "Works", href: "/admin/works" },
   { label: "Clients", href: "/admin/clients" },

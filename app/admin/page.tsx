@@ -9,5 +9,5 @@ export default async function AdminRootPage() {
     redirect("/admin/login");
   }
 
-  redirect("/admin/overview");
+  redirect("/admin/works");
 }
