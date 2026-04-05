@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
@@ -10,6 +11,11 @@ import VideoLightbox from "@/components/VideoLightbox";
 import CustomCursor from "@/components/CustomCursor";
 import { PlaceholderWorkCard } from "@/components/Placeholders";
 import type { Client, SectionWithWorks, Work } from "@/types";
+
+const WorkMap = dynamic(
+  () => import('@/components/WorkMap'),
+  { ssr: false }
+)
 
 interface SiteConfigValues {
   aboutText: string;
@@ -521,6 +527,8 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
           )}
         </div>
       </section>
+
+      <WorkMap />
 
       <section id="contact" className="border-t border-[color:var(--color-border)] bg-black px-6 py-24">
         <div className="mx-auto max-w-7xl text-center">

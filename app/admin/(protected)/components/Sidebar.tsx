@@ -11,6 +11,7 @@ const navItems = [
   { label: "Sections", href: "/admin/sections" },
   { label: "Works", href: "/admin/works" },
   { label: "Clients", href: "/admin/clients" },
+  { label: "Locations", href: "/admin/places" },
   { label: "Settings", href: "/admin/settings" },
 ];
 
