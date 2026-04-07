@@ -2,20 +2,42 @@
 
 :root {
   color-scheme: dark;
+  --bg-primary: #000000;
+  --bg-surface: #111111;
+  --bg-surface-2: #161616;
+  --border-color: #222222;
+  --text-primary: #FFFFFF;
+  --text-secondary: #888888;
+  --text-muted: #555555;
+  --accent: #E31212;
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-bebas-neue);
   --background: #000000;
   --foreground: #FFFFFF;
   --surface: #111111;
   --surface-strong: #0a0a0a;
   --card-bg: #111111;
-  --border-color: #222222;
-  --border: #222222;
-  --text-primary: #FFFFFF;
-  --text-secondary: #888888;
-  --accent: #E31212;
   --muted: #888888;
   --color-red: #E31212;
-  --font-sans: var(--font-dm-sans);
-  --font-display: var(--font-bebas-neue);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-primary: #F5F5F5;
+  --bg-surface: #FFFFFF;
+  --bg-surface-2: #F0F0F0;
+  --border-color: #E0E0E0;
+  --text-primary: #0D0D0D;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --accent: #E31212;
+  --background: #F5F5F5;
+  --foreground: #0D0D0D;
+  --surface: #FFFFFF;
+  --surface-strong: #F0F0F0;
+  --card-bg: #FFFFFF;
+  --muted: #555555;
+  --color-red: #E31212;
 }
 
 html.light {

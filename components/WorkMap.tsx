@@ -50,6 +50,7 @@ export default function WorkMap() {
           .select('*')
           .order('created_at', { ascending: false })
         if (error) throw error
+        console.log('Fetched places:', data)
         if (data) setPlaces(data)
       } catch (err) {
         console.error('Error fetching places:', err)
@@ -69,7 +70,7 @@ export default function WorkMap() {
   }
 
   return (
-    <section className="bg-[#000000] py-20 px-4 md:px-8">
+    <section className="bg-[color:var(--bg-primary)] py-20 px-4 md:px-8">
       <div className="mx-auto max-w-7xl">
 
         <div className="mb-12 text-center">
@@ -119,6 +120,7 @@ export default function WorkMap() {
               </div>
             ) : (
               <MapComponent
+                key={filtered.length}
                 locations={filtered}
                 onMarkerClick={(place) => setSelectedId(place.id)}
                 selectedId={selectedId}

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { supabase } from '@/lib/supabase'
 import type { WorkLocation, WorkLocationForm } from '@/types/place'
 import toast from 'react-hot-toast'
-import { MapPin, Plus, Edit, Trash2 } from 'lucide-react'
+import { MapPin, Plus, Edit, Trash2, Film, X } from 'lucide-react'
 
 const MiniMapComponent = dynamic(
   () => import('@/components/MiniMapComponent'),
@@ -31,6 +31,17 @@ const emptyForm: Omit<WorkLocationForm, 'category'> & { category: string } = {
   project_url: '',
 }
 
+interface LocationWork {
+  id: string
+  location_id: string
+  title: string
+  client_name?: string
+  video_url?: string
+  thumbnail_url?: string
+  description?: string
+  created_at?: string
+}
+
 export default function PlacesAdminPage() {
   const [places, setPlaces] = useState<WorkLocation[]>([])
   const [loading, setLoading] = useState(true)
@@ -39,6 +50,17 @@ export default function PlacesAdminPage() {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [worksPanel, setWorksPanel] = useState<string | null>(null)
+  const [locationWorks, setLocationWorks] = useState<LocationWork[]>([])
+  const [loadingWorks, setLoadingWorks] = useState(false)
+  const [addingWork, setAddingWork] = useState(false)
+  const [workForm, setWorkForm] = useState({
+    title: '',
+    client_name: '',
+    video_url: '',
+    thumbnail_url: '',
+    description: '',
+  })
 
   async function fetchPlaces() {
     try {
@@ -125,6 +147,67 @@ export default function PlacesAdminPage() {
     }
   }
 
+  async function openWorksPanel(locationId: string) {
+    setWorksPanel(locationId)
+    setLoadingWorks(true)
+    try {
+      const { data, error } = await supabase
+        .from('location_works')
+        .select('*')
+        .eq('location_id', locationId)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      if (data) setLocationWorks(data)
+    } catch (err: any) {
+      console.error('Error fetching works:', err)
+      toast.error('Failed to load works')
+    } finally {
+      setLoadingWorks(false)
+    }
+  }
+
+  async function handleAddWork() {
+    if (!worksPanel || !workForm.title) {
+      toast.error('Title is required')
+      return
+    }
+    setAddingWork(true)
+    try {
+      const { error } = await supabase
+        .from('location_works')
+        .insert([{
+          location_id: worksPanel,
+          title: workForm.title,
+          client_name: workForm.client_name,
+          video_url: workForm.video_url,
+          thumbnail_url: workForm.thumbnail_url,
+          description: workForm.description,
+        }])
+      if (error) throw error
+      toast.success('Work added!')
+      setWorkForm({ title: '', client_name: '', video_url: '', thumbnail_url: '', description: '' })
+      await openWorksPanel(worksPanel)
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to add work')
+    } finally {
+      setAddingWork(false)
+    }
+  }
+
+  async function handleDeleteWork(workId: string) {
+    try {
+      const { error } = await supabase
+        .from('location_works')
+        .delete()
+        .eq('id', workId)
+      if (error) throw error
+      toast.success('Work deleted!')
+      if (worksPanel) await openWorksPanel(worksPanel)
+    } catch (err: any) {
+      toast.error(err.message || 'Delete failed')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] p-6">
       
@@ -205,6 +288,13 @@ export default function PlacesAdminPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => openWorksPanel(place.id)}
+                        className="rounded-lg p-1.5 text-[#888] hover:bg-[#222] hover:text-[#E31212] transition-colors"
+                        title="View works for this location"
+                      >
+                        <Film className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => openEdit(place)}
                         className="rounded-lg p-1.5 text-[#888] hover:bg-[#222] hover:text-white transition-colors"
@@ -407,6 +497,115 @@ export default function PlacesAdminPage() {
                 className="rounded-lg bg-[#E31212] px-4 py-2 text-sm font-medium text-white hover:bg-[#c01010] transition-colors"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {worksPanel && (
+        <div className="fixed inset-0 z-50 flex">
+          <div 
+            className="flex-1 bg-black/50"
+            onClick={() => setWorksPanel(null)}
+          />
+          <div className="w-96 bg-[#111] border-l border-[#222] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-[#222]">
+              <div>
+                <h3 className="text-lg font-bold text-white">Works</h3>
+                <p className="text-xs text-[#666] mt-1">
+                  {places.find(p => p.id === worksPanel)?.city}
+                </p>
+              </div>
+              <button
+                onClick={() => setWorksPanel(null)}
+                className="text-[#888] hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {loadingWorks ? (
+                <div className="flex items-center justify-center h-20">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#E31212] border-t-transparent" />
+                </div>
+              ) : locationWorks.length === 0 ? (
+                <div className="text-center py-8">
+                  <Film className="h-8 w-8 text-[#444] mx-auto mb-2" />
+                  <p className="text-sm text-[#888]">No works yet</p>
+                </div>
+              ) : (
+                locationWorks.map(work => (
+                  <div
+                    key={work.id}
+                    className="rounded-lg border border-[#222] bg-[#0a0a0a] p-3"
+                  >
+                    {work.thumbnail_url && (
+                      <img
+                        src={work.thumbnail_url}
+                        alt={work.title}
+                        className="w-full h-24 object-cover rounded-lg mb-2"
+                      />
+                    )}
+                    <p className="font-medium text-sm text-white">{work.title}</p>
+                    {work.client_name && (
+                      <p className="text-xs text-[#888]">{work.client_name}</p>
+                    )}
+                    {work.description && (
+                      <p className="text-xs text-[#666] mt-1 line-clamp-2">
+                        {work.description}
+                      </p>
+                    )}
+                    <button
+                      onClick={() => handleDeleteWork(work.id)}
+                      className="mt-2 w-full rounded-lg p-1 text-xs text-[#E31212] hover:bg-red-900/20 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="border-t border-[#222] p-6 space-y-3">
+              <input
+                type="text"
+                value={workForm.title}
+                onChange={e => setWorkForm(p => ({ ...p, title: e.target.value }))}
+                placeholder="Work title *"
+                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder-[#444] focus:border-[#E31212] focus:outline-none"
+              />
+              <input
+                type="text"
+                value={workForm.client_name}
+                onChange={e => setWorkForm(p => ({ ...p, client_name: e.target.value }))}
+                placeholder="Client name"
+                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder-[#444] focus:border-[#E31212] focus:outline-none"
+              />
+              <input
+                type="text"
+                value={workForm.video_url}
+                onChange={e => setWorkForm(p => ({ ...p, video_url: e.target.value }))}
+                placeholder="Video URL"
+                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder-[#444] focus:border-[#E31212] focus:outline-none"
+              />
+              <button
+                onClick={handleAddWork}
+                disabled={addingWork}
+                className="w-full rounded-lg bg-[#E31212] px-4 py-2 text-sm font-medium text-white hover:bg-[#c01010] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              >
+                {addingWork ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    Add Work
+                  </>
+                )}
               </button>
             </div>
           </div>

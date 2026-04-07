@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Sidebar from "./components/Sidebar";
+import AdminDarkMode from "./components/AdminDarkMode";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
 
   return (
     <div className="min-h-screen bg-[color:var(--background)] text-[color:var(--foreground)]">
+      <AdminDarkMode />
       <div className="grid min-h-screen grid-cols-[280px_1fr]">
         <Sidebar />
         <main className="bg-[color:var(--surface)] p-8 text-[color:var(--foreground)]">{children}</main>
