@@ -29,6 +29,12 @@ export default async function Home() {
     facebook?: string;
   };
 
+  // Debug logging
+  console.log('Sections fetched:', sections.length)
+  sections.forEach(s => {
+    console.log(`Section "${s.title}": ${s.works.length} works`)
+  })
+
   const visibleSections = sections.filter((section) => section.works.length > 0);
 
   return (

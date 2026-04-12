@@ -387,7 +387,7 @@ export default function AdminClientsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="mt-8 space-y-6">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Client Name</label>
                 <input
@@ -451,13 +451,14 @@ export default function AdminClientsPage() {
               </div>
 
               <button
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={isSaving}
                 className="w-full rounded-3xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d] disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : isEditing ? "Update Client" : "Create Client"}
               </button>
-            </form>
+            </div>
           </aside>
         </div>
       )}
