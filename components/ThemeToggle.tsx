@@ -1,4 +1,5 @@
 'use client'
+import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 
@@ -7,44 +8,37 @@ interface Props {
 }
 
 export default function ThemeToggle({ className = '' }: Props) {
-  const [isDark, setIsDark] = useState(true)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('mo3-theme')
-    if (saved === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light')
-      setIsDark(false)
-    }
+    setMounted(true)
   }, [])
 
-  const toggle = () => {
-    const html = document.documentElement
-    if (isDark) {
-      html.setAttribute('data-theme', 'light')
-      localStorage.setItem('mo3-theme', 'light')
-      setIsDark(false)
-    } else {
-      html.removeAttribute('data-theme')
-      localStorage.setItem('mo3-theme', 'dark')
-      setIsDark(true)
-    }
+  if (!mounted) {
+    return (
+      <button className={`h-9 w-9 rounded-full 
+                         border border-[#333] ${className}`} />
+    )
   }
+
+  const isDark = theme === 'dark'
 
   return (
     <button
-      onClick={toggle}
-      className={`flex h-9 w-9 items-center justify-center 
-                 rounded-full border border-[#333] 
-                 text-[#888] transition-all duration-200
-                 hover:border-[#E31212] hover:text-white
-                 ${className}`}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className={`flex h-9 w-9 items-center justify-center
+                 rounded-full border transition-all duration-200
+                 ${isDark 
+                   ? 'border-[#333] text-[#888] hover:border-[#E31212] hover:text-white'
+                   : 'border-[#ccc] text-[#555] hover:border-[#E31212] hover:text-[#111]'
+                 } ${className}`}
       aria-label="Toggle theme"
     >
-      {isDark ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
+      {isDark 
+        ? <Sun className="h-4 w-4" /> 
+        : <Moon className="h-4 w-4" />
+      }
     </button>
   )
 }

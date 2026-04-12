@@ -556,49 +556,124 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
 
       <WorkMap />
 
-      <section id="contact" className="border-t border-[color:var(--color-border)] bg-black px-6 py-24">
-        <div className="mx-auto max-w-7xl text-center">
-          <div className="space-y-6">
-            <h2 className="text-[55px] leading-[0.95] tracking-[-1px] text-white sm:text-[70px] md:text-[100px]">
-              LET&apos;S CREATE
-              <br />
-              SOMETHING
-              <br />
-              <span className="text-transparent text-stroke-red">TOGETHER</span>
-            </h2>
-            <p className="mx-auto max-w-2xl text-base leading-7 text-[color:var(--color-gray)]">Ready to tell your story?</p>
-          </div>
-          <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href={whatsappHref || "#contact"}
-              target={whatsappHref ? "_blank" : undefined}
-              rel={whatsappHref ? "noreferrer" : undefined}
-              className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-red)] px-10 py-4 text-sm font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-[color:var(--color-red-dim)] active:scale-95"
-            >
-              START A PROJECT
+      <section className="bg-[color:var(--bg-primary)] 
+                    py-20 px-4 text-center" id="contact">
+        <div className="mx-auto max-w-4xl">
+          
+          <p className="mb-3 text-[11px] uppercase 
+                        tracking-[6px] text-[#E31212]">
+            GET IN TOUCH
+          </p>
+          <h2 className="font-bebas text-5xl md:text-7xl 
+                         text-[color:var(--text-primary)] 
+                         leading-none mb-4">
+            LET'S CREATE SOMETHING TOGETHER
+          </h2>
+          <div className="mx-auto mb-8 h-[2px] w-16 bg-[#E31212]" />
+
+          <a
+            href="https://wa.me/201066298201"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 rounded-full
+                       bg-[#E31212] px-8 py-4 text-white font-medium
+                       text-lg hover:bg-[#c01010] transition-colors
+                       mb-12 shadow-lg shadow-red-900/30"
+          >
+            <svg className="h-5 w-5" fill="currentColor" 
+                 viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Start Your Project
+          </a>
+
+          <div className="flex items-center justify-center 
+                          gap-6 flex-wrap">
+            
+            <a href="https://www.instagram.com/mo3_production?igsh=eWxyMTZkaXRxa3Nq"
+               target="_blank"
+               rel="noopener noreferrer"
+               className="flex flex-col items-center gap-2 
+                          text-[color:var(--text-secondary)]
+                          hover:text-[#E31212] transition-colors group">
+              <div className="flex h-12 w-12 items-center justify-center
+                              rounded-full border 
+                              border-[color:var(--border-color)]
+                              group-hover:border-[#E31212] 
+                              transition-colors">
+                <svg className="h-5 w-5" fill="currentColor" 
+                     viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                </svg>
+              </div>
+              <span className="text-xs">Instagram</span>
             </a>
-            <a
-              href="#work"
-              className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] px-10 py-4 text-sm font-semibold uppercase tracking-[0.35em] text-white transition hover:border-[color:var(--color-red)] hover:text-[color:var(--color-red)]"
-            >
-              SEE OUR WORK
+
+            <a href="https://www.facebook.com/MO3Production"
+               target="_blank"
+               rel="noopener noreferrer"
+               className="flex flex-col items-center gap-2
+                          text-[color:var(--text-secondary)]
+                          hover:text-[#E31212] transition-colors group">
+              <div className="flex h-12 w-12 items-center justify-center
+                              rounded-full border
+                              border-[color:var(--border-color)]
+                              group-hover:border-[#E31212]
+                              transition-colors">
+                <svg className="h-5 w-5" fill="currentColor"
+                     viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </div>
+              <span className="text-xs">Facebook</span>
             </a>
+
+            <a href="https://www.behance.net/mo3team"
+               target="_blank"
+               rel="noopener noreferrer"
+               className="flex flex-col items-center gap-2
+                          text-[color:var(--text-secondary)]
+                          hover:text-[#E31212] transition-colors group">
+              <div className="flex h-12 w-12 items-center justify-center
+                              rounded-full border
+                              border-[color:var(--border-color)]
+                              group-hover:border-[#E31212]
+                              transition-colors">
+                <svg className="h-5 w-5" fill="currentColor"
+                     viewBox="0 0 24 24">
+                  <path d="M6.938 4.503c.702 0 1.34.06 1.92.188.577.13 1.07.33 1.485.61.41.28.733.65.96 1.12.225.47.34 1.05.34 1.73 0 .74-.17 1.36-.507 1.86-.338.5-.837.9-1.502 1.22.906.26 1.576.72 2.022 1.37.448.66.665 1.45.665 2.36 0 .75-.13 1.39-.41 1.93-.28.55-.67 1-1.16 1.35-.48.348-1.05.6-1.69.755-.64.16-1.31.24-2.01.24H0V4.51h6.938v-.007zM16.94 6.422v1.73h-5.137V6.422h5.137zM6.588 9.52H3.434v3.145h3.154c.78 0 1.38-.17 1.8-.5.42-.34.63-.85.63-1.56 0-.37-.06-.68-.19-.94-.13-.27-.31-.49-.54-.66-.23-.17-.51-.3-.82-.38-.32-.08-.67-.11-1.05-.11h.17v.005zm-.143 5.287H3.434v3.573h3.03c.37 0 .72-.04 1.06-.11.34-.07.64-.19.9-.37.26-.17.47-.4.63-.7.16-.3.24-.67.24-1.11 0-.87-.26-1.48-.77-1.84-.52-.36-1.2-.54-2.07-.54l-.01.1zm13.613-4.42c-.37-.4-.9-.6-1.62-.6-.46 0-.85.08-1.16.25-.31.17-.57.38-.77.63-.2.26-.34.54-.43.84-.09.3-.14.59-.16.87h4.77c-.07-.74-.26-1.39-.63-1.99zm.007 5.48c-.35.34-.87.51-1.56.51-.46 0-.85-.08-1.18-.23-.32-.16-.59-.36-.8-.6-.21-.25-.36-.52-.46-.81-.1-.3-.16-.58-.18-.86H24c.04-1.88-.4-3.35-1.32-4.41-.92-1.05-2.27-1.58-4.06-1.58-.77 0-1.48.14-2.13.42-.65.28-1.2.66-1.66 1.15-.46.49-.82 1.07-1.08 1.74-.26.67-.39 1.4-.39 2.18 0 .8.12 1.54.37 2.21.25.67.61 1.25 1.07 1.73.46.48 1.02.85 1.68 1.12.66.27 1.4.4 2.23.4 1.12 0 2.07-.25 2.83-.76.77-.5 1.32-1.33 1.65-2.48h-2.39c-.1.36-.32.65-.65.98l-.01.02z"/>
+                </svg>
+              </div>
+              <span className="text-xs">Behance</span>
+            </a>
+
+            <a href="tel:+201066298201"
+               className="flex flex-col items-center gap-2
+                          text-[color:var(--text-secondary)]
+                          hover:text-[#E31212] transition-colors group">
+              <div className="flex h-12 w-12 items-center justify-center
+                              rounded-full border
+                              border-[color:var(--border-color)]
+                              group-hover:border-[#E31212]
+                              transition-colors">
+                <svg className="h-5 w-5" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 7V5z"/>
+                </svg>
+              </div>
+              <span className="text-xs">01066298201</span>
+            </a>
+
           </div>
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-5">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] text-[color:var(--color-white)] transition hover:-translate-y-1 hover:border-[color:var(--color-red)] hover:text-[color:var(--color-red)]"
-                aria-label={social.label}
-              >
-                {social.icon}
-              </a>
-            ))}
+
+          <div className="mt-16 border-t 
+                          border-[color:var(--border-color)] pt-8">
+            <p className="text-xs text-[color:var(--text-muted)]">
+              © 2025 MO3 Production. All rights reserved.
+            </p>
           </div>
-          <p className="mt-16 text-xs uppercase tracking-[0.4em] text-[color:var(--color-gray)]">© 2025 MO3 Production. All rights reserved.</p>
         </div>
       </section>
 

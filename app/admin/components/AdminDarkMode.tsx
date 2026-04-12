@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 export default function AdminDarkMode() {
+  const { setTheme } = useTheme()
+
   useEffect(() => {
-    const html = document.documentElement
-    html.removeAttribute('data-theme')
-    localStorage.setItem('mo3-theme', 'dark')
-    return () => {}
-  }, [])
+    setTheme('dark')
+  }, [setTheme])
 
   return null
 }

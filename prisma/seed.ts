@@ -50,10 +50,11 @@ async function main() {
   // Create site config
   const configs = [
     { key: 'about_text', value: 'At MO3, we believe in the power of stories. Born from a passion for visual storytelling, we are more than a media company — we are architects of emotion.' },
-    { key: 'whatsapp', value: '+201000000000' },
-    { key: 'instagram', value: 'https://instagram.com/mo3production' },
-    { key: 'behance', value: 'https://behance.net/mo3production' },
-    { key: 'facebook', value: 'https://facebook.com/mo3production' },
+    { key: 'whatsapp', value: 'https://wa.me/201066298201' },
+    { key: 'phone', value: '01066298201' },
+    { key: 'instagram', value: 'https://www.instagram.com/mo3_production?igsh=eWxyMTZkaXRxa3Nq' },
+    { key: 'behance', value: 'https://www.behance.net/mo3team' },
+    { key: 'facebook', value: 'https://www.facebook.com/MO3Production' },
   ]
 
   for (const config of configs) {
