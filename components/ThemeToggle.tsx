@@ -2,7 +2,11 @@
 import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 
-export default function ThemeToggle() {
+interface Props {
+  className?: string
+}
+
+export default function ThemeToggle({ className = '' }: Props) {
   const [isDark, setIsDark] = useState(true)
 
   useEffect(() => {
@@ -29,10 +33,11 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="flex h-9 w-9 items-center justify-center 
+      className={`flex h-9 w-9 items-center justify-center 
                  rounded-full border border-[#333] 
                  text-[#888] transition-all duration-200
-                 hover:border-[#E31212] hover:text-white"
+                 hover:border-[#E31212] hover:text-white
+                 ${className}`}
       aria-label="Toggle theme"
     >
       {isDark ? (
