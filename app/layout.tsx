@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     description: "Architects of emotion — Media Production",
     type: "website",
   },
+  other: {
+    'leaflet-css': 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+  },
 };
 
 export default function RootLayout({
