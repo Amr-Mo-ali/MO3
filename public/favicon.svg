@@ -1,0 +1,14 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Black background -->
+  <rect width="256" height="256" fill="#000000"/>
+  
+  <!-- White "MO" text -->
+  <text x="50" y="180" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#FFFFFF" letter-spacing="-5">MO</text>
+  
+  <!-- Red "3" -->
+  <text x="165" y="180" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#E31212">3</text>
+  
+  <!-- Play button in the red 3 -->
+  <circle cx="200" cy="120" r="24" fill="#E31212" opacity="0.9"/>
+  <polygon points="190,110 190,130 210,120" fill="#000000"/>
+</svg>

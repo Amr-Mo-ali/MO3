@@ -45,19 +45,26 @@ export default function WorkMap() {
   useEffect(() => {
     async function fetchPlaces() {
       try {
+        setLoading(true)
         const { data, error } = await supabase
           .from('work_locations')
           .select('*')
           .order('created_at', { ascending: false })
-        if (error) throw error
-        console.log('Fetched places:', data)
-        if (data) setPlaces(data)
+        
+        if (error) {
+          console.error('Supabase error:', error)
+          return
+        }
+        
+        console.log('Places loaded:', data?.length, data)
+        setPlaces(data || [])
       } catch (err) {
-        console.error('Error fetching places:', err)
+        console.error('Fetch error:', err)
       } finally {
         setLoading(false)
       }
     }
+    
     fetchPlaces()
   }, [])
 
@@ -120,7 +127,7 @@ export default function WorkMap() {
               </div>
             ) : (
               <MapComponent
-                key={filtered.length}
+                key={`map-${filtered.length}-${filtered.map(p=>p.id).join('')}`}
                 locations={filtered}
                 onMarkerClick={(place) => setSelectedId(place.id)}
                 selectedId={selectedId}

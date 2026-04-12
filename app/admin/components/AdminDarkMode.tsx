@@ -4,8 +4,10 @@ import { useEffect } from 'react'
 
 export default function AdminDarkMode() {
   useEffect(() => {
-    document.documentElement.removeAttribute('data-theme')
-    localStorage.setItem('admin-forced-dark', 'true')
+    const html = document.documentElement
+    html.removeAttribute('data-theme')
+    localStorage.setItem('mo3-theme', 'dark')
+    return () => {}
   }, [])
 
   return null

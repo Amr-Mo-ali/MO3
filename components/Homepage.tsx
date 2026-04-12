@@ -9,11 +9,19 @@ import ThemeToggle from "@/components/ThemeToggle";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
 import CustomCursor from "@/components/CustomCursor";
+import TiltCard from "@/components/TiltCard";
+import ScrollReveal from "@/components/ScrollReveal";
+import WorkShowcase3D from "@/components/WorkShowcase3D";
 import { PlaceholderWorkCard } from "@/components/Placeholders";
 import type { Client, SectionWithWorks, Work } from "@/types";
 
 const WorkMap = dynamic(
   () => import('@/components/WorkMap'),
+  { ssr: false }
+)
+
+const HeroCanvas = dynamic(
+  () => import('@/components/HeroCanvas'),
   { ssr: false }
 )
 
@@ -168,7 +176,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="#home" className="flex items-center gap-3">
+          <a href="#home" className="flex items-center gap-3 float-animation">
             <MO3Logo className="h-12 w-auto" />
           </a>
           <nav className="hidden items-center gap-10 md:flex">
@@ -248,6 +256,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
       </AnimatePresence>
 
       <section id="home" className="relative min-h-screen overflow-hidden bg-black">
+        <HeroCanvas />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(26,0,0,0.2),transparent_35%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_25%)]" />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-8">
@@ -316,13 +325,14 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
 
       <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-6 py-24">
         <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="space-y-8"
-          >
+          <ScrollReveal direction="up" delay={100}>
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="space-y-8"
+            >
             <p className="text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">OUR STORY</p>
             <div className="space-y-3">
               <h2 className="text-[48px] leading-[0.95] tracking-[-1px] text-white sm:text-[64px] md:text-[80px]">
@@ -345,9 +355,11 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
             >
               START YOUR PROJECT →
             </a>
-          </motion.div>
+            </motion.div>
+          </ScrollReveal>
 
-          <motion.div
+          <ScrollReveal direction="up" delay={200}>
+            <motion.div
             ref={statsRef}
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -367,22 +379,26 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
               <p className="text-[72px] font-[400] leading-none text-[color:var(--color-red)]">{yearsCount}</p>
               <p className="mt-4 text-[13px] uppercase tracking-[0.45em] text-[color:var(--color-gray)]">Years of Excellence</p>
             </div>
-          </motion.div>
+            </motion.div>
+          </ScrollReveal>
         </div>
       </section>
 
       <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--color-black)] px-6 py-24">
-        <div className="mx-auto max-w-7xl text-center">
-          <p className="text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">TRUSTED BY</p>
-          <h2 className="mt-4 text-[48px] leading-[0.95] tracking-[-1px] text-white sm:text-[64px]">OUR CLIENTS</h2>
-        </div>
+        <ScrollReveal direction="scale" delay={100}>
+          <div className="mx-auto max-w-7xl text-center">
+            <p className="text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">TRUSTED BY</p>
+            <h2 className="mt-4 text-[48px] leading-[0.95] tracking-[-1px] text-white sm:text-[64px]">OUR CLIENTS</h2>
+          </div>
+        </ScrollReveal>
 
         <div className="mt-16 space-y-8 overflow-hidden">
           <div className="marquee overflow-hidden">
             <div className="marquee-track flex items-center gap-6">
               {marqueeClients.map((client, index) => (
-                <div
+                <TiltCard
                   key={`track-a-${client.id}-${index}`}
+                  intensity={8}
                   className="group inline-flex h-24 w-44 items-center justify-center rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 transition duration-500 hover:scale-105 hover:grayscale-0"
                 >
                   {client.logo ? (
@@ -396,7 +412,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                   ) : (
                     <span className="text-sm text-[color:var(--color-gray)]">{client.name}</span>
                   )}
-                </div>
+                </TiltCard>
               ))}
             </div>
           </div>
@@ -404,8 +420,9 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
           <div className="marquee overflow-hidden">
             <div className="marquee-track marquee-reverse flex items-center gap-6">
               {marqueeClients.map((client, index) => (
-                <div
+                <TiltCard
                   key={`track-b-${client.id}-${index}`}
+                  intensity={8}
                   className="group inline-flex h-24 w-44 items-center justify-center rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 transition duration-500 hover:scale-105 hover:grayscale-0"
                 >
                   {client.logo ? (
@@ -419,7 +436,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                   ) : (
                     <span className="text-sm text-[color:var(--color-gray)]">{client.name}</span>
                   )}
-                </div>
+                </TiltCard>
               ))}
             </div>
           </div>
@@ -450,15 +467,23 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                     VIEW ALL →
                   </a>
                 </div>
+                <WorkShowcase3D 
+                  works={section.works}
+                  onSelect={(work) => setSelectedWork(work)}
+                />
                 <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   {section.works.length > 0 ? (
                     section.works.map((work) => (
-                      <button
+                      <TiltCard
                         key={work.id}
-                        type="button"
-                        onClick={() => setSelectedWork(work)}
-                        className="group relative overflow-hidden rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] text-left transition duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-red)]/40"
+                        intensity={12}
+                        className="rounded-[2rem]"
                       >
+                        <button
+                          type="button"
+                          onClick={() => setSelectedWork(work)}
+                          className="group relative overflow-hidden rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] text-left transition duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-red)]/40"
+                        >
                         <div className="relative aspect-[16/9] overflow-hidden bg-black">
                           {work.thumbnail ? (
                             <Image
@@ -484,7 +509,8 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                           <p className="text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-red)]">{work.client}</p>
                           <h4 className="mt-4 text-xl font-semibold text-white">{work.title}</h4>
                         </div>
-                      </button>
+                        </button>
+                      </TiltCard>
                     ))
                   ) : (
                     [0, 1, 2].map((i) => <PlaceholderWorkCard key={i} />)

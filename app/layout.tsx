@@ -18,8 +18,20 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "MO3 Production",
-  description: "Cinematic production portfolio and admin dashboard",
+  title: "MO3 Production | Architects of Emotion",
+  description: "Cinematic stories that resonate. Commercial Ads, Reels, Podcasts, Video Clips.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
+  openGraph: {
+    title: "MO3 Production",
+    description: "Architects of emotion — Media Production",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
