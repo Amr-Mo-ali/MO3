@@ -202,8 +202,7 @@ export default function AdminClientsPage() {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submitForm() {
     setIsSaving(true);
 
     if (!formState.name.trim() || !formState.logo.trim()) {
@@ -242,6 +241,11 @@ export default function AdminClientsPage() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitForm();
   }
 
   async function handleDelete(client: ClientItem) {
@@ -452,7 +456,7 @@ export default function AdminClientsPage() {
 
               <button
                 type="button"
-                onClick={handleSubmit}
+                onClick={submitForm}
                 disabled={isSaving}
                 className="w-full rounded-3xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d] disabled:opacity-60"
               >
