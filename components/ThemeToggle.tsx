@@ -17,8 +17,11 @@ export default function ThemeToggle({ className = '' }: Props) {
 
   if (!mounted) {
     return (
-      <button className={`h-9 w-9 rounded-full 
-                         border border-[#333] ${className}`} />
+      <button 
+        className={`h-11 w-11 rounded-full 
+                   border border-[color:var(--color-border)] ${className}`}
+        aria-label="Toggle theme"
+      />
     )
   }
 
@@ -27,17 +30,18 @@ export default function ThemeToggle({ className = '' }: Props) {
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className={`flex h-9 w-9 items-center justify-center
+      className={`flex h-11 w-11 items-center justify-center
                  rounded-full border transition-all duration-200
                  ${isDark 
-                   ? 'border-[#333] text-[#888] hover:border-[#E31212] hover:text-white'
-                   : 'border-[#ccc] text-[#555] hover:border-[#E31212] hover:text-[#111]'
+                   ? 'border-[color:var(--color-border)] text-[color:var(--text-secondary)] hover:border-[color:var(--color-primary)] hover:text-[color:var(--text-primary)]'
+                   : 'border-[#ccc] text-[#555] hover:border-[color:var(--color-primary)] hover:text-[#111]'
                  } ${className}`}
-      aria-label="Toggle theme"
+      aria-label="Toggle between light and dark theme"
+      title="Toggle theme"
     >
       {isDark 
-        ? <Sun className="h-4 w-4" /> 
-        : <Moon className="h-4 w-4" />
+        ? <Sun className="h-5 w-5" /> 
+        : <Moon className="h-5 w-5" />
       }
     </button>
   )

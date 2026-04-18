@@ -10,16 +10,28 @@
   --text-primary: #FFFFFF;
   --text-secondary: #888888;
   --text-muted: #444444;
-  --accent: #E31212;
-  --font-sans: var(--font-dm-sans);
-  --font-display: var(--font-bebas-neue);
+  --accent-primary: #C800DF;
+  --accent-secondary: #E60076;
+  --font-sans: var(--font-jost);
+  --font-display: var(--font-jost);
+  --font-mono: var(--font-overpass-mono);
   --background: #000000;
   --foreground: #FFFFFF;
   --surface: #111111;
   --surface-strong: #0a0a0a;
   --card-bg: #111111;
   --muted: #888888;
-  --color-red: #E31212;
+  --color-primary: #C800DF;
+  --color-secondary: #E60076;
+  /* Backwards compatibility mappings */
+  --color-red: #C800DF;
+  --color-red-dim: #9D00A8;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-gray: #888888;
+  --color-gray-light: #BBBBBB;
+  --color-border: #222222;
+  --color-surface: #111111;
 }
 
 .light {
@@ -31,14 +43,25 @@
   --text-primary: #111111;
   --text-secondary: #555555;
   --text-muted: #999999;
-  --accent: #E31212;
+  --accent-primary: #C800DF;
+  --accent-secondary: #E60076;
   --background: #F5F5F5;
   --foreground: #111111;
   --surface: #FFFFFF;
   --surface-strong: #F0F0F0;
   --card-bg: #FFFFFF;
   --muted: #555555;
-  --color-red: #E31212;
+  --color-primary: #C800DF;
+  --color-secondary: #E60076;
+  /* Backwards compatibility mappings */
+  --color-red: #C800DF;
+  --color-red-dim: #9D00A8;
+  --color-white: #111111;
+  --color-black: #F5F5F5;
+  --color-gray: #555555;
+  --color-gray-light: #777777;
+  --color-border: #DDDDDD;
+  --color-surface: #FFFFFF;
 }
 
 .dark {
@@ -50,14 +73,25 @@
   --text-primary: #FFFFFF;
   --text-secondary: #888888;
   --text-muted: #444444;
-  --accent: #E31212;
+  --accent-primary: #C800DF;
+  --accent-secondary: #E60076;
   --background: #000000;
   --foreground: #FFFFFF;
   --surface: #111111;
   --surface-strong: #0a0a0a;
   --card-bg: #111111;
   --muted: #888888;
-  --color-red: #E31212;
+  --color-primary: #C800DF;
+  --color-secondary: #E60076;
+  /* Backwards compatibility mappings */
+  --color-red: #C800DF;
+  --color-red-dim: #9D00A8;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-gray: #888888;
+  --color-gray-light: #BBBBBB;
+  --color-border: #222222;
+  --color-surface: #111111;
 }
 
 html {
@@ -123,8 +157,8 @@ textarea {
 }
 
 ::selection {
-  background: var(--color-red);
-  color: var(--color-white);
+  background: var(--color-primary);
+  color: var(--foreground);
 }
 
 .film-grain {
@@ -156,9 +190,14 @@ textarea {
   -webkit-text-stroke: 1px #ffffff;
 }
 
-.text-stroke-red {
+.text-stroke-primary {
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-red);
+  -webkit-text-stroke: 1px var(--color-primary);
+}
+
+.text-stroke-secondary {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-secondary);
 }
 
 .marquee {
@@ -213,16 +252,38 @@ textarea {
 .custom-cursor-ring {
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(227, 18, 18, 0.95);
+  border: 2px solid var(--color-primary);
   border-radius: 9999px;
   transform: translate(-50%, -50%);
   transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
-  opacity: 0.9;
+  opacity: 0.8;
 }
 
 .cursor-active {
   width: 54px;
   height: 54px;
+  border-color: var(--color-secondary);
+}
+
+/* Focus Indicators for Accessibility - WCAG 2.2 AA */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Tab focus for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users but keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* 3D Effects */
@@ -266,11 +327,94 @@ textarea {
   transform: translateY(-8px) translateZ(20px) rotateX(3deg);
 }
 
-/* Accessibility: Reduce motion */
+/* Accessibility: Reduce motion - respects user preferences */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.2s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0.2s !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* Contemporary Design System - Button Styling */
+button {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Component spacing - comfortable density */
+* + h1, * + h2, * + h3, * + h4, * + h5, * + h6 {
+  margin-top: 1.5rem;
+}
+
+p + p {
+  margin-top: 1rem;
+}
+
+/* Touch targets - 44px minimum per WCAG */
+a, button, input[type="button"], input[type="submit"], input[type="checkbox"], input[type="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Link styling */
+a:not([class]) {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:not([class]):hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+/* Form styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+  font-family: var(--font-sans);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(200, 0, 223, 0.1);
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

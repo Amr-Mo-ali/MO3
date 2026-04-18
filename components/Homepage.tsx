@@ -163,6 +163,18 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
     return () => observer.disconnect();
   }, [statsRef]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [menuOpen]);
+
   return (
     <main className="relative overflow-hidden bg-[color:var(--color-black)] text-[color:var(--color-white)]">
       <CustomCursor />
@@ -561,22 +573,22 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         <div className="mx-auto max-w-4xl">
           
           <p className="mb-3 text-[11px] uppercase 
-                        tracking-[6px] text-[#E31212]">
+                        tracking-[6px] text-[color:var(--color-primary)]">
             GET IN TOUCH
           </p>
-          <h2 className="font-bebas text-5xl md:text-7xl 
+          <h2 className="font-display text-5xl md:text-7xl 
                          text-[color:var(--text-primary)] 
                          leading-none mb-4">
             LET'S CREATE SOMETHING TOGETHER
           </h2>
-          <div className="mx-auto mb-8 h-[2px] w-16 bg-[#E31212]" />
+          <div className="mx-auto mb-8 h-[2px] w-16 bg-[color:var(--color-primary)]" />
 
           <a
             href="https://wa.me/201066298201"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 rounded-full
-                       bg-[#E31212] px-8 py-4 text-white font-medium
+                       bg-[color:var(--color-primary)] px-8 py-4 text-white font-medium
                        text-lg hover:bg-[#c01010] transition-colors
                        mb-12 shadow-lg shadow-red-900/30"
           >
@@ -595,11 +607,11 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                rel="noopener noreferrer"
                className="flex flex-col items-center gap-2 
                           text-[color:var(--text-secondary)]
-                          hover:text-[#E31212] transition-colors group">
+                          hover:text-[color:var(--color-primary)] transition-colors group">
               <div className="flex h-12 w-12 items-center justify-center
                               rounded-full border 
                               border-[color:var(--border-color)]
-                              group-hover:border-[#E31212] 
+                              group-hover:border-[color:var(--color-primary)] 
                               transition-colors">
                 <svg className="h-5 w-5" fill="currentColor" 
                      viewBox="0 0 24 24">
@@ -614,11 +626,11 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                rel="noopener noreferrer"
                className="flex flex-col items-center gap-2
                           text-[color:var(--text-secondary)]
-                          hover:text-[#E31212] transition-colors group">
+                          hover:text-[color:var(--color-primary)] transition-colors group">
               <div className="flex h-12 w-12 items-center justify-center
                               rounded-full border
                               border-[color:var(--border-color)]
-                              group-hover:border-[#E31212]
+                              group-hover:border-[color:var(--color-primary)]
                               transition-colors">
                 <svg className="h-5 w-5" fill="currentColor"
                      viewBox="0 0 24 24">
@@ -633,11 +645,11 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                rel="noopener noreferrer"
                className="flex flex-col items-center gap-2
                           text-[color:var(--text-secondary)]
-                          hover:text-[#E31212] transition-colors group">
+                          hover:text-[color:var(--color-primary)] transition-colors group">
               <div className="flex h-12 w-12 items-center justify-center
                               rounded-full border
                               border-[color:var(--border-color)]
-                              group-hover:border-[#E31212]
+                              group-hover:border-[color:var(--color-primary)]
                               transition-colors">
                 <svg className="h-5 w-5" fill="currentColor"
                      viewBox="0 0 24 24">
@@ -650,11 +662,11 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
             <a href="tel:+201066298201"
                className="flex flex-col items-center gap-2
                           text-[color:var(--text-secondary)]
-                          hover:text-[#E31212] transition-colors group">
+                          hover:text-[color:var(--color-primary)] transition-colors group">
               <div className="flex h-12 w-12 items-center justify-center
                               rounded-full border
                               border-[color:var(--border-color)]
-                              group-hover:border-[#E31212]
+                              group-hover:border-[color:var(--color-primary)]
                               transition-colors">
                 <svg className="h-5 w-5" fill="none"
                      stroke="currentColor" viewBox="0 0 24 24">

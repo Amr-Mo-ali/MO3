@@ -36,7 +36,7 @@ export default function MiniMapComponent({
     return (
       <div className="flex h-full w-full items-center justify-center bg-[#0a0a0a]">
         <div className="text-center">
-          <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-[#E31212] border-t-transparent mx-auto" />
+          <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-[#C800DF] border-t-transparent mx-auto" />
           <p className="text-xs text-[#888]">Loading map...</p>
         </div>
       </div>

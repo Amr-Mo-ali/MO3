@@ -1,5 +1,5 @@
 'use client'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 interface Props {
   children: React.ReactNode
@@ -13,14 +13,11 @@ export default function TiltCard({
   intensity = 15
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
+  const [isFocused, setIsFocused] = useState(false)
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (window.innerWidth < 768) return
+  const applyTilt = (x: number, y: number) => {
     const el = ref.current
     if (!el) return
-    const rect = el.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width
-    const y = (e.clientY - rect.top) / rect.height
     const tiltX = (y - 0.5) * -intensity
     const tiltY = (x - 0.5) * intensity
     el.style.transform = `
@@ -36,14 +33,14 @@ export default function TiltCard({
       shine.style.background = `
         radial-gradient(
           circle at ${x * 100}% ${y * 100}%,
-          rgba(227,18,18,0.12) 0%,
+          rgba(200,0,223,0.15) 0%,
           transparent 65%
         )
       `
     }
   }
 
-  const handleMouseLeave = () => {
+  const resetTilt = () => {
     const el = ref.current
     if (!el) return
     el.style.transform = `
@@ -57,13 +54,44 @@ export default function TiltCard({
     if (shine) shine.style.opacity = '0'
   }
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (window.innerWidth < 768) return
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    applyTilt(x, y)
+  }
+
+  const handleMouseLeave = () => {
+    if (!isFocused) {
+      resetTilt()
+    }
+  }
+
+  const handleFocus = () => {
+    setIsFocused(true)
+    // Apply slight tilt on focus for keyboard users
+    applyTilt(0.5, 0.5)
+  }
+
+  const handleBlur = () => {
+    setIsFocused(false)
+    resetTilt()
+  }
+
   return (
     <div
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`relative ${className}`}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      tabIndex={0}
+      className={`relative outline-none ${className}`}
       style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+      role="region"
     >
       <div className="tilt-shine absolute inset-0 pointer-events-none z-10 opacity-0 transition-opacity duration-300" />
       {children}

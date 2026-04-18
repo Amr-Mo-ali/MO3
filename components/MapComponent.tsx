@@ -18,6 +18,10 @@ export default function MapComponent({
   const markersLayerRef = useRef<any>(null)
   const [ready, setReady] = useState(false)
 
+  // Primary color for styling
+  const PRIMARY_COLOR = '#C800DF'
+  const PRIMARY_RGB = '200, 0, 223'
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!containerRef.current) return
@@ -71,8 +75,6 @@ export default function MapComponent({
       
       markersLayerRef.current.clearLayers()
 
-      console.log('Rendering markers:', locations.length)
-
       locations.forEach((place) => {
         const isSelected = place.id === selectedId
 
@@ -87,10 +89,10 @@ export default function MapComponent({
               <div style="
                 width: 100%;
                 height: 100%;
-                background: #E31212;
+                background: ${PRIMARY_COLOR};
                 border-radius: 50%;
                 border: 2px solid ${isSelected ? '#fff' : 'rgba(255,255,255,0.4)'};
-                box-shadow: 0 0 ${isSelected ? '16px' : '8px'} rgba(227,18,18,0.9);
+                box-shadow: 0 0 ${isSelected ? '16px' : '8px'} rgba(${PRIMARY_RGB},0.9);
               "></div>
               <style>
                 @keyframes ripple {
@@ -104,7 +106,7 @@ export default function MapComponent({
                 transform: translate(-50%,-50%);
                 width: ${isSelected ? '44px' : '32px'};
                 height: ${isSelected ? '44px' : '32px'};
-                background: rgba(227,18,18,0.25);
+                background: rgba(${PRIMARY_RGB},0.25);
                 border-radius: 50%;
                 animation: ripple 2s ease-out infinite;
                 pointer-events: none;
@@ -127,10 +129,10 @@ export default function MapComponent({
             padding: 12px;
             border-radius: 10px;
             border: 1px solid #333;
-            font-family: DM Sans, sans-serif;
+            font-family: var(--font-jost), Jost, sans-serif;
             min-width: 180px;
           ">
-            <p style="color:#E31212;font-weight:700;
+            <p style="color:${PRIMARY_COLOR};font-weight:700;
                       font-size:15px;margin:0 0 5px">
               ${place.city}
             </p>
@@ -145,7 +147,7 @@ export default function MapComponent({
             <span style="
               display:inline-block;
               padding:2px 10px;
-              background:#E31212;
+              background:${PRIMARY_COLOR};
               border-radius:20px;
               font-size:11px;
               color:#fff;
@@ -159,7 +161,7 @@ export default function MapComponent({
               ? `<a href="${place.project_url}" 
                     target="_blank"
                     style="display:block;margin-top:8px;
-                           font-size:11px;color:#E31212">
+                           font-size:11px;color:${PRIMARY_COLOR}">
                    View Project →
                  </a>` 
               : ''}
@@ -203,7 +205,7 @@ export default function MapComponent({
           <div className="text-center">
             <div className="mb-3 h-8 w-8 animate-spin 
                             rounded-full border-2 
-                            border-[#E31212] 
+                            border-[#C800DF] 
                             border-t-transparent mx-auto" />
             <p className="text-sm text-[#888]">
               Loading map...

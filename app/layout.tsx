@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, DM_Sans } from "next/font/google";
+import { Jost, Overpass_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 
-const bebasNeue = Bebas_Neue({
+const jost = Jost({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-bebas-neue",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-jost",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const overpassMono = Overpass_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-dm-sans",
+  weight: ["400", "700"],
+  variable: "--font-overpass-mono",
   display: "swap",
 });
 
@@ -46,7 +46,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${jost.variable} ${overpassMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[color:var(--background)] text-[color:var(--foreground)] transition-colors duration-300">
         <Providers>{children}</Providers>

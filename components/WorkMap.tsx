@@ -12,7 +12,7 @@ const MapComponent = dynamic(
       <div className="flex h-full w-full items-center 
                       justify-center bg-[#111]">
         <div className="h-8 w-8 animate-spin rounded-full 
-                        border-2 border-[#E31212] 
+                        border-2 border-[color:var(--color-primary)] 
                         border-t-transparent" />
       </div>
     )
@@ -71,15 +71,15 @@ export default function WorkMap() {
 
         <div className="mb-10 text-center">
           <p className="mb-2 text-[11px] uppercase 
-                        tracking-[6px] text-[#E31212]">
+                        tracking-[6px] text-[color:var(--color-primary)]">
             OUR REACH
           </p>
-          <h2 className="font-bebas text-5xl 
+          <h2 className="font-display text-5xl 
                          md:text-7xl leading-none
                          text-[color:var(--text-primary)]">
             WHERE WE'VE WORKED
           </h2>
-          <div className="mx-auto mt-4 h-[2px] w-16 bg-[#E31212]" />
+          <div className="mx-auto mt-4 h-[2px] w-16 bg-[color:var(--color-primary)]" />
           <p className="mt-4 text-[color:var(--text-secondary)] text-sm">
             From Cairo to Alexandria — stories told across Egypt
           </p>
@@ -98,8 +98,8 @@ export default function WorkMap() {
               className={`rounded-full px-4 py-1.5 text-sm 
                          font-medium transition-all duration-200
                          ${filter === cat
-                           ? 'bg-[#E31212] text-white'
-                           : 'border border-[color:var(--border-color)] text-[color:var(--text-secondary)] hover:border-[#E31212] hover:text-[color:var(--text-primary)]'
+                           ? 'bg-[color:var(--color-primary)] text-white'
+                           : 'border border-[color:var(--border-color)] text-[color:var(--text-secondary)] hover:border-[color:var(--color-primary)] hover:text-[color:var(--text-primary)]'
                          }`}
             >
               {cat}
@@ -123,7 +123,7 @@ export default function WorkMap() {
                 <div className="text-center">
                   <div className="mb-3 h-8 w-8 animate-spin 
                                   rounded-full border-2 
-                                  border-[#E31212] 
+                                  border-[color:var(--color-primary)] 
                                   border-t-transparent mx-auto" />
                   <p className="text-sm text-[#888]">
                     Loading locations...
