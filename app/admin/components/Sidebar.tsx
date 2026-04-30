@@ -34,7 +34,7 @@ export default function Sidebar() {
               href={item.href}
               className={`rounded-2xl border-l-4 border-transparent px-4 py-3 text-sm transition ${
                 isActive
-                  ? "border-[#E31212] bg-[color:var(--card-bg)] text-[#E31212]"
+                  ? "border-[color:var(--color-primary)] bg-[color:var(--card-bg)] text-[color:var(--color-primary)]"
                   : "text-[color:var(--foreground)] hover:bg-white/5 hover:text-white"
               }`}
             >
@@ -47,7 +47,7 @@ export default function Sidebar() {
       <div className="mt-10 pt-6 border-t border-[color:var(--border-color)]">
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          onClick={() => signOut({ callbackUrl: "/admin-login" })}
           className="w-full rounded-2xl bg-[color:var(--surface)] px-4 py-3 text-left text-sm text-[color:var(--foreground)] transition hover:bg-white/10"
         >
           Logout

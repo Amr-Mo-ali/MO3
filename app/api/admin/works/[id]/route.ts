@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -22,6 +23,15 @@ function parseTags(value: unknown) {
       .filter((tag: any) => tag.length > 0);
   }
   return [];
+}
+
+function parseOptionalNumber(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
 }
 
 export async function PUT(
@@ -56,6 +66,32 @@ export async function PUT(
   if (typeof body.description === "string") {
     updates.description = body.description.trim();
   }
+  if (typeof body.locationLabel === "string") {
+    updates.locationLabel = body.locationLabel.trim() || null;
+  }
+  if (typeof body.locationCity === "string") {
+    updates.locationCity = body.locationCity.trim() || null;
+  }
+  if (typeof body.locationCountry === "string") {
+    updates.locationCountry = body.locationCountry.trim() || null;
+  }
+  if (body.locationLat !== undefined) {
+    const parsed = parseOptionalNumber(body.locationLat);
+    if (parsed === undefined && body.locationLat !== null && body.locationLat !== "") {
+      return NextResponse.json({ error: "Invalid latitude" }, { status: 400 });
+    }
+    updates.locationLat = parsed ?? null;
+  }
+  if (body.locationLng !== undefined) {
+    const parsed = parseOptionalNumber(body.locationLng);
+    if (parsed === undefined && body.locationLng !== null && body.locationLng !== "") {
+      return NextResponse.json({ error: "Invalid longitude" }, { status: 400 });
+    }
+    updates.locationLng = parsed ?? null;
+  }
+  if (typeof body.showOnMap === "boolean") {
+    updates.showOnMap = body.showOnMap;
+  }
   if (typeof body.isVisible === "boolean") {
     updates.isVisible = body.isVisible;
   }
@@ -73,6 +109,18 @@ export async function PUT(
     updates.tags = parseTags(body.tags);
   }
 
+  const finalShowOnMap = "showOnMap" in updates ? updates.showOnMap : undefined;
+  const finalCity = "locationCity" in updates ? updates.locationCity : undefined;
+  const finalLat = "locationLat" in updates ? updates.locationLat : undefined;
+  const finalLng = "locationLng" in updates ? updates.locationLng : undefined;
+
+  if (finalShowOnMap === true && (!finalCity || finalLat == null || finalLng == null)) {
+    return NextResponse.json(
+      { error: "City, latitude, and longitude are required when showing a work on the map." },
+      { status: 400 }
+    );
+  }
+
   try {
     const work = await prisma.work.update({
       where: { id },
@@ -83,6 +131,7 @@ export async function PUT(
         },
       },
     });
+    revalidatePath("/");
     return NextResponse.json(work);
   } catch (error) {
     return NextResponse.json({ error: "Unable to update work" }, { status: 500 });
@@ -105,6 +154,7 @@ export async function DELETE(
 
   try {
     await prisma.work.delete({ where: { id } });
+    revalidatePath("/");
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Unable to delete work" }, { status: 500 });

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import type { Client, Section } from "@/types";
 import Homepage from "@/components/Homepage";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [siteConfigRows, clients, sections] = await Promise.all([
@@ -22,7 +23,7 @@ export default async function Home() {
   ]);
 
   const siteConfig = Object.fromEntries(siteConfigRows.map((item) => [item.key, item.value])) as {
-    aboutText?: string;
+    about_text?: string;
     whatsapp?: string;
     instagram?: string;
     behance?: string;
@@ -34,7 +35,7 @@ export default async function Home() {
   return (
     <Homepage
       siteConfig={{
-        aboutText: siteConfig.aboutText ?? "",
+        aboutText: siteConfig.about_text ?? "",
         whatsapp: siteConfig.whatsapp ?? "",
         instagram: siteConfig.instagram ?? "",
         behance: siteConfig.behance ?? "",

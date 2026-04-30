@@ -44,7 +44,7 @@ export default function LoginForm() {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-2xl border border-[color:var(--border-color)] bg-[color:var(--surface)] px-4 py-3 text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--accent)]"
+          className="w-full rounded-2xl border border-[color:var(--border-color)] bg-[color:var(--surface)] px-4 py-3 text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--color-primary)]"
           placeholder="admin@mo3production.com"
           required
         />
@@ -59,7 +59,7 @@ export default function LoginForm() {
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="w-full rounded-2xl border border-[color:var(--border-color)] bg-[color:var(--surface)] px-4 py-3 text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--accent)]"
+          className="w-full rounded-2xl border border-[color:var(--border-color)] bg-[color:var(--surface)] px-4 py-3 text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--color-primary)]"
           placeholder="Enter your password"
           required
         />

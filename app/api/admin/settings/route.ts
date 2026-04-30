@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -31,12 +32,14 @@ export async function PUT(req: NextRequest) {
   await Promise.all(
     entries.map(([key, value]: any) =>
       prisma.siteConfig.upsert({
-        where: { key },
+        where: { key: key === "aboutText" ? "about_text" : key },
         update: { value },
-        create: { key, value },
+        create: { key: key === "aboutText" ? "about_text" : key, value },
       })
     )
   );
+
+  revalidatePath("/");
 
   return NextResponse.json({ success: true });
 }

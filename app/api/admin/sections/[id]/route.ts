@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -84,6 +85,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       },
     });
 
+    revalidatePath("/");
+
     return NextResponse.json({
       id: updatedSection.id,
       title: updatedSection.title,
@@ -117,6 +120,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
   try {
     await prisma.section.delete({ where: { id: sectionId } });
+    revalidatePath("/");
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Unable to delete section" }, { status: 500 });

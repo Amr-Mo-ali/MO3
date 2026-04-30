@@ -61,6 +61,12 @@ interface WorkItem {
   thumbnail: string;
   description: string;
   tags: string[];
+  locationLabel: string | null;
+  locationCity: string | null;
+  locationCountry: string | null;
+  locationLat: number | null;
+  locationLng: number | null;
+  showOnMap: boolean;
   isVisible: boolean;
   order: number;
   sectionId: string;
@@ -184,6 +190,12 @@ export default function AdminWorksPage() {
     thumbnail: "",
     description: "",
     tags: "",
+    locationLabel: "",
+    locationCity: "",
+    locationCountry: "",
+    locationLat: "",
+    locationLng: "",
+    showOnMap: false,
     order: "",
     isVisible: true,
   });
@@ -238,6 +250,12 @@ export default function AdminWorksPage() {
       thumbnail: "",
       description: "",
       tags: "",
+      locationLabel: "",
+      locationCity: "",
+      locationCountry: "",
+      locationLat: "",
+      locationLng: "",
+      showOnMap: false,
       order: "",
       isVisible: true,
     });
@@ -260,6 +278,12 @@ export default function AdminWorksPage() {
       thumbnail: work.thumbnail,
       description: work.description,
       tags: work.tags.join(", "),
+      locationLabel: work.locationLabel ?? "",
+      locationCity: work.locationCity ?? "",
+      locationCountry: work.locationCountry ?? "",
+      locationLat: work.locationLat?.toString() ?? "",
+      locationLng: work.locationLng?.toString() ?? "",
+      showOnMap: work.showOnMap,
       order: work.order.toString(),
       isVisible: work.isVisible,
     });
@@ -329,6 +353,15 @@ export default function AdminWorksPage() {
       return;
     }
 
+    if (
+      formState.showOnMap &&
+      (!formState.locationCity.trim() || !formState.locationLat || !formState.locationLng)
+    ) {
+      toast.error("Map-enabled works need a city, latitude, and longitude.");
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       title: formState.title.trim(),
       client: formState.client.trim(),
@@ -337,6 +370,12 @@ export default function AdminWorksPage() {
       thumbnail: formState.thumbnail.trim(),
       description: formState.description.trim(),
       tags: formState.tags,
+      locationLabel: formState.locationLabel.trim(),
+      locationCity: formState.locationCity.trim(),
+      locationCountry: formState.locationCountry.trim(),
+      locationLat: formState.locationLat ? Number(formState.locationLat) : null,
+      locationLng: formState.locationLng ? Number(formState.locationLng) : null,
+      showOnMap: formState.showOnMap,
       isVisible: formState.isVisible,
       order: formState.order ? Number(formState.order) : undefined,
     };
@@ -729,6 +768,75 @@ export default function AdminWorksPage() {
                       placeholder="Display order"
                     />
                   </label>
+                </div>
+                <div className="rounded-3xl border border-slate-800 bg-slate-950/60 p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-slate-100">Interactive map</p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        Enable this project on the public work map and provide the client location.
+                      </p>
+                    </div>
+                    <label className="inline-flex items-center gap-3 text-sm text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={formState.showOnMap}
+                        onChange={(event) => updateField("showOnMap", event.target.checked)}
+                        className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-[#E31212]"
+                      />
+                      Show on map
+                    </label>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                    <label className="space-y-2 text-sm text-slate-300">
+                      <span>Location label</span>
+                      <input
+                        value={formState.locationLabel}
+                        onChange={(event) => updateField("locationLabel", event.target.value)}
+                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                        placeholder="Headquarters, studio, campus..."
+                      />
+                    </label>
+                    <label className="space-y-2 text-sm text-slate-300">
+                      <span>City</span>
+                      <input
+                        value={formState.locationCity}
+                        onChange={(event) => updateField("locationCity", event.target.value)}
+                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                        placeholder="Cairo"
+                      />
+                    </label>
+                    <label className="space-y-2 text-sm text-slate-300">
+                      <span>Country</span>
+                      <input
+                        value={formState.locationCountry}
+                        onChange={(event) => updateField("locationCountry", event.target.value)}
+                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                        placeholder="Egypt"
+                      />
+                    </label>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="space-y-2 text-sm text-slate-300">
+                        <span>Latitude</span>
+                        <input
+                          value={formState.locationLat}
+                          onChange={(event) => updateField("locationLat", event.target.value)}
+                          className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                          placeholder="30.0444"
+                        />
+                      </label>
+                      <label className="space-y-2 text-sm text-slate-300">
+                        <span>Longitude</span>
+                        <input
+                          value={formState.locationLng}
+                          onChange={(event) => updateField("locationLng", event.target.value)}
+                          className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                          placeholder="31.2357"
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="inline-flex items-center gap-3 text-sm text-slate-300">

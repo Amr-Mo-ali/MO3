@@ -16,9 +16,9 @@ export async function GET() {
     database: {
       DATABASE_URL: !!process.env.DATABASE_URL,
     },
-    supabase: {
-      NEXT_PUBLIC_SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    maps: {
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+      NEXT_PUBLIC_GOOGLE_MAP_ID: true,
     }
   }
 
@@ -36,7 +36,7 @@ export async function GET() {
     const missing = Object.entries(checks)
       .flatMap(([section, vars]) =>
         Object.entries(vars)
-          .filter(([_, configured]) => !configured)
+          .filter(([, configured]) => !configured)
           .map(([varName]) => `${section}.${varName}`)
       )
 

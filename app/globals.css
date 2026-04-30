@@ -1,97 +1,109 @@
-@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
   color-scheme: dark;
-  --bg-primary: #000000;
-  --bg-surface: #111111;
-  --bg-surface-2: #161616;
-  --border-color: #222222;
-  --text-primary: #FFFFFF;
-  --text-secondary: #888888;
-  --text-muted: #444444;
-  --accent-primary: #C800DF;
-  --accent-secondary: #E60076;
-  --font-sans: var(--font-jost);
-  --font-display: var(--font-jost);
-  --font-mono: var(--font-overpass-mono);
-  --background: #000000;
-  --foreground: #FFFFFF;
-  --surface: #111111;
-  --surface-strong: #0a0a0a;
-  --card-bg: #111111;
-  --muted: #888888;
-  --color-primary: #C800DF;
-  --color-secondary: #E60076;
+  --bg-primary: #071311;
+  --bg-surface: #0d1b18;
+  --bg-surface-2: #112420;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #f4fbf8;
+  --text-secondary: #bfd5cf;
+  --text-muted: #7b948e;
+  --accent-primary: #00bd7d;
+  --accent-secondary: #0f172a;
+  --font-sans: "Poppins";
+  --font-display: "Oswald";
+  --font-mono: "JetBrains Mono";
+  --background: #071311;
+  --foreground: #f4fbf8;
+  --surface: #0d1b18;
+  --surface-strong: #081311;
+  --card-bg: #10201d;
+  --muted: #8ea7a1;
+  --color-primary: #00bd7d;
+  --color-secondary: #dc2626;
+  --color-text: #111827;
+  --color-surface-light: #ffffff;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
   /* Backwards compatibility mappings */
-  --color-red: #C800DF;
-  --color-red-dim: #9D00A8;
-  --color-white: #FFFFFF;
-  --color-black: #000000;
-  --color-gray: #888888;
-  --color-gray-light: #BBBBBB;
-  --color-border: #222222;
-  --color-surface: #111111;
+  --color-red: #00bd7d;
+  --color-red-dim: #0e9f6e;
+  --color-white: #f4fbf8;
+  --color-black: #071311;
+  --color-gray: #8ea7a1;
+  --color-gray-light: #d4e4df;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-surface: #10201d;
 }
 
 .light {
   color-scheme: light;
-  --bg-primary: #F5F5F5;
+  --bg-primary: #eef7f3;
   --bg-surface: #FFFFFF;
-  --bg-surface-2: #EFEFEF;
-  --border-color: #DDDDDD;
-  --text-primary: #111111;
-  --text-secondary: #555555;
-  --text-muted: #999999;
-  --accent-primary: #C800DF;
-  --accent-secondary: #E60076;
-  --background: #F5F5F5;
-  --foreground: #111111;
+  --bg-surface-2: #f6fbf9;
+  --border-color: rgba(17, 24, 39, 0.12);
+  --text-primary: #111827;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent-primary: #00BD7D;
+  --accent-secondary: #DC2626;
+  --background: #eef7f3;
+  --foreground: #111827;
   --surface: #FFFFFF;
-  --surface-strong: #F0F0F0;
+  --surface-strong: #dbece6;
   --card-bg: #FFFFFF;
-  --muted: #555555;
-  --color-primary: #C800DF;
-  --color-secondary: #E60076;
+  --muted: #64748b;
+  --color-primary: #00BD7D;
+  --color-secondary: #DC2626;
+  --color-text: #111827;
+  --color-surface-light: #ffffff;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
   /* Backwards compatibility mappings */
-  --color-red: #C800DF;
-  --color-red-dim: #9D00A8;
+  --color-red: #00BD7D;
+  --color-red-dim: #0e9f6e;
   --color-white: #111111;
-  --color-black: #F5F5F5;
-  --color-gray: #555555;
-  --color-gray-light: #777777;
-  --color-border: #DDDDDD;
+  --color-black: #eef7f3;
+  --color-gray: #475569;
+  --color-gray-light: #334155;
+  --color-border: rgba(17, 24, 39, 0.12);
   --color-surface: #FFFFFF;
 }
 
 .dark {
   color-scheme: dark;
-  --bg-primary: #000000;
-  --bg-surface: #111111;
-  --bg-surface-2: #161616;
-  --border-color: #222222;
-  --text-primary: #FFFFFF;
-  --text-secondary: #888888;
-  --text-muted: #444444;
-  --accent-primary: #C800DF;
-  --accent-secondary: #E60076;
-  --background: #000000;
-  --foreground: #FFFFFF;
-  --surface: #111111;
-  --surface-strong: #0a0a0a;
-  --card-bg: #111111;
-  --muted: #888888;
-  --color-primary: #C800DF;
-  --color-secondary: #E60076;
+  --bg-primary: #071311;
+  --bg-surface: #0d1b18;
+  --bg-surface-2: #112420;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #f4fbf8;
+  --text-secondary: #bfd5cf;
+  --text-muted: #7b948e;
+  --accent-primary: #00bd7d;
+  --accent-secondary: #dc2626;
+  --background: #071311;
+  --foreground: #f4fbf8;
+  --surface: #0d1b18;
+  --surface-strong: #081311;
+  --card-bg: #10201d;
+  --muted: #8ea7a1;
+  --color-primary: #00bd7d;
+  --color-secondary: #dc2626;
+  --color-text: #111827;
+  --color-surface-light: #ffffff;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
   /* Backwards compatibility mappings */
-  --color-red: #C800DF;
-  --color-red-dim: #9D00A8;
-  --color-white: #FFFFFF;
-  --color-black: #000000;
-  --color-gray: #888888;
-  --color-gray-light: #BBBBBB;
-  --color-border: #222222;
-  --color-surface: #111111;
+  --color-red: #00bd7d;
+  --color-red-dim: #0e9f6e;
+  --color-white: #f4fbf8;
+  --color-black: #071311;
+  --color-gray: #8ea7a1;
+  --color-gray-light: #d4e4df;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-surface: #10201d;
 }
 
 html {
@@ -164,9 +176,9 @@ textarea {
 .film-grain {
   position: fixed;
   inset: 0;
-  opacity: 0.04;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-  background-size: 6px 6px;
+  opacity: 0.035;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 8px 8px;
   pointer-events: none;
   z-index: 50;
 }
@@ -409,7 +421,96 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(200, 0, 223, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 189, 125, 0.18);
+}
+
+.work-map-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.work-map-marker__pin {
+  position: relative;
+  display: inline-flex;
+  height: 22px;
+  width: 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #00d98f 0%, #00bd7d 100%);
+  box-shadow: 0 10px 28px rgba(0, 189, 125, 0.35);
+}
+
+.work-map-marker__pin::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 189, 125, 0.32);
+}
+
+.work-map-marker__pin.is-selected {
+  transform: scale(1.12);
+  box-shadow: 0 12px 32px rgba(0, 189, 125, 0.45);
+}
+
+.work-map-marker__core {
+  height: 8px;
+  width: 8px;
+  border-radius: 9999px;
+  background: #ffffff;
+}
+
+.work-map-marker__label {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 19, 17, 0.92);
+  padding: 8px 12px;
+  color: #f4fbf8;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+}
+
+.work-map-popup {
+  min-width: 220px;
+  max-width: 260px;
+  padding: 4px 2px;
+  color: #111827;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.work-map-popup__eyebrow {
+  margin: 0 0 8px;
+  color: #00bd7d;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.work-map-popup__title {
+  margin: 0;
+  color: #111827;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.work-map-popup__meta,
+.work-map-popup__body {
+  margin: 10px 0 0;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 input:disabled,

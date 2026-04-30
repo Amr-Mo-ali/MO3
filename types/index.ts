@@ -6,6 +6,12 @@ export type Work = {
   thumbnail: string | null;
   description: string | null;
   tags: string[];
+  locationLabel: string | null;
+  locationCity: string | null;
+  locationCountry: string | null;
+  locationLat: number | null;
+  locationLng: number | null;
+  showOnMap: boolean;
   isVisible: boolean;
   order: number;
   sectionId: string;

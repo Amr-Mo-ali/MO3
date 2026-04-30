@@ -1,212 +1,277 @@
-'use client'
-import { useState, useEffect, useCallback } from 'react'
-import dynamic from 'next/dynamic'
-import { supabase } from '@/lib/supabase'
-import type { Place, PlaceCategory } from '@/types/place'
+"use client";
 
-const MapComponent = dynamic(
-  () => import('./MapComponent'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full w-full items-center 
-                      justify-center bg-[#111]">
-        <div className="h-8 w-8 animate-spin rounded-full 
-                        border-2 border-[color:var(--color-primary)] 
-                        border-t-transparent" />
-      </div>
-    )
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Work } from "@/types";
+
+type MappedWork = Work & {
+  sectionTitle: string;
+};
+
+interface WorkMapProps {
+  works: MappedWork[];
+  onSelectWork?: (workId: string) => void;
+}
+
+declare global {
+  interface Window {
+    google?: any;
   }
-)
+}
 
-const CATEGORIES: PlaceCategory[] = [
-  'All', 'Commercial Ad', 'Reel', 
-  'Podcast', 'Video Clip', 'Other'
-]
+let googleMapsScriptPromise: Promise<any> | null = null;
 
-export default function WorkMap() {
-  const [places, setPlaces] = useState<Place[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<PlaceCategory>('All')
-  const [selectedId, setSelectedId] = useState<string>()
-  const [error, setError] = useState<string>()
+function loadGoogleMapsApi() {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("Google Maps can only load in the browser."));
+  }
 
-  const fetchPlaces = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(undefined)
+  if (window.google?.maps) {
+    return Promise.resolve(window.google);
+  }
 
-      const { data, error: err } = await supabase
-        .from('work_locations')
-        .select('*')
-        .order('created_at', { ascending: false })
+  if (googleMapsScriptPromise) {
+    return googleMapsScriptPromise;
+  }
 
-      if (err) {
-        console.error('Supabase error:', err)
-        setError(err.message)
-        return
-      }
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    return Promise.reject(
+      new Error("Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY. Add it to your environment to enable the work map.")
+    );
+  }
 
-      console.log('Fetched places:', data?.length)
-      setPlaces(data || [])
-    } catch (e: any) {
-      console.error('Fetch failed:', e)
-      setError(e.message)
-    } finally {
-      setLoading(false)
+  googleMapsScriptPromise = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector<HTMLScriptElement>('script[data-google-maps="true"]');
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(window.google));
+      existingScript.addEventListener("error", () => reject(new Error("Failed to load Google Maps.")));
+      return;
     }
-  }, [])
+
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&loading=async`;
+    script.async = true;
+    script.defer = true;
+    script.dataset.googleMaps = "true";
+    script.onload = () => resolve(window.google);
+    script.onerror = () => reject(new Error("Failed to load Google Maps."));
+    document.head.appendChild(script);
+  });
+
+  return googleMapsScriptPromise;
+}
+
+function buildMarkerContent(city: string, isSelected: boolean) {
+  const marker = document.createElement("button");
+  marker.type = "button";
+  marker.className = "work-map-marker";
+  marker.setAttribute("aria-label", `View project in ${city}`);
+  marker.innerHTML = `
+    <span class="work-map-marker__pin ${isSelected ? "is-selected" : ""}">
+      <span class="work-map-marker__core"></span>
+    </span>
+    <span class="work-map-marker__label">${city}</span>
+  `;
+  return marker;
+}
+
+export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const infoWindowRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const [selectedWorkId, setSelectedWorkId] = useState<string | null>(works[0]?.id ?? null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [error, setError] = useState<string | null>(null);
+
+  const mappableWorks = useMemo(
+    () =>
+      works.filter(
+        (work) =>
+          work.showOnMap &&
+          typeof work.locationLat === "number" &&
+          typeof work.locationLng === "number" &&
+          work.locationCity
+      ),
+    [works]
+  );
 
   useEffect(() => {
-    fetchPlaces()
-  }, [fetchPlaces])
+    if (!mappableWorks.length) {
+      setStatus("error");
+      setError("No mapped projects are available yet.");
+      return;
+    }
 
-  const filtered = filter === 'All'
-    ? places
-    : places.filter(p => p.category === filter)
+    let cancelled = false;
+
+    async function initMap() {
+      try {
+        setStatus("loading");
+        setError(null);
+        const google = await loadGoogleMapsApi();
+        if (cancelled || !mapRef.current) return;
+
+        const { Map } = await google.maps.importLibrary("maps");
+        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+        const map = new Map(mapRef.current, {
+          center: {
+            lat: mappableWorks[0].locationLat,
+            lng: mappableWorks[0].locationLng,
+          },
+          zoom: mappableWorks.length === 1 ? 8 : 3,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID",
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: "cooperative",
+        });
+
+        const bounds = new google.maps.LatLngBounds();
+        const infoWindow = new google.maps.InfoWindow();
+        mapInstanceRef.current = map;
+        infoWindowRef.current = infoWindow;
+
+        markersRef.current.forEach((marker) => {
+          marker.map = null;
+        });
+
+        markersRef.current = mappableWorks.map((work) => {
+          bounds.extend({ lat: work.locationLat, lng: work.locationLng });
+
+          const markerContent = buildMarkerContent(work.locationCity!, work.id === selectedWorkId);
+          markerContent.addEventListener("click", () => {
+            setSelectedWorkId(work.id);
+            onSelectWork?.(work.id);
+
+            infoWindow.setContent(`
+              <div class="work-map-popup">
+                <p class="work-map-popup__eyebrow">${work.sectionTitle}</p>
+                <h3 class="work-map-popup__title">${work.title}</h3>
+                <p class="work-map-popup__meta">${work.client ?? "Client project"} · ${work.locationCity}${work.locationCountry ? `, ${work.locationCountry}` : ""}</p>
+                ${work.description ? `<p class="work-map-popup__body">${work.description}</p>` : ""}
+              </div>
+            `);
+            infoWindow.open({
+              anchor: marker,
+              map,
+            });
+          });
+
+          const marker = new AdvancedMarkerElement({
+            map,
+            position: { lat: work.locationLat, lng: work.locationLng },
+            title: `${work.title} in ${work.locationCity}`,
+            content: markerContent,
+          });
+
+          marker.addListener("click", () => markerContent.click());
+          return marker;
+        });
+
+        if (mappableWorks.length > 1) {
+          map.fitBounds(bounds, 72);
+        }
+
+        setStatus("ready");
+      } catch (mapsError: any) {
+        if (cancelled) return;
+        setStatus("error");
+        setError(mapsError?.message || "Unable to load the work map.");
+      }
+    }
+
+    initMap();
+
+    return () => {
+      cancelled = true;
+      markersRef.current.forEach((marker) => {
+        marker.map = null;
+      });
+      markersRef.current = [];
+    };
+  }, [mappableWorks, onSelectWork, selectedWorkId]);
+
+  useEffect(() => {
+    if (!selectedWorkId) return;
+    const selected = mappableWorks.find((work) => work.id === selectedWorkId);
+    if (!selected || !mapInstanceRef.current) return;
+
+    mapInstanceRef.current.panTo({
+      lat: selected.locationLat,
+      lng: selected.locationLng,
+    });
+  }, [mappableWorks, selectedWorkId]);
 
   return (
-    <section className="bg-[color:var(--bg-primary)] py-20 px-4">
+    <section id="work-map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-7xl">
-
-        <div className="mb-10 text-center">
-          <p className="mb-2 text-[11px] uppercase 
-                        tracking-[6px] text-[color:var(--color-primary)]">
-            OUR REACH
+        <div className="max-w-3xl">
+          <p className="font-mono text-xs uppercase tracking-[0.35em] text-[color:var(--color-primary)]">
+            Global Reach
           </p>
-          <h2 className="font-display text-5xl 
-                         md:text-7xl leading-none
-                         text-[color:var(--text-primary)]">
-            WHERE WE'VE WORKED
+          <h2 className="mt-4 font-display text-4xl uppercase tracking-[0.04em] text-[color:var(--color-white)] sm:text-6xl">
+            Where The Work Lands
           </h2>
-          <div className="mx-auto mt-4 h-[2px] w-16 bg-[color:var(--color-primary)]" />
-          <p className="mt-4 text-[color:var(--text-secondary)] text-sm">
-            From Cairo to Alexandria — stories told across Egypt
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-[color:var(--color-gray-light)] sm:text-base">
+            Every marker represents a real client location connected to a published project in the portfolio.
+            Select a city to jump to that work instantly.
           </p>
-          {error && (
-            <p className="mt-2 text-xs text-red-400">
-              Error loading locations: {error}
-            </p>
-          )}
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 justify-center">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`rounded-full px-4 py-1.5 text-sm 
-                         font-medium transition-all duration-200
-                         ${filter === cat
-                           ? 'bg-[color:var(--color-primary)] text-white'
-                           : 'border border-[color:var(--border-color)] text-[color:var(--text-secondary)] hover:border-[color:var(--color-primary)] hover:text-[color:var(--text-primary)]'
-                         }`}
-            >
-              {cat}
-              {cat !== 'All' && (
-                <span className="ml-1 text-xs opacity-60">
-                  ({places.filter(p => p.category === cat).length})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-4 lg:flex-row">
-
-          <div className="h-[450px] flex-1 overflow-hidden 
-                          rounded-2xl border 
-                          border-[color:var(--border-color)]">
-            {loading ? (
-              <div className="flex h-full items-center 
-                              justify-center bg-[#111]">
-                <div className="text-center">
-                  <div className="mb-3 h-8 w-8 animate-spin 
-                                  rounded-full border-2 
-                                  border-[color:var(--color-primary)] 
-                                  border-t-transparent mx-auto" />
-                  <p className="text-sm text-[#888]">
-                    Loading locations...
+        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(280px,0.9fr)]">
+          <div className="relative overflow-hidden rounded-[32px] border border-[color:var(--color-border)] bg-[#081512] shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,189,125,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)]" />
+            <div ref={mapRef} className="h-[520px] w-full" />
+            {status !== "ready" ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-[#07110f]/92">
+                <div className="max-w-sm px-6 text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-[color:var(--color-primary)] border-t-transparent" />
+                  <p className="mt-4 text-sm text-[color:var(--color-white)]">
+                    {status === "loading" ? "Loading the map..." : error}
                   </p>
                 </div>
               </div>
-            ) : (
-              <MapComponent
-                locations={filtered}
-                onMarkerClick={(p) => setSelectedId(p.id)}
-                selectedId={selectedId}
-              />
-            )}
+            ) : null}
           </div>
 
-          <div className="w-full lg:w-72 flex flex-col gap-2 
-                          max-h-[450px] overflow-y-auto">
-            {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i}
-                     className="h-20 animate-pulse rounded-xl
-                                bg-[color:var(--bg-surface)]
-                                border border-[color:var(--border-color)]" />
-              ))
-            ) : filtered.length === 0 ? (
-              <div className="flex h-32 flex-col items-center 
-                              justify-center rounded-xl border
-                              border-[color:var(--border-color)]
-                              bg-[color:var(--bg-surface)]">
-                <p className="text-2xl mb-2">📍</p>
-                <p className="text-sm text-[color:var(--text-secondary)]">
-                  No locations yet
-                </p>
-              </div>
-            ) : (
-              filtered.map(place => (
-                <div
-                  key={place.id}
-                  onClick={() => setSelectedId(place.id)}
-                  className={`cursor-pointer rounded-xl border p-3
-                             transition-all duration-200
-                             ${selectedId === place.id
-                               ? 'border-[#E31212] bg-[#1a0000]'
-                               : 'border-[color:var(--border-color)] bg-[color:var(--bg-surface)] hover:border-[#555]'
-                             }`}
+          <div className="grid content-start gap-3">
+            {mappableWorks.map((work) => {
+              const isActive = work.id === selectedWorkId;
+              return (
+                <button
+                  key={work.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedWorkId(work.id);
+                    onSelectWork?.(work.id);
+                  }}
+                  className={`group rounded-[24px] border p-4 text-left transition duration-200 ${
+                    isActive
+                      ? "border-[color:var(--color-primary)] bg-[color:var(--color-white)] text-[color:var(--color-text)] shadow-[0_24px_48px_rgba(0,189,125,0.16)]"
+                      : "border-[color:var(--color-border)] bg-[color:rgba(255,255,255,0.04)] text-[color:var(--color-white)] hover:border-[color:var(--color-primary)]/60 hover:bg-[color:rgba(255,255,255,0.07)]"
+                  }`}
                 >
-                  <div className="flex items-start 
-                                  justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-2 w-2 flex-shrink-0 
-                                        rounded-full bg-[#E31212]" />
-                        <p className="font-semibold text-sm
-                                      text-[color:var(--text-primary)] 
-                                      truncate">
-                          {place.city}
-                        </p>
-                      </div>
-                      <p className="mt-0.5 pl-3.5 text-xs 
-                                    text-[color:var(--text-secondary)] 
-                                    truncate">
-                        {place.project_name}
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className={`font-mono text-[11px] uppercase tracking-[0.24em] ${isActive ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-gray)]"}`}>
+                        {work.sectionTitle}
                       </p>
-                      {place.client_name && (
-                        <p className="pl-3.5 text-xs 
-                                      text-[#E31212] truncate">
-                          {place.client_name}
-                        </p>
-                      )}
+                      <h3 className="mt-2 text-lg font-semibold">{work.title}</h3>
+                      <p className={`mt-2 text-sm ${isActive ? "text-[color:var(--color-text)]/72" : "text-[color:var(--color-gray-light)]"}`}>
+                        {work.client ?? "Client project"}
+                      </p>
                     </div>
-                    <span className="flex-shrink-0 rounded-full 
-                                     bg-[#E31212]/20 px-2 py-0.5 
-                                     text-[10px] text-[#E31212]
-                                     font-medium whitespace-nowrap">
-                      {place.category}
+                    <span className={`rounded-full px-3 py-1 font-mono text-[11px] uppercase tracking-[0.15em] ${isActive ? "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]" : "bg-[color:rgba(255,255,255,0.06)] text-[color:var(--color-gray-light)]"}`}>
+                      {work.locationCity}
                     </span>
                   </div>
-                </div>
-              ))
-            )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

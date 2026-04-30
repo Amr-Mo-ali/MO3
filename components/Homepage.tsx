@@ -102,6 +102,16 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
   );
 
   const visibleSections = sections.filter((section) => section.works.length > 0);
+  const allWorks = useMemo(
+    () =>
+      visibleSections.flatMap((section) =>
+        section.works.map((work) => ({
+          ...work,
+          sectionTitle: section.title,
+        }))
+      ),
+    [visibleSections]
+  );
   const marqueeClients = useMemo(() => [...clients, ...clients], [clients]);
   const whatsappHref = getWhatsAppHref(siteConfig.whatsapp);
 
@@ -267,9 +277,9 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         ) : null}
       </AnimatePresence>
 
-      <section id="home" className="relative min-h-screen overflow-hidden bg-black">
+      <section id="home" className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,rgba(0,189,125,0.12),transparent_30%),linear-gradient(180deg,#071311_0%,#050b09_100%)]">
         <HeroCanvas />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(26,0,0,0.2),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,189,125,0.12),transparent_35%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_25%)]" />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-8">
           <div className="flex flex-1 flex-col justify-center">
@@ -277,25 +287,25 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-gray)]"
+              className="font-mono text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-gray-light)]"
             >
-              WE ARE
+              Cinematic Portfolio
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.7 }}
-              className="mt-8 text-[70px] leading-[0.95] tracking-[-2px] text-white sm:text-[96px] md:text-[120px]"
+              className="mt-8 font-display text-[70px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[96px] md:text-[120px]"
             >
-              ARCHITECTS
+              STORIES
             </motion.h1>
             <motion.h2
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.7 }}
-              className="mt-3 text-[70px] leading-[0.95] tracking-[-2px] text-transparent text-stroke-white sm:text-[96px] md:text-[120px]"
+              className="mt-3 font-display text-[70px] uppercase leading-[0.95] tracking-[0.02em] text-transparent text-stroke-white sm:text-[96px] md:text-[120px]"
             >
-              OF EMOTION
+              IN MOTION
             </motion.h2>
             <motion.div
               initial={{ scaleX: 0 }}
@@ -307,9 +317,9 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.6 }}
-              className="mt-8 max-w-2xl text-[14px] uppercase tracking-[0.48em] text-[color:var(--color-gray)]"
+              className="mt-8 max-w-2xl font-mono text-[14px] uppercase tracking-[0.34em] text-[color:var(--color-gray-light)]"
             >
-              Media outlet · Pre · shoot · Post
+              Direction · Production · Post · Delivery
             </motion.p>
           </div>
         </div>
@@ -335,7 +345,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         </div>
       </section>
 
-      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-6 py-24">
+      <section id="about" className="border-t border-[color:var(--color-border)] bg-[linear-gradient(180deg,#0d1b18_0%,#10201d_100%)] px-6 py-24">
         <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <ScrollReveal direction="up" delay={100}>
             <motion.div
@@ -345,14 +355,14 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
               transition={{ duration: 0.7 }}
               className="space-y-8"
             >
-            <p className="text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">OUR STORY</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">Our Story</p>
             <div className="space-y-3">
-              <h2 className="text-[48px] leading-[0.95] tracking-[-1px] text-white sm:text-[64px] md:text-[80px]">
+              <h2 className="font-display text-[48px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[64px] md:text-[80px]">
                 WHERE IDEAS
                 <br />
-                BECOME
+                TAKE
                 <br />
-                STORIES
+                SHAPE
               </h2>
             </div>
             <p className="max-w-2xl text-[16px] leading-[1.7] text-[color:var(--color-gray-light)]">
@@ -399,8 +409,8 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
       <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--color-black)] px-6 py-24">
         <ScrollReveal direction="scale" delay={100}>
           <div className="mx-auto max-w-7xl text-center">
-            <p className="text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">TRUSTED BY</p>
-            <h2 className="mt-4 text-[48px] leading-[0.95] tracking-[-1px] text-white sm:text-[64px]">OUR CLIENTS</h2>
+            <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">Trusted By</p>
+            <h2 className="mt-4 font-display text-[48px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[64px]">Our Clients</h2>
           </div>
         </ScrollReveal>
 
@@ -455,7 +465,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         </div>
       </section>
 
-      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-6 py-24">
+      <section id="work" className="border-t border-[color:var(--color-border)] bg-[linear-gradient(180deg,#10201d_0%,#0d1b18_100%)] px-6 py-24">
         <div className="mx-auto max-w-7xl">
           {visibleSections.length ? (
             visibleSections.map((section, index) => (
@@ -470,7 +480,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                 <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                   <div className="relative overflow-visible">
                     <span className="pointer-events-none absolute left-0 top-0 z-0 text-[120px] font-[400] leading-[0.9] text-[color:var(--color-border)] opacity-40">0{index + 1}</span>
-                    <h3 className="relative text-[40px] leading-[0.95] tracking-[-1px] text-white sm:text-[56px] md:text-[64px]">{section.title}</h3>
+                    <h3 className="relative font-display text-[40px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[56px] md:text-[64px]">{section.title}</h3>
                   </div>
                   <a
                     href="#work"
@@ -494,6 +504,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                         <button
                           type="button"
                           onClick={() => setSelectedWork(work)}
+                          id={`work-card-${work.id}`}
                           className="group relative overflow-hidden rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] text-left transition duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-red)]/40"
                         >
                         <div className="relative aspect-[16/9] overflow-hidden bg-black">
@@ -520,6 +531,12 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
                         <div className="p-6">
                           <p className="text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-red)]">{work.client}</p>
                           <h4 className="mt-4 text-xl font-semibold text-white">{work.title}</h4>
+                          {work.locationCity ? (
+                            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-gray-light)]">
+                              {work.locationCity}
+                              {work.locationCountry ? `, ${work.locationCountry}` : ""}
+                            </p>
+                          ) : null}
                         </div>
                         </button>
                       </TiltCard>
@@ -566,17 +583,25 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         </div>
       </section>
 
-      <WorkMap />
+      <WorkMap
+        works={allWorks}
+        onSelectWork={(workId) => {
+          setSelectedWork(allWorks.find((work) => work.id === workId) ?? null);
+          const card = document.getElementById(`work-card-${workId}`);
+          card?.scrollIntoView({ behavior: "smooth", block: "center" });
+          card?.focus?.();
+        }}
+      />
 
       <section className="bg-[color:var(--bg-primary)] 
                     py-20 px-4 text-center" id="contact">
         <div className="mx-auto max-w-4xl">
           
-          <p className="mb-3 text-[11px] uppercase 
+          <p className="mb-3 font-mono text-[11px] uppercase 
                         tracking-[6px] text-[color:var(--color-primary)]">
             GET IN TOUCH
           </p>
-          <h2 className="font-display text-5xl md:text-7xl 
+          <h2 className="font-display text-5xl uppercase md:text-7xl 
                          text-[color:var(--text-primary)] 
                          leading-none mb-4">
             LET'S CREATE SOMETHING TOGETHER
@@ -584,13 +609,13 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
           <div className="mx-auto mb-8 h-[2px] w-16 bg-[color:var(--color-primary)]" />
 
           <a
-            href="https://wa.me/201066298201"
+            href={whatsappHref || "#contact"}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 rounded-full
                        bg-[color:var(--color-primary)] px-8 py-4 text-white font-medium
-                       text-lg hover:bg-[#c01010] transition-colors
-                       mb-12 shadow-lg shadow-red-900/30"
+                       text-lg hover:bg-[color:var(--color-red-dim)] transition-colors
+                       mb-12 shadow-lg shadow-[rgba(0,189,125,0.24)]"
           >
             <svg className="h-5 w-5" fill="currentColor" 
                  viewBox="0 0 24 24">
@@ -602,7 +627,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
           <div className="flex items-center justify-center 
                           gap-6 flex-wrap">
             
-            <a href="https://www.instagram.com/mo3_production?igsh=eWxyMTZkaXRxa3Nq"
+            <a href={makeExternalUrl(siteConfig.instagram)}
                target="_blank"
                rel="noopener noreferrer"
                className="flex flex-col items-center gap-2 
@@ -621,7 +646,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
               <span className="text-xs">Instagram</span>
             </a>
 
-            <a href="https://www.facebook.com/MO3Production"
+            <a href={makeExternalUrl(siteConfig.facebook)}
                target="_blank"
                rel="noopener noreferrer"
                className="flex flex-col items-center gap-2
@@ -640,7 +665,7 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
               <span className="text-xs">Facebook</span>
             </a>
 
-            <a href="https://www.behance.net/mo3team"
+            <a href={makeExternalUrl(siteConfig.behance)}
                target="_blank"
                rel="noopener noreferrer"
                className="flex flex-col items-center gap-2

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -32,14 +33,23 @@ export async function POST(req: NextRequest) {
   const maxOrder = await prisma.client.aggregate({ _max: { order: true } });
   const nextOrder = order ?? (maxOrder._max.order ?? 0) + 1;
 
-  const client = await prisma.client.create({
-    data: {
-      name,
-      logo,
-      isVisible,
-      order: nextOrder,
-    },
+  const client = await prisma.$transaction(async (tx) => {
+    await tx.client.updateMany({
+      where: { order: { gte: nextOrder } },
+      data: { order: { increment: 1 } },
+    });
+
+    return tx.client.create({
+      data: {
+        name,
+        logo,
+        isVisible,
+        order: nextOrder,
+      },
+    });
   });
+
+  revalidatePath("/");
 
   return NextResponse.json(client, { status: 201 });
 }

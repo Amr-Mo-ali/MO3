@@ -27,6 +27,12 @@ model Work {
   thumbnail   String?
   description String?
   tags        String[]
+  locationLabel String?
+  locationCity  String?
+  locationCountry String?
+  locationLat   Float?
+  locationLng   Float?
+  showOnMap     Boolean  @default(false)
   isVisible   Boolean  @default(true)
   order       Int      @default(0)
   section     Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
@@ -47,4 +53,33 @@ model SiteConfig {
   id    String @id @default(cuid())
   key   String @unique
   value String
+}
+
+model LegacyWorkLocation {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectName String   @map("project_name")
+  clientName  String?  @map("client_name")
+  city        String
+  governorate String?
+  lat         Decimal  @db.Decimal
+  lng         Decimal  @db.Decimal
+  category    String
+  description String?
+  projectUrl  String?  @map("project_url")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("work_locations")
+}
+
+model LegacyLocationWork {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  locationId   String    @map("location_id") @db.Uuid
+  title        String
+  clientName   String?   @map("client_name")
+  videoUrl     String?   @map("video_url")
+  thumbnailUrl String?   @map("thumbnail_url")
+  description  String?
+  createdAt    DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("location_works")
 }

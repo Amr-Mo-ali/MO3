@@ -32,7 +32,7 @@ export default function AdminSettingsPage() {
       const data: Array<{ key: string; value: string }> = await response.json();
       const values = Object.fromEntries(data.map((item: any) => [item.key, item.value]));
       setFormState({
-        aboutText: (values.aboutText as string) ?? "",
+        aboutText: (values.about_text as string) ?? (values.aboutText as string) ?? "",
         whatsapp: (values.whatsapp as string) ?? "",
         instagram: (values.instagram as string) ?? "",
         behance: (values.behance as string) ?? "",
