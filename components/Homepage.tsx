@@ -5,19 +5,11 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
+import { usePublicLanguage } from "@/app/providers";
+import { getStaticCopy, translateSectionTitle, translateText } from "@/lib/public-i18n";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
-import type {
-  ActiveGovernorate,
-  Client,
-  FAQ,
-  HeroConfig,
-  SectionWithWorks,
-  Stat,
-  Testimonial,
-  Work,
-} from "@/types";
-import { EGYPT_GOVERNORATES } from "@/lib/governorates";
+import type { Client, FAQ, HeroConfig, SectionWithWorks, Stat, Testimonial, Work } from "@/types";
 
 const WorkMap = dynamic(() => import("@/components/WorkMap"), { ssr: false });
 
@@ -37,17 +29,7 @@ interface HomepageProps {
   stats: Stat[];
   testimonials: Testimonial[];
   faqs: FAQ[];
-  activeGovernorates: ActiveGovernorate[];
 }
-
-const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "Work", href: "#work" },
-  { label: "Clients", href: "#clients" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contact", href: "#contact" },
-];
 
 function makeExternalUrl(value: string) {
   const trimmed = value.trim();
@@ -68,11 +50,13 @@ function AnimatedNumber({
   prefix,
   suffix,
   start,
+  locale,
 }: {
   value: number;
   prefix?: string | null;
   suffix?: string | null;
   start: boolean;
+  locale: string;
 }) {
   const [current, setCurrent] = useState(0);
 
@@ -98,7 +82,7 @@ function AnimatedNumber({
   return (
     <span>
       {prefix ?? ""}
-      {current.toLocaleString()}
+      {current.toLocaleString(locale)}
       {suffix ?? ""}
     </span>
   );
@@ -112,9 +96,10 @@ export default function Homepage({
   stats,
   testimonials,
   faqs,
-  activeGovernorates,
 }: HomepageProps) {
-  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
+  const { language, setLanguage, isArabic } = usePublicLanguage();
+  const copy = useMemo(() => getStaticCopy(language), [language]);
+  const [selectedWork, setSelectedWork] = useState<(Work & { sectionTitle?: string }) | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [statsVisible, setStatsVisible] = useState(false);
@@ -128,6 +113,12 @@ export default function Homepage({
 
   const statsRef = useRef<HTMLDivElement | null>(null);
   const whatsappHref = getWhatsAppHref(siteConfig.whatsapp);
+  const sectionEyebrowClass = isArabic
+    ? "text-sm font-semibold text-[color:var(--color-primary)]"
+    : "font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]";
+  const mutedEyebrowClass = isArabic
+    ? "text-sm font-semibold text-[color:var(--color-gray)]"
+    : "font-mono text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)]";
 
   function openWork(work: Work | null) {
     if (!work?.videoUrl?.trim()) {
@@ -137,15 +128,38 @@ export default function Homepage({
     setSelectedWork(work);
   }
 
+  function handleAnchorClick(href: string) {
+    const target = document.querySelector<HTMLElement>(href);
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setMenuOpen(false);
+  }
+
+  const translatedSections = useMemo(
+    () =>
+      sections.map((section) => ({
+        ...section,
+        title: translateSectionTitle(language, section.slug, section.title),
+        works: section.works.map((work) => ({
+          ...work,
+          title: translateText(language, work.title),
+          description: translateText(language, work.description),
+          locationLabel: translateText(language, work.locationLabel),
+          locationCity: translateText(language, work.locationCity),
+          locationCountry: translateText(language, work.locationCountry),
+        })),
+      })),
+    [language, sections]
+  );
+
   const allWorks = useMemo(
     () =>
-      sections.flatMap((section) =>
+      translatedSections.flatMap((section) =>
         section.works.map((work) => ({
           ...work,
           sectionTitle: section.title,
         }))
       ),
-    [sections]
+    [translatedSections]
   );
 
   const socialLinks = useMemo(
@@ -160,51 +174,76 @@ export default function Homepage({
   );
 
   const marqueeClients = useMemo(() => [...clients, ...clients], [clients]);
-  const activeGovernorateSet = useMemo(
-    () => new Set(activeGovernorates.map((item) => item.slug)),
-    [activeGovernorates]
+  const statsToRender = useMemo(
+    () =>
+      (stats.length
+        ? stats
+        : [
+            { id: "videos", label: "Videos Produced", value: 120, prefix: null, suffix: "+", order: 1, isVisible: true },
+            { id: "clients", label: "Clients", value: 45, prefix: null, suffix: "+", order: 2, isVisible: true },
+            { id: "commercials", label: "Commercials", value: 65, prefix: null, suffix: "+", order: 3, isVisible: true },
+            { id: "years", label: "Years Experience", value: 8, prefix: null, suffix: "+", order: 4, isVisible: true },
+          ]
+      ).map((stat) => ({
+        ...stat,
+        label: translateText(language, stat.label),
+      })),
+    [language, stats]
   );
-  const statsToRender = stats.length
-    ? stats
-    : [
-        { id: "videos", label: "Videos Produced", value: 120, prefix: null, suffix: "+", order: 1, isVisible: true },
-        { id: "clients", label: "Clients", value: 45, prefix: null, suffix: "+", order: 2, isVisible: true },
-        { id: "commercials", label: "Commercials", value: 65, prefix: null, suffix: "+", order: 3, isVisible: true },
-        { id: "years", label: "Years Experience", value: 8, prefix: null, suffix: "+", order: 4, isVisible: true },
-      ];
-  const testimonialsToRender = testimonials.length
-    ? testimonials
-    : [
-        {
-          id: "fallback-testimonial",
-          name: "MO3 Client",
-          role: "Marketing Lead",
-          company: "Brand Partner",
-          quote: "MO3 brought speed, polish, and sharp creative direction from pre-production through final delivery.",
-          rating: 5,
-          photo: null,
-          order: 1,
-          isVisible: true,
-        },
-      ];
-  const faqsToRender = faqs.length
-    ? faqs
-    : [
-        {
-          id: "fallback-faq-1",
-          question: "What does MO3 handle?",
-          answer: "MO3 can handle creative development, production, editing, color, and delivery for commercials, reels, and branded content.",
-          order: 1,
-          isVisible: true,
-        },
-        {
-          id: "fallback-faq-2",
-          question: "How do we start?",
-          answer: "Send a brief through WhatsApp with the timeline, goals, and deliverables. MO3 will reply with the best next step.",
-          order: 2,
-          isVisible: true,
-        },
-      ];
+
+  const testimonialsToRender = useMemo(
+    () =>
+      (testimonials.length
+        ? testimonials
+        : [
+            {
+              id: "fallback-testimonial",
+              name: "MO3 Client",
+              role: "Marketing Lead",
+              company: "Brand Partner",
+              quote: "MO3 brought speed, polish, and sharp creative direction from pre-production through final delivery.",
+              rating: 5,
+              photo: null,
+              order: 1,
+              isVisible: true,
+            },
+          ]
+      ).map((testimonial) => ({
+        ...testimonial,
+        role: translateText(language, testimonial.role),
+        company: translateText(language, testimonial.company),
+        quote: translateText(language, testimonial.quote),
+      })),
+    [language, testimonials]
+  );
+
+  const faqsToRender = useMemo(
+    () =>
+      (faqs.length
+        ? faqs
+        : [
+            {
+              id: "fallback-faq-1",
+              question: "What does MO3 handle?",
+              answer: "MO3 can handle creative development, production, editing, color, and delivery for commercials, reels, and branded content.",
+              order: 1,
+              isVisible: true,
+            },
+            {
+              id: "fallback-faq-2",
+              question: "How do we start?",
+              answer: "Send a brief through WhatsApp with the timeline, goals, and deliverables. MO3 will reply with the best next step.",
+              order: 2,
+              isVisible: true,
+            },
+          ]
+      ).map((faq) => ({
+        ...faq,
+        question: translateText(language, faq.question),
+        answer: translateText(language, faq.answer),
+      })),
+    [faqs, language]
+  );
 
   useEffect(() => {
     const sectionElements = document.querySelectorAll("section[id]");
@@ -263,64 +302,88 @@ export default function Homepage({
     event.preventDefault();
 
     const lines = [
-      "Hello MO3 Production,",
-      `Name: ${contactState.name}`,
-      `Company: ${contactState.company || "Not provided"}`,
-      `Service: ${contactState.service || "Not provided"}`,
-      "Project details:",
+      copy.contact.greeting,
+      `${copy.contact.name}: ${contactState.name}`,
+      `${copy.contact.company}: ${contactState.company || copy.contact.notProvided}`,
+      `${copy.contact.service}: ${contactState.service || copy.contact.notProvided}`,
+      `${copy.contact.details}:`,
       contactState.message,
     ];
 
-    const target = whatsappHref || "#";
-    if (!target || target === "#") return;
-
-    window.open(`${target}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+    if (!whatsappHref) return;
+    window.open(`${whatsappHref}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
   }
 
-  const currentHero = heroConfig ?? {
-    id: "fallback",
-    title: "Cinematic stories built for brands that need to be remembered.",
-    subtitle: "Commercials, reels, branded films, and premium post-production from concept to delivery.",
-    ctaLabel: "Start Your Project",
-    ctaLink: whatsappHref || "#contact",
-    videoUrl: "",
-    posterUrl: null,
-    isVisible: true,
+  const currentHero = {
+    ...(heroConfig ?? {
+      id: "fallback",
+      title: "Cinematic stories built for brands that need to be remembered.",
+      subtitle: "Commercials, reels, branded films, and premium post-production from concept to delivery.",
+      ctaLabel: "Start Your Project",
+      ctaLink: whatsappHref || "#contact",
+      videoUrl: "",
+      posterUrl: null,
+      isVisible: true,
+    }),
+    title: translateText(language, heroConfig?.title ?? "Cinematic stories built for brands that need to be remembered."),
+    subtitle: translateText(
+      language,
+      heroConfig?.subtitle ?? "Commercials, reels, branded films, and premium post-production from concept to delivery."
+    ),
+    ctaLabel: translateText(language, heroConfig?.ctaLabel ?? "Start Your Project"),
   };
 
+  const translatedAboutText =
+    translateText(language, siteConfig.aboutText) ||
+    translateText(
+      language,
+      "MO3 Production develops commercials, reels, branded films, and digital campaigns with a cinematic finish and disciplined execution from concept to delivery."
+    );
+
   return (
-    <main className="relative overflow-x-hidden bg-[color:var(--background)] text-[color:var(--foreground)]">
-      <Toaster position="top-right" />
+    <main dir={copy.direction} className="relative overflow-x-hidden bg-[color:var(--background)] text-[color:var(--foreground)]">
+      <Toaster position={isArabic ? "top-left" : "top-right"} />
       <div className="film-grain" />
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--color-border)] bg-black/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <a href="#home" className="flex items-center">
+          <a href="#home" className="flex items-center" onClick={(event) => { event.preventDefault(); handleAnchorClick("#home"); }}>
             <MO3Logo className="h-11 w-auto sm:h-12" />
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
-            {navItems.map((item) => (
-              <a
+            {copy.nav.map((item) => (
+              <button
                 key={item.href}
-                href={item.href}
-                className={`text-sm uppercase tracking-[0.28em] transition ${
+                type="button"
+                onClick={() => handleAnchorClick(item.href)}
+                className={`text-sm transition ${isArabic ? "font-semibold tracking-normal" : "uppercase tracking-[0.28em]"} ${
                   activeSection === item.href.slice(1) ? "text-white" : "text-[color:var(--color-gray)] hover:text-white"
                 }`}
               >
                 {item.label}
-              </a>
+              </button>
             ))}
           </nav>
 
-          <button
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm font-medium text-white md:hidden"
-            aria-label="Open navigation menu"
-          >
-            Menu
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setLanguage(isArabic ? "en" : "ar")}
+              className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)]"
+              aria-label={copy.labels.switchLanguage}
+            >
+              {copy.labels.switchLanguage}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm font-medium text-white md:hidden"
+              aria-label={copy.labels.openMenu}
+            >
+              {copy.labels.menu}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -335,25 +398,34 @@ export default function Homepage({
             <div className="flex h-full flex-col">
               <div className="flex items-center justify-between">
                 <MO3Logo className="h-10 w-auto" />
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen(false)}
-                  className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white"
-                >
-                  Close
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setLanguage(isArabic ? "en" : "ar")}
+                    className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white"
+                  >
+                    {copy.labels.switchLanguage}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white"
+                  >
+                    {copy.labels.close}
+                  </button>
+                </div>
               </div>
 
               <nav className="flex flex-1 flex-col justify-center gap-5">
-                {navItems.map((item) => (
-                  <a
+                {copy.nav.map((item) => (
+                  <button
                     key={item.href}
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] px-5 py-4 text-center text-xl uppercase tracking-[0.2em] text-white"
+                    type="button"
+                    onClick={() => handleAnchorClick(item.href)}
+                    className={`rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] px-5 py-4 text-center text-xl text-white ${isArabic ? "font-semibold" : "uppercase tracking-[0.2em]"}`}
                   >
                     {item.label}
-                  </a>
+                  </button>
                 ))}
               </nav>
             </div>
@@ -384,10 +456,10 @@ export default function Homepage({
 
         <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-end px-4 pb-16 pt-32 sm:px-6 sm:pb-20">
           <div className="max-w-4xl">
-            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-gray-light)]">
+            <p className={isArabic ? "text-sm font-semibold text-[color:var(--color-gray-light)]" : "font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-gray-light)]"}>
               MO3 Production
             </p>
-            <h1 className="mt-5 text-5xl uppercase leading-[0.9] text-white sm:text-7xl lg:text-[6.5rem]">
+            <h1 className={isArabic ? "mt-5 text-4xl leading-tight text-white sm:text-6xl lg:text-7xl" : "mt-5 text-5xl uppercase leading-[0.9] text-white sm:text-7xl lg:text-[6.5rem]"}>
               {currentHero.title}
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[color:var(--color-gray-light)] sm:text-lg">
@@ -399,16 +471,17 @@ export default function Homepage({
                 href={currentHero.ctaLink}
                 target={currentHero.ctaLink.startsWith("http") ? "_blank" : undefined}
                 rel={currentHero.ctaLink.startsWith("http") ? "noreferrer" : undefined}
-                className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-primary)] px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-[color:var(--color-red-dim)]"
+                className={`inline-flex items-center justify-center rounded-full bg-[color:var(--color-primary)] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
                 {currentHero.ctaLabel}
               </a>
-              <a
-                href="#work"
-                className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] bg-black/30 px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:border-[color:var(--color-primary)]"
+              <button
+                type="button"
+                onClick={() => handleAnchorClick("#work")}
+                className={`inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] bg-black/30 px-7 py-3 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
-                View Work
-              </a>
+                {copy.work.view}
+              </button>
             </div>
           </div>
         </div>
@@ -416,24 +489,22 @@ export default function Homepage({
 
       <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Selected Work</p>
-          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Stories designed for impact</h2>
+          <p className={sectionEyebrowClass}>{copy.work.selected}</p>
+          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.work.title}</h2>
 
           <div className="mt-14 space-y-16">
-            {sections.map((section) => {
+            {translatedSections.map((section) => {
               const isReels = section.slug === "reels" || section.title.toLowerCase().includes("reel");
 
               return (
                 <div key={section.id} className="space-y-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)]">
-                        {isReels ? "Portrait Format" : "Featured Category"}
-                      </p>
-                      <h3 className="mt-2 text-3xl uppercase text-white sm:text-5xl">{section.title}</h3>
+                      <p className={mutedEyebrowClass}>{isReels ? copy.work.portrait : copy.work.featured}</p>
+                      <h3 className={`mt-2 text-3xl text-white sm:text-5xl ${isArabic ? "" : "uppercase"}`}>{section.title}</h3>
                     </div>
-                    <span className="text-sm uppercase tracking-[0.25em] text-[color:var(--color-primary)]">
-                      {section.works.length} Projects
+                    <span className={`text-sm text-[color:var(--color-primary)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.25em]"}`}>
+                      {section.works.length.toLocaleString(copy.locale)} {copy.labels.projects}
                     </span>
                   </div>
 
@@ -444,7 +515,7 @@ export default function Homepage({
                         type="button"
                         onClick={() => openWork(work)}
                         id={`work-card-${work.id}`}
-                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-left transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
+                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-start transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
                       >
                         <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
                           {work.thumbnail ? (
@@ -456,14 +527,12 @@ export default function Homepage({
                               sizes={isReels ? "(max-width: 768px) 100vw, 25vw" : "(max-width: 768px) 100vw, 33vw"}
                             />
                           ) : (
-                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">No thumbnail</div>
+                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">{copy.labels.noThumbnail}</div>
                           )}
                           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
                         </div>
                         <div className="space-y-3 p-5">
-                          <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-primary)]">
-                            {work.client || "MO3 Production"}
-                          </p>
+                          <p className={sectionEyebrowClass}>{work.client || "MO3 Production"}</p>
                           <h4 className="text-xl font-semibold text-white">{work.title}</h4>
                           {work.description ? (
                             <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
@@ -481,8 +550,8 @@ export default function Homepage({
 
       <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Clients</p>
-          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Brands that trust MO3</h2>
+          <p className={sectionEyebrowClass}>{isArabic ? "العملاء" : "Clients"}</p>
+          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.clients.title}</h2>
 
           <div className="mt-12 space-y-5">
             <div className="marquee">
@@ -492,17 +561,13 @@ export default function Homepage({
                     key={`client-a-${client.id}-${index}`}
                     className="group relative flex h-24 w-44 shrink-0 items-center justify-center rounded-[28px] border border-[color:var(--color-border)] bg-black px-5"
                   >
-                    {client.logo ? (
-                      <Image
-                        src={client.logo}
-                        alt={client.name}
-                        fill
-                        className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
-                        sizes="176px"
-                      />
-                    ) : (
-                      <span className="text-sm text-[color:var(--color-gray-light)]">{client.name}</span>
-                    )}
+                    <Image
+                      src={client.logo}
+                      alt={client.name}
+                      fill
+                      className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
+                      sizes="176px"
+                    />
                   </div>
                 ))}
               </div>
@@ -515,17 +580,13 @@ export default function Homepage({
                     key={`client-b-${client.id}-${index}`}
                     className="group relative flex h-24 w-44 shrink-0 items-center justify-center rounded-[28px] border border-[color:var(--color-border)] bg-black px-5"
                   >
-                    {client.logo ? (
-                      <Image
-                        src={client.logo}
-                        alt={client.name}
-                        fill
-                        className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
-                        sizes="176px"
-                      />
-                    ) : (
-                      <span className="text-sm text-[color:var(--color-gray-light)]">{client.name}</span>
-                    )}
+                    <Image
+                      src={client.logo}
+                      alt={client.name}
+                      fill
+                      className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
+                      sizes="176px"
+                    />
                   </div>
                 ))}
               </div>
@@ -537,13 +598,10 @@ export default function Homepage({
       <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.3fr_1fr]">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">About MO3</p>
-            <h2 className="mt-4 text-4xl uppercase leading-tight text-white sm:text-6xl">
-              Premium production with a sharp visual identity.
-            </h2>
+            <p className={sectionEyebrowClass}>{copy.about.eyebrow}</p>
+            <h2 className={`mt-4 text-4xl leading-tight text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.about.title}</h2>
             <p className="mt-6 max-w-3xl text-base leading-8 text-[color:var(--color-gray-light)]">
-              {siteConfig.aboutText ||
-                "MO3 Production develops commercials, reels, branded films, and digital campaigns with a cinematic finish and disciplined execution from concept to delivery."}
+              {translatedAboutText}
             </p>
           </div>
 
@@ -554,9 +612,9 @@ export default function Homepage({
                 className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
               >
                 <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
-                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} />
+                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} locale={copy.locale} />
                 </p>
-                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-[color:var(--color-gray)]">{stat.label}</p>
+                <p className={`mt-3 text-sm text-[color:var(--color-gray)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.28em]"}`}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -571,12 +629,13 @@ export default function Homepage({
           const card = document.getElementById(`work-card-${workId}`);
           card?.scrollIntoView({ behavior: "smooth", block: "center" });
         }}
+        language={language}
       />
 
       <section id="testimonials" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Testimonials</p>
-          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">What clients say after launch</h2>
+          <p className={sectionEyebrowClass}>{isArabic ? "آراء العملاء" : "Testimonials"}</p>
+          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.testimonials.title}</h2>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {testimonialsToRender.map((testimonial) => (
@@ -601,14 +660,14 @@ export default function Homepage({
                         <span key={index}>{index < testimonial.rating ? "★" : "☆"}</span>
                       ))}
                     </div>
-                    <p className="mt-4 text-base leading-7 text-[color:var(--color-gray-light)]">“{testimonial.quote}”</p>
+                    <p className="mt-4 text-base leading-7 text-[color:var(--color-gray-light)]">"{testimonial.quote}"</p>
                   </div>
                 </div>
 
                 <div className="mt-6 border-t border-[color:var(--color-border)] pt-4">
                   <p className="text-lg font-semibold text-white">{testimonial.name}</p>
                   <p className="text-sm text-[color:var(--color-gray)]">
-                    {testimonial.role} · {testimonial.company}
+                    {testimonial.role} - {testimonial.company}
                   </p>
                 </div>
               </article>
@@ -617,66 +676,10 @@ export default function Homepage({
         </div>
       </section>
 
-      <section id="egypt-map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Across Egypt</p>
-            <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Governorates where MO3 has delivered work</h2>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[color:var(--color-gray-light)]">
-              Tap a highlighted governorate to see where the team has already worked. The active list is managed from the admin panel.
-            </p>
-
-            <div className="mt-8 rounded-[34px] border border-[color:var(--color-border)] bg-[linear-gradient(180deg,#130505_0%,#080808_100%)] p-5 sm:p-8">
-              <div className="relative mx-auto aspect-[0.85] max-w-[520px] overflow-hidden rounded-[28px] border border-[color:var(--color-border)] bg-[radial-gradient(circle_at_top,rgba(227,18,18,0.14),transparent_30%),linear-gradient(180deg,#111111_0%,#050505_100%)]">
-                <div className="absolute inset-[8%] rounded-[40%_26%_42%_30%/18%_20%_48%_50%] border border-[color:var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]" />
-
-                {EGYPT_GOVERNORATES.map((governorate) => {
-                  const active = activeGovernorateSet.has(governorate.slug);
-
-                  return (
-                    <button
-                      key={governorate.slug}
-                      type="button"
-                      className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition sm:px-4 ${
-                        active
-                          ? "border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_0_24px_rgba(227,18,18,0.38)]"
-                          : "border-[color:var(--color-border)] bg-black/80 text-[color:var(--color-gray)]"
-                      }`}
-                      style={{ top: governorate.top, left: governorate.left }}
-                      aria-pressed={active}
-                    >
-                      {governorate.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6">
-            <p className="text-sm uppercase tracking-[0.28em] text-[color:var(--color-primary)]">Active Governorates</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {activeGovernorates.length ? (
-                activeGovernorates.map((item) => (
-                  <span
-                    key={item.id}
-                    className="rounded-full border border-[color:var(--color-primary)] bg-[rgba(227,18,18,0.12)] px-4 py-2 text-sm text-white"
-                  >
-                    {item.name}
-                  </span>
-                ))
-              ) : (
-                <p className="text-sm leading-7 text-[color:var(--color-gray-light)]">No governorates are active yet.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section id="faq" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">FAQ</p>
-          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Everything clients usually ask</h2>
+          <p className={sectionEyebrowClass}>{isArabic ? "الأسئلة الشائعة" : "FAQ"}</p>
+          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.faq.title}</h2>
 
           <div className="mt-12 space-y-4">
             {faqsToRender.map((faq) => {
@@ -687,10 +690,10 @@ export default function Homepage({
                   <button
                     type="button"
                     onClick={() => setOpenFaqId(open ? null : faq.id)}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-7"
+                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-start sm:px-7"
                   >
                     <span className="text-lg font-semibold text-white">{faq.question}</span>
-                    <span className="text-2xl text-[color:var(--color-primary)]">{open ? "−" : "+"}</span>
+                    <span className="text-2xl text-[color:var(--color-primary)]">{open ? "-" : "+"}</span>
                   </button>
                   {open ? (
                     <div className="border-t border-[color:var(--color-border)] px-5 py-5 text-sm leading-7 text-[color:var(--color-gray-light)] sm:px-7">
@@ -707,10 +710,10 @@ export default function Homepage({
       <section id="contact" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Contact</p>
-            <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Let’s build the next campaign</h2>
+            <p className={sectionEyebrowClass}>{copy.contact.eyebrow}</p>
+            <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.contact.title}</h2>
             <p className="mt-6 max-w-xl text-base leading-8 text-[color:var(--color-gray-light)]">
-              Send the brief through WhatsApp and MO3 will follow up with timing, scope, and production direction.
+              {copy.contact.body}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -731,50 +734,50 @@ export default function Homepage({
           <form onSubmit={handleContactSubmit} className="rounded-[32px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-5 sm:p-7">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 text-sm text-[color:var(--color-gray-light)]">
-                <span>Name</span>
+                <span>{copy.contact.name}</span>
                 <input
                   required
                   value={contactState.name}
                   onChange={(event) => setContactState((current) => ({ ...current, name: event.target.value }))}
                   className="rounded-2xl px-4 py-3"
-                  placeholder="Your name"
+                  placeholder={copy.contact.namePlaceholder}
                 />
               </label>
               <label className="space-y-2 text-sm text-[color:var(--color-gray-light)]">
-                <span>Company</span>
+                <span>{copy.contact.company}</span>
                 <input
                   value={contactState.company}
                   onChange={(event) => setContactState((current) => ({ ...current, company: event.target.value }))}
                   className="rounded-2xl px-4 py-3"
-                  placeholder="Brand or company"
+                  placeholder={copy.contact.companyPlaceholder}
                 />
               </label>
               <label className="space-y-2 text-sm text-[color:var(--color-gray-light)] sm:col-span-2">
-                <span>Service</span>
+                <span>{copy.contact.service}</span>
                 <input
                   value={contactState.service}
                   onChange={(event) => setContactState((current) => ({ ...current, service: event.target.value }))}
                   className="rounded-2xl px-4 py-3"
-                  placeholder="Commercial, reels, post-production..."
+                  placeholder={copy.contact.servicePlaceholder}
                 />
               </label>
               <label className="space-y-2 text-sm text-[color:var(--color-gray-light)] sm:col-span-2">
-                <span>Project details</span>
+                <span>{copy.contact.details}</span>
                 <textarea
                   required
                   value={contactState.message}
                   onChange={(event) => setContactState((current) => ({ ...current, message: event.target.value }))}
                   className="min-h-[180px] rounded-[24px] px-4 py-3"
-                  placeholder="Tell MO3 what you want to produce."
+                  placeholder={copy.contact.detailsPlaceholder}
                 />
               </label>
             </div>
 
             <button
               type="submit"
-              className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-[color:var(--color-red-dim)]"
+              className={`mt-6 inline-flex w-full items-center justify-center rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
             >
-              Send on WhatsApp
+              {copy.contact.button}
             </button>
           </form>
         </div>
@@ -782,8 +785,8 @@ export default function Homepage({
 
       <footer className="border-t border-[color:var(--color-border)] bg-black px-4 py-6 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-[color:var(--color-gray)] sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 MO3 Production. All rights reserved.</p>
-          <p>Always dark. Always cinematic.</p>
+          <p>{copy.footer.rights}</p>
+          <p>{copy.footer.tagline}</p>
         </div>
       </footer>
 

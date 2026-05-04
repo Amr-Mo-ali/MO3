@@ -22,17 +22,14 @@ function resolveEmbedUrl(videoUrl: string | null) {
     return "";
   }
 
-  const youtubeMatch = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/i
-  );
-
+  const youtubeMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/i);
   if (youtubeMatch?.[1]) {
-    return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0`; 
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0`;
   }
 
   const vimeoMatch = url.match(/(?:vimeo\.com\/(?:video\/)?)(\d+)/i);
   if (vimeoMatch?.[1]) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`; 
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
   }
 
   return url;

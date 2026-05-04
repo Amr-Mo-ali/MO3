@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { divIcon, latLngBounds, type LatLngTuple } from "leaflet";
+import type { PublicLanguage } from "@/lib/public-i18n";
+import { getStaticCopy } from "@/lib/public-i18n";
 import type { Work } from "@/types";
 
 type MappedWork = Work & {
@@ -10,79 +14,64 @@ type MappedWork = Work & {
 interface WorkMapProps {
   works: MappedWork[];
   onSelectWork?: (workId: string) => void;
+  language: PublicLanguage;
 }
 
-declare global {
-  interface Window {
-    google?: any;
-  }
-}
+function MapViewport({
+  works,
+  selectedWorkId,
+}: {
+  works: MappedWork[];
+  selectedWorkId: string | null;
+}) {
+  const map = useMap();
 
-let googleMapsScriptPromise: Promise<any> | null = null;
+  useEffect(() => {
+    if (!works.length) return;
 
-function loadGoogleMapsApi() {
-  if (typeof window === "undefined") {
-    return Promise.reject(new Error("Google Maps can only load in the browser."));
-  }
-
-  if (window.google?.maps) {
-    return Promise.resolve(window.google);
-  }
-
-  if (googleMapsScriptPromise) {
-    return googleMapsScriptPromise;
-  }
-
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    return Promise.reject(
-      new Error("Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY. Add it to your environment to enable the work map.")
-    );
-  }
-
-  googleMapsScriptPromise = new Promise((resolve, reject) => {
-    const existingScript = document.querySelector<HTMLScriptElement>('script[data-google-maps="true"]');
-    if (existingScript) {
-      existingScript.addEventListener("load", () => resolve(window.google));
-      existingScript.addEventListener("error", () => reject(new Error("Failed to load Google Maps.")));
-      return;
+    if (selectedWorkId) {
+      const selected = works.find((work) => work.id === selectedWorkId);
+      if (selected?.locationLat != null && selected?.locationLng != null) {
+        map.flyTo([selected.locationLat, selected.locationLng], Math.max(map.getZoom(), 7), {
+          duration: 1.1,
+        });
+        return;
+      }
     }
 
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&loading=async`;
-    script.async = true;
-    script.defer = true;
-    script.dataset.googleMaps = "true";
-    script.onload = () => resolve(window.google);
-    script.onerror = () => reject(new Error("Failed to load Google Maps."));
-    document.head.appendChild(script);
+    const points: LatLngTuple[] = works
+      .filter((work) => work.locationLat != null && work.locationLng != null)
+      .map((work) => [work.locationLat as number, work.locationLng as number]);
+
+    const bounds = latLngBounds(points);
+
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, { padding: [72, 72] });
+    }
+  }, [map, selectedWorkId, works]);
+
+  return null;
+}
+
+function buildMarkerIcon(city: string, isSelected: boolean) {
+  return divIcon({
+    className: "work-map-div-icon",
+    html: `
+      <div class="work-map-marker">
+        <span class="work-map-marker__pin ${isSelected ? "is-selected" : ""}">
+          <span class="work-map-marker__core"></span>
+        </span>
+        <span class="work-map-marker__label">${city}</span>
+      </div>
+    `,
+    iconSize: [160, 38],
+    iconAnchor: [16, 19],
   });
-
-  return googleMapsScriptPromise;
 }
 
-function buildMarkerContent(city: string, isSelected: boolean) {
-  const marker = document.createElement("button");
-  marker.type = "button";
-  marker.className = "work-map-marker";
-  marker.setAttribute("aria-label", `View project in ${city}`);
-  marker.innerHTML = `
-    <span class="work-map-marker__pin ${isSelected ? "is-selected" : ""}">
-      <span class="work-map-marker__core"></span>
-    </span>
-    <span class="work-map-marker__label">${city}</span>
-  `;
-  return marker;
-}
-
-export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
-  const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const infoWindowRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+export default function WorkMap({ works, onSelectWork, language }: WorkMapProps) {
+  const copy = useMemo(() => getStaticCopy(language), [language]);
   const [selectedWorkId, setSelectedWorkId] = useState<string | null>(works[0]?.id ?? null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [error, setError] = useState<string | null>(null);
 
   const mappableWorks = useMemo(
     () =>
@@ -98,141 +87,84 @@ export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
 
   useEffect(() => {
     if (!mappableWorks.length) {
-      setStatus("error");
-      setError("No mapped projects are available yet.");
+      setSelectedWorkId(null);
       return;
     }
 
-    let cancelled = false;
-
-    async function initMap() {
-      try {
-        setStatus("loading");
-        setError(null);
-        const google = await loadGoogleMapsApi();
-        if (cancelled || !mapRef.current) return;
-
-        const { Map } = await google.maps.importLibrary("maps");
-        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-
-        const map = new Map(mapRef.current, {
-          center: {
-            lat: mappableWorks[0].locationLat,
-            lng: mappableWorks[0].locationLng,
-          },
-          zoom: mappableWorks.length === 1 ? 8 : 3,
-          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID",
-          disableDefaultUI: true,
-          zoomControl: true,
-          gestureHandling: "cooperative",
-        });
-
-        const bounds = new google.maps.LatLngBounds();
-        const infoWindow = new google.maps.InfoWindow();
-        mapInstanceRef.current = map;
-        infoWindowRef.current = infoWindow;
-
-        markersRef.current.forEach((marker) => {
-          marker.map = null;
-        });
-
-        markersRef.current = mappableWorks.map((work) => {
-          bounds.extend({ lat: work.locationLat, lng: work.locationLng });
-
-          const markerContent = buildMarkerContent(work.locationCity!, work.id === selectedWorkId);
-          markerContent.addEventListener("click", () => {
-            setSelectedWorkId(work.id);
-            onSelectWork?.(work.id);
-
-            infoWindow.setContent(`
-              <div class="work-map-popup">
-                <p class="work-map-popup__eyebrow">${work.sectionTitle}</p>
-                <h3 class="work-map-popup__title">${work.title}</h3>
-                <p class="work-map-popup__meta">${work.client ?? "Client project"} · ${work.locationCity}${work.locationCountry ? `, ${work.locationCountry}` : ""}</p>
-                ${work.description ? `<p class="work-map-popup__body">${work.description}</p>` : ""}
-              </div>
-            `);
-            infoWindow.open({
-              anchor: marker,
-              map,
-            });
-          });
-
-          const marker = new AdvancedMarkerElement({
-            map,
-            position: { lat: work.locationLat, lng: work.locationLng },
-            title: `${work.title} in ${work.locationCity}`,
-            content: markerContent,
-          });
-
-          marker.addListener("click", () => markerContent.click());
-          return marker;
-        });
-
-        if (mappableWorks.length > 1) {
-          map.fitBounds(bounds, 72);
-        }
-
-        setStatus("ready");
-      } catch (mapsError: any) {
-        if (cancelled) return;
-        setStatus("error");
-        setError(mapsError?.message || "Unable to load the work map.");
-      }
+    if (!selectedWorkId || !mappableWorks.some((work) => work.id === selectedWorkId)) {
+      setSelectedWorkId(mappableWorks[0].id);
     }
-
-    initMap();
-
-    return () => {
-      cancelled = true;
-      markersRef.current.forEach((marker) => {
-        marker.map = null;
-      });
-      markersRef.current = [];
-    };
-  }, [mappableWorks, onSelectWork, selectedWorkId]);
-
-  useEffect(() => {
-    if (!selectedWorkId) return;
-    const selected = mappableWorks.find((work) => work.id === selectedWorkId);
-    if (!selected || !mapInstanceRef.current) return;
-
-    mapInstanceRef.current.panTo({
-      lat: selected.locationLat,
-      lng: selected.locationLng,
-    });
   }, [mappableWorks, selectedWorkId]);
 
   return (
     <section id="work-map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
-          <p className="font-mono text-xs uppercase tracking-[0.35em] text-[color:var(--color-primary)]">
-            Global Reach
+          <p className={copy.isArabic ? "text-sm font-semibold text-[color:var(--color-primary)]" : "font-mono text-xs uppercase tracking-[0.35em] text-[color:var(--color-primary)]"}>
+            {copy.map.eyebrow}
           </p>
-          <h2 className="mt-4 font-display text-4xl uppercase tracking-[0.04em] text-[color:var(--color-white)] sm:text-6xl">
-            Where The Work Lands
+          <h2 className={`mt-4 text-4xl tracking-[0.04em] text-[color:var(--color-white)] sm:text-6xl ${copy.isArabic ? "" : "font-display uppercase"}`}>
+            {copy.map.title}
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[color:var(--color-gray-light)] sm:text-base">
-            Every marker represents a real client location connected to a published project in the portfolio.
-            Select a city to jump to that work instantly.
+            {copy.map.body}
           </p>
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(280px,0.9fr)]">
           <div className="relative overflow-hidden rounded-[32px] border border-[color:var(--color-border)] bg-[#081512] shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(227,18,18,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)]" />
-            <div ref={mapRef} className="h-[520px] w-full" />
-            {status !== "ready" ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#07110f]/92">
+            <div className="pointer-events-none absolute inset-0 z-[400] bg-[radial-gradient(circle_at_top_left,rgba(227,18,18,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)]" />
+
+            {mappableWorks.length ? (
+              <MapContainer
+                center={[26.8206, 30.8025]}
+                zoom={6}
+                scrollWheelZoom={false}
+                className="h-[520px] w-full"
+                zoomControl
+              >
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  attribution="&copy; OpenStreetMap &copy; CARTO"
+                />
+                <MapViewport works={mappableWorks} selectedWorkId={selectedWorkId} />
+                {mappableWorks.map((work) => {
+                  const isSelected = work.id === selectedWorkId;
+
+                  return (
+                    <Marker
+                      key={work.id}
+                      position={[work.locationLat as number, work.locationLng as number]}
+                      icon={buildMarkerIcon(work.locationCity as string, isSelected)}
+                      eventHandlers={{
+                        click: () => {
+                          setSelectedWorkId(work.id);
+                          onSelectWork?.(work.id);
+                        },
+                      }}
+                    >
+                      <Popup>
+                        <div className="work-map-popup">
+                          <p className="work-map-popup__eyebrow">{work.sectionTitle}</p>
+                          <h3 className="work-map-popup__title">{work.title}</h3>
+                          <p className="work-map-popup__meta">
+                            {work.client ?? copy.map.clientProject} - {work.locationCity}
+                            {work.locationCountry ? `, ${work.locationCountry}` : ""}
+                          </p>
+                          {work.description ? <p className="work-map-popup__body">{work.description}</p> : null}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
+            ) : (
+              <div className="flex h-[520px] items-center justify-center bg-[#07110f]/92">
                 <div className="max-w-sm px-6 text-center">
-                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-[color:var(--color-primary)] border-t-transparent" />
-                  <p className="mt-4 text-sm text-[color:var(--color-white)]">
-                    {status === "loading" ? "Loading the map..." : error}
-                  </p>
+                  <p className="text-sm text-[color:var(--color-white)]">{copy.labels.noMapProjects}</p>
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
 
           <div className="grid content-start gap-3">
@@ -246,7 +178,7 @@ export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
                     setSelectedWorkId(work.id);
                     onSelectWork?.(work.id);
                   }}
-                  className={`group rounded-[24px] border p-4 text-left transition duration-200 ${
+                  className={`group rounded-[24px] border p-4 text-start transition duration-200 ${
                     isActive
                       ? "border-[color:var(--color-primary)] bg-[rgba(227,18,18,0.12)] text-[color:var(--color-white)] shadow-[0_24px_48px_rgba(227,18,18,0.16)]"
                       : "border-[color:var(--color-border)] bg-[color:rgba(255,255,255,0.04)] text-[color:var(--color-white)] hover:border-[color:var(--color-primary)]/60 hover:bg-[color:rgba(255,255,255,0.07)]"
@@ -254,15 +186,15 @@ export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className={`font-mono text-[11px] uppercase tracking-[0.24em] ${isActive ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-gray)]"}`}>
+                      <p className={copy.isArabic ? "text-sm font-semibold text-[color:var(--color-primary)]" : `font-mono text-[11px] uppercase tracking-[0.24em] ${isActive ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-gray)]"}`}>
                         {work.sectionTitle}
                       </p>
                       <h3 className="mt-2 text-lg font-semibold">{work.title}</h3>
-                      <p className={`mt-2 text-sm ${isActive ? "text-[color:var(--color-gray-light)]" : "text-[color:var(--color-gray-light)]"}`}>
-                        {work.client ?? "Client project"}
+                      <p className="mt-2 text-sm text-[color:var(--color-gray-light)]">
+                        {work.client ?? copy.map.clientProject}
                       </p>
                     </div>
-                    <span className={`rounded-full px-3 py-1 font-mono text-[11px] uppercase tracking-[0.15em] ${isActive ? "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]" : "bg-[color:rgba(255,255,255,0.06)] text-[color:var(--color-gray-light)]"}`}>
+                    <span className={`rounded-full px-3 py-1 text-[11px] ${copy.isArabic ? "font-semibold" : "font-mono uppercase tracking-[0.15em]"} ${isActive ? "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]" : "bg-[color:rgba(255,255,255,0.06)] text-[color:var(--color-gray-light)]"}`}>
                       {work.locationCity}
                     </span>
                   </div>

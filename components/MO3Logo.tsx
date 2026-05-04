@@ -4,7 +4,7 @@ export default function MO3Logo({ className = "" }: { className?: string }) {
   return (
     <div className={`logo-pulse flex flex-col items-center justify-center gap-2 ${className}`}>
       <Image
-        src="/mo3-logo.png"
+        src="/mo3-logo.svg"
         alt="MO3 Media Production Logo"
         width={260}
         height={110}

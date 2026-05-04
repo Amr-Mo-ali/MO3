@@ -85,11 +85,4 @@ export type FAQ = {
   isVisible: boolean;
 };
 
-export type ActiveGovernorate = {
-  id: string;
-  name: string;
-  slug: string;
-  order: number;
-};
-
 export type SectionWithWorks = Section & { works: Work[] };

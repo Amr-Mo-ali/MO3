@@ -4,7 +4,7 @@ import Homepage from "@/components/Homepage";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [siteConfigRows, clients, sections, heroConfig, stats, testimonials, faqs, activeGovernorates] = await Promise.all([
+  const [siteConfigRows, clients, sections, heroConfig, stats, testimonials, faqs] = await Promise.all([
     prisma.siteConfig.findMany({ orderBy: { key: "asc" } }),
     prisma.client.findMany({
       where: { isVisible: true },
@@ -36,9 +36,6 @@ export default async function Home() {
       where: { isVisible: true },
       orderBy: { order: "asc" },
     }),
-    prisma.activeGovernorate.findMany({
-      orderBy: { order: "asc" },
-    }),
   ]);
 
   const siteConfig = Object.fromEntries(siteConfigRows.map((item) => [item.key, item.value])) as {
@@ -66,7 +63,6 @@ export default async function Home() {
       stats={stats}
       testimonials={testimonials}
       faqs={faqs}
-      activeGovernorates={activeGovernorates}
     />
   );
 }

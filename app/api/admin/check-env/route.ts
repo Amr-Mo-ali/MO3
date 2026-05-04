@@ -15,10 +15,6 @@ export async function GET() {
     },
     database: {
       DATABASE_URL: !!process.env.DATABASE_URL,
-    },
-    maps: {
-      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-      NEXT_PUBLIC_GOOGLE_MAP_ID: true,
     }
   }
 

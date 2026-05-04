@@ -14,7 +14,6 @@ const navItems = [
   { label: "Statistics", href: "/admin/stats" },
   { label: "Testimonials", href: "/admin/testimonials" },
   { label: "FAQ", href: "/admin/faq" },
-  { label: "Egypt Map", href: "/admin/egypt-map" },
   { label: "Locations", href: "/admin/places" },
   { label: "Settings", href: "/admin/settings" },
 ];
