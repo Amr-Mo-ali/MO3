@@ -4,7 +4,7 @@ import Homepage from "@/components/Homepage";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [siteConfigRows, clients, sections] = await Promise.all([
+  const [siteConfigRows, clients, sections, heroConfig, stats, testimonials, faqs, activeGovernorates] = await Promise.all([
     prisma.siteConfig.findMany({ orderBy: { key: "asc" } }),
     prisma.client.findMany({
       where: { isVisible: true },
@@ -19,6 +19,25 @@ export default async function Home() {
           orderBy: { order: "asc" },
         },
       },
+    }),
+    prisma.heroConfig.findFirst({
+      where: { isVisible: true },
+      orderBy: { updatedAt: "desc" },
+    }),
+    prisma.stat.findMany({
+      where: { isVisible: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.testimonial.findMany({
+      where: { isVisible: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.fAQ.findMany({
+      where: { isVisible: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.activeGovernorate.findMany({
+      orderBy: { order: "asc" },
     }),
   ]);
 
@@ -43,6 +62,11 @@ export default async function Home() {
       }}
       clients={clients}
       sections={visibleSections}
+      heroConfig={heroConfig}
+      stats={stats}
+      testimonials={testimonials}
+      faqs={faqs}
+      activeGovernorates={activeGovernorates}
     />
   );
 }

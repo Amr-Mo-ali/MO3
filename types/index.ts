@@ -44,4 +44,52 @@ export type SiteConfig = {
   value: string;
 };
 
+export type HeroConfig = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  ctaLabel: string;
+  ctaLink: string;
+  videoUrl: string;
+  posterUrl: string | null;
+  isVisible: boolean;
+};
+
+export type Stat = {
+  id: string;
+  label: string;
+  value: number;
+  prefix: string | null;
+  suffix: string | null;
+  order: number;
+  isVisible: boolean;
+};
+
+export type Testimonial = {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  quote: string;
+  rating: number;
+  photo: string | null;
+  order: number;
+  isVisible: boolean;
+};
+
+export type FAQ = {
+  id: string;
+  question: string;
+  answer: string;
+  order: number;
+  isVisible: boolean;
+};
+
+export type ActiveGovernorate = {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+};
+
 export type SectionWithWorks = Section & { works: Work[] };

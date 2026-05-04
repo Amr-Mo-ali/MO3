@@ -55,6 +55,64 @@ model SiteConfig {
   value String
 }
 
+model HeroConfig {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  ctaLabel  String
+  ctaLink   String
+  videoUrl  String
+  posterUrl String?
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  label     String
+  value     Int
+  prefix    String?
+  suffix    String?
+  order     Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  company   String
+  quote     String
+  rating    Int
+  photo     String?
+  order     Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ActiveGovernorate {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model LegacyWorkLocation {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   projectName String   @map("project_name")

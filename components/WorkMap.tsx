@@ -221,7 +221,7 @@ export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(280px,0.9fr)]">
           <div className="relative overflow-hidden rounded-[32px] border border-[color:var(--color-border)] bg-[#081512] shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,189,125,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(227,18,18,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)]" />
             <div ref={mapRef} className="h-[520px] w-full" />
             {status !== "ready" ? (
               <div className="absolute inset-0 flex items-center justify-center bg-[#07110f]/92">
@@ -248,7 +248,7 @@ export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
                   }}
                   className={`group rounded-[24px] border p-4 text-left transition duration-200 ${
                     isActive
-                      ? "border-[color:var(--color-primary)] bg-[color:var(--color-white)] text-[color:var(--color-text)] shadow-[0_24px_48px_rgba(0,189,125,0.16)]"
+                      ? "border-[color:var(--color-primary)] bg-[rgba(227,18,18,0.12)] text-[color:var(--color-white)] shadow-[0_24px_48px_rgba(227,18,18,0.16)]"
                       : "border-[color:var(--color-border)] bg-[color:rgba(255,255,255,0.04)] text-[color:var(--color-white)] hover:border-[color:var(--color-primary)]/60 hover:bg-[color:rgba(255,255,255,0.07)]"
                   }`}
                 >
@@ -258,7 +258,7 @@ export default function WorkMap({ works, onSelectWork }: WorkMapProps) {
                         {work.sectionTitle}
                       </p>
                       <h3 className="mt-2 text-lg font-semibold">{work.title}</h3>
-                      <p className={`mt-2 text-sm ${isActive ? "text-[color:var(--color-text)]/72" : "text-[color:var(--color-gray-light)]"}`}>
+                      <p className={`mt-2 text-sm ${isActive ? "text-[color:var(--color-gray-light)]" : "text-[color:var(--color-gray-light)]"}`}>
                         {work.client ?? "Client project"}
                       </p>
                     </div>

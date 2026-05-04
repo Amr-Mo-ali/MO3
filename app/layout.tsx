@@ -28,12 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className="h-full antialiased"
-    >
-      <body className="min-h-full bg-[color:var(--background)] text-[color:var(--foreground)] transition-colors duration-300">
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full bg-[color:var(--background)] text-[color:var(--foreground)]">
         <Providers>{children}</Providers>
       </body>
     </html>

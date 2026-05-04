@@ -60,7 +60,7 @@ function SortableClientRow({
         <span
           className={classNames(
             "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-            client.isVisible ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-700 text-slate-400"
+            client.isVisible ? "bg-[rgba(227,18,18,0.12)] text-white" : "bg-slate-700 text-slate-400"
           )}
         >
           {client.isVisible ? "Visible" : "Hidden"}
@@ -391,7 +391,7 @@ export default function AdminClientsPage() {
               </button>
             </div>
 
-            <div className="mt-8 space-y-6">
+            <form onSubmit={handleSubmit} className="mt-8 space-y-6">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Client Name</label>
                 <input
@@ -406,7 +406,7 @@ export default function AdminClientsPage() {
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Logo Upload</label>
                 <div
-                  className="group flex h-48 items-center justify-center rounded-3xl border-2 border-dashed border-slate-700 bg-slate-950 transition hover:border-[#E31212]"
+                  className="group relative flex h-48 items-center justify-center rounded-3xl border-2 border-dashed border-slate-700 bg-slate-950 transition hover:border-[#E31212]"
                   onDrop={handleDrop}
                   onDragOver={(event) => event.preventDefault()}
                 >
@@ -455,14 +455,13 @@ export default function AdminClientsPage() {
               </div>
 
               <button
-                type="button"
-                onClick={submitForm}
+                type="submit"
                 disabled={isSaving}
                 className="w-full rounded-3xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d] disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : isEditing ? "Update Client" : "Create Client"}
               </button>
-            </div>
+            </form>
           </aside>
         </div>
       )}

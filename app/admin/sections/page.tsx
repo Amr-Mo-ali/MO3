@@ -76,7 +76,7 @@ function SortableRow({
           onClick={() => onToggleVisible(section)}
           className={`inline-flex h-9 items-center rounded-full px-3 text-sm font-medium transition ${
             section.isVisible
-              ? "bg-emerald-500/15 text-emerald-300"
+              ? "bg-[rgba(227,18,18,0.12)] text-white"
               : "bg-slate-700 text-slate-400"
           }`}
         >

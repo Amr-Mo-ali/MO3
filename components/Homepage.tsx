@@ -1,29 +1,25 @@
-﻿"use client";
+"use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import ThemeToggle from "@/components/ThemeToggle";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
-import CustomCursor from "@/components/CustomCursor";
-import TiltCard from "@/components/TiltCard";
-import ScrollReveal from "@/components/ScrollReveal";
-import WorkShowcase3D from "@/components/WorkShowcase3D";
-import { PlaceholderWorkCard } from "@/components/Placeholders";
-import type { Client, SectionWithWorks, Work } from "@/types";
+import type {
+  ActiveGovernorate,
+  Client,
+  FAQ,
+  HeroConfig,
+  SectionWithWorks,
+  Stat,
+  Testimonial,
+  Work,
+} from "@/types";
+import { EGYPT_GOVERNORATES } from "@/lib/governorates";
 
-const WorkMap = dynamic(
-  () => import('@/components/WorkMap'),
-  { ssr: false }
-)
-
-const HeroCanvas = dynamic(
-  () => import('@/components/HeroCanvas'),
-  { ssr: false }
-)
+const WorkMap = dynamic(() => import("@/components/WorkMap"), { ssr: false });
 
 interface SiteConfigValues {
   aboutText: string;
@@ -37,21 +33,21 @@ interface HomepageProps {
   siteConfig: SiteConfigValues;
   clients: Client[];
   sections: SectionWithWorks[];
+  heroConfig: HeroConfig | null;
+  stats: Stat[];
+  testimonials: Testimonial[];
+  faqs: FAQ[];
+  activeGovernorates: ActiveGovernorate[];
 }
 
 const navItems = [
+  { label: "Home", href: "#home" },
   { label: "Work", href: "#work" },
-  { label: "About", href: "#about" },
   { label: "Clients", href: "#clients" },
+  { label: "Testimonials", href: "#testimonials" },
+  { label: "FAQ", href: "#faq" },
   { label: "Contact", href: "#contact" },
 ];
-
-const socialPlatforms = [
-  { label: "WhatsApp", key: "whatsapp", icon: "WA" },
-  { label: "Instagram", key: "instagram", icon: "IG" },
-  { label: "Behance", key: "behance", icon: "B" },
-  { label: "Facebook", key: "facebook", icon: "F" },
-] as const;
 
 function makeExternalUrl(value: string) {
   const trimmed = value.trim();
@@ -67,60 +63,140 @@ function getWhatsAppHref(value: string) {
   return digits ? `https://wa.me/${digits}` : "";
 }
 
-export default function Homepage({ siteConfig, clients, sections }: HomepageProps) {
+function AnimatedNumber({
+  value,
+  prefix,
+  suffix,
+  start,
+}: {
+  value: number;
+  prefix?: string | null;
+  suffix?: string | null;
+  start: boolean;
+}) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!start) return;
+
+    const duration = 1200;
+    const startedAt = performance.now();
+    let frame = 0;
+
+    const tick = (time: number) => {
+      const progress = Math.min((time - startedAt) / duration, 1);
+      setCurrent(Math.round(value * (1 - Math.pow(1 - progress, 3))));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [start, value]);
+
+  return (
+    <span>
+      {prefix ?? ""}
+      {current.toLocaleString()}
+      {suffix ?? ""}
+    </span>
+  );
+}
+
+export default function Homepage({
+  siteConfig,
+  clients,
+  sections,
+  heroConfig,
+  stats,
+  testimonials,
+  faqs,
+  activeGovernorates,
+}: HomepageProps) {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [statsStarted, setStatsStarted] = useState(false);
-  const [projectsCount, setProjectsCount] = useState(0);
-  const [clientsCount, setClientsCount] = useState(0);
-  const [yearsCount, setYearsCount] = useState(0);
+  const [activeSection, setActiveSection] = useState("home");
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [openFaqId, setOpenFaqId] = useState<string | null>(faqs[0]?.id ?? null);
+  const [contactState, setContactState] = useState({
+    name: "",
+    company: "",
+    service: "",
+    message: "",
+  });
 
   const statsRef = useRef<HTMLDivElement | null>(null);
+  const whatsappHref = getWhatsAppHref(siteConfig.whatsapp);
 
-  const contactLinks = useMemo(
-    () => [
-      { label: "WhatsApp", href: getWhatsAppHref(siteConfig.whatsapp), value: siteConfig.whatsapp },
-      { label: "Instagram", href: makeExternalUrl(siteConfig.instagram), value: siteConfig.instagram },
-      { label: "Behance", href: makeExternalUrl(siteConfig.behance), value: siteConfig.behance },
-      { label: "Facebook", href: makeExternalUrl(siteConfig.facebook), value: siteConfig.facebook },
-    ].filter((item) => item.value?.trim()),
-    [siteConfig]
-  );
-
-  const socialLinks = useMemo(
-    () =>
-      socialPlatforms
-        .map((platform) => {
-          const value = siteConfig[platform.key as keyof SiteConfigValues];
-          const href = platform.key === "whatsapp" ? getWhatsAppHref(value) : makeExternalUrl(value);
-          return { ...platform, href, value };
-        })
-        .filter((item) => item.value?.trim()),
-    [siteConfig]
-  );
-
-  const visibleSections = sections.filter((section) => section.works.length > 0);
   const allWorks = useMemo(
     () =>
-      visibleSections.flatMap((section) =>
+      sections.flatMap((section) =>
         section.works.map((work) => ({
           ...work,
           sectionTitle: section.title,
         }))
       ),
-    [visibleSections]
+    [sections]
   );
-  const marqueeClients = useMemo(() => [...clients, ...clients], [clients]);
-  const whatsappHref = getWhatsAppHref(siteConfig.whatsapp);
 
-  useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 80);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const socialLinks = useMemo(
+    () =>
+      [
+        { label: "WhatsApp", href: whatsappHref },
+        { label: "Instagram", href: makeExternalUrl(siteConfig.instagram) },
+        { label: "Behance", href: makeExternalUrl(siteConfig.behance) },
+        { label: "Facebook", href: makeExternalUrl(siteConfig.facebook) },
+      ].filter((item) => item.href),
+    [siteConfig.behance, siteConfig.facebook, siteConfig.instagram, whatsappHref]
+  );
+
+  const marqueeClients = useMemo(() => [...clients, ...clients], [clients]);
+  const activeGovernorateSet = useMemo(
+    () => new Set(activeGovernorates.map((item) => item.slug)),
+    [activeGovernorates]
+  );
+  const statsToRender = stats.length
+    ? stats
+    : [
+        { id: "videos", label: "Videos Produced", value: 120, prefix: null, suffix: "+", order: 1, isVisible: true },
+        { id: "clients", label: "Clients", value: 45, prefix: null, suffix: "+", order: 2, isVisible: true },
+        { id: "commercials", label: "Commercials", value: 65, prefix: null, suffix: "+", order: 3, isVisible: true },
+        { id: "years", label: "Years Experience", value: 8, prefix: null, suffix: "+", order: 4, isVisible: true },
+      ];
+  const testimonialsToRender = testimonials.length
+    ? testimonials
+    : [
+        {
+          id: "fallback-testimonial",
+          name: "MO3 Client",
+          role: "Marketing Lead",
+          company: "Brand Partner",
+          quote: "MO3 brought speed, polish, and sharp creative direction from pre-production through final delivery.",
+          rating: 5,
+          photo: null,
+          order: 1,
+          isVisible: true,
+        },
+      ];
+  const faqsToRender = faqs.length
+    ? faqs
+    : [
+        {
+          id: "fallback-faq-1",
+          question: "What does MO3 handle?",
+          answer: "MO3 can handle creative development, production, editing, color, and delivery for commercials, reels, and branded content.",
+          order: 1,
+          isVisible: true,
+        },
+        {
+          id: "fallback-faq-2",
+          question: "How do we start?",
+          answer: "Send a brief through WhatsApp with the timeline, goals, and deliverables. MO3 will reply with the best next step.",
+          order: 2,
+          isVisible: true,
+        },
+      ];
 
   useEffect(() => {
     const sectionElements = document.querySelectorAll("section[id]");
@@ -132,111 +208,111 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
           }
         });
       },
-      { rootMargin: "-35% 0px -55% 0px", threshold: 0.25 }
+      { rootMargin: "-40% 0px -40% 0px", threshold: 0.2 }
     );
+
     sectionElements.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!statsStarted) return;
-    const duration = 900;
-    const start = performance.now();
-    let animationFrame = 0;
-
-    const tick = (time: number) => {
-      const progress = Math.min((time - start) / duration, 1);
-      setProjectsCount(Math.round(50 * progress));
-      setClientsCount(Math.round(30 * progress));
-      setYearsCount(Math.round(3 * progress));
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(tick);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [statsStarted]);
-
-  useEffect(() => {
     if (!statsRef.current) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          setStatsStarted(true);
+          setStatsVisible(true);
           observer.disconnect();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.3 }
     );
+
     observer.observe(statsRef.current);
     return () => observer.disconnect();
-  }, [statsRef]);
+  }, []);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && menuOpen) {
+    if (!openFaqId && faqsToRender[0]?.id) {
+      setOpenFaqId(faqsToRender[0].id);
+    }
+  }, [faqsToRender, openFaqId]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         setMenuOpen(false);
       }
     };
-    if (menuOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-      return () => window.removeEventListener("keydown", handleKeyDown);
-    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, [menuOpen]);
 
-  return (
-    <main className="relative overflow-hidden bg-[color:var(--color-black)] text-[color:var(--color-white)]">
-      <CustomCursor />
-      <div className="film-grain pointer-events-none" />
+  function handleContactSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-      <header
-        className={`fixed inset-x-0 top-0 z-40 border-b transition-all duration-300 ${
-          isScrolled
-            ? "bg-black/90 backdrop-blur-xl border-[color:var(--color-border)]"
-            : "bg-transparent border-transparent"
-        }`}
-      >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="#home" className="flex items-center gap-3 float-animation">
-            <MO3Logo className="h-12 w-auto" />
+    const lines = [
+      "Hello MO3 Production,",
+      `Name: ${contactState.name}`,
+      `Company: ${contactState.company || "Not provided"}`,
+      `Service: ${contactState.service || "Not provided"}`,
+      "Project details:",
+      contactState.message,
+    ];
+
+    const target = whatsappHref || "#";
+    if (!target || target === "#") return;
+
+    window.open(`${target}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+  }
+
+  const currentHero = heroConfig ?? {
+    id: "fallback",
+    title: "Cinematic stories built for brands that need to be remembered.",
+    subtitle: "Commercials, reels, branded films, and premium post-production from concept to delivery.",
+    ctaLabel: "Start Your Project",
+    ctaLink: whatsappHref || "#contact",
+    videoUrl: "",
+    posterUrl: null,
+    isVisible: true,
+  };
+
+  return (
+    <main className="relative overflow-x-hidden bg-[color:var(--background)] text-[color:var(--foreground)]">
+      <Toaster position="top-right" />
+      <div className="film-grain" />
+
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--color-border)] bg-black/75 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <a href="#home" className="flex items-center">
+            <MO3Logo className="h-11 w-auto sm:h-12" />
           </a>
-          <nav className="hidden items-center gap-10 md:flex">
+
+          <nav className="hidden items-center gap-8 md:flex">
             {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className={`relative text-sm uppercase tracking-[0.2em] transition ${
-                  activeSection === item.href.slice(1)
-                    ? "text-[color:var(--color-white)]"
-                    : "text-[color:var(--color-gray)] hover:text-[color:var(--color-white)]"
+                className={`text-sm uppercase tracking-[0.28em] transition ${
+                  activeSection === item.href.slice(1) ? "text-white" : "text-[color:var(--color-gray)] hover:text-white"
                 }`}
               >
-                <span className="relative z-10">{item.label}</span>
-                <span
-                  className={`absolute left-1/2 top-full h-[2px] w-8 -translate-x-1/2 bg-[color:var(--color-red)] transition-all duration-300 ${
-                    activeSection === item.href.slice(1) ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"
-                  }`}
-                />
+                {item.label}
               </a>
             ))}
-            <ThemeToggle />
           </nav>
-          <div className="flex items-center gap-3 md:hidden">
-            <ThemeToggle />
-            <button
-              type="button"
-              onClick={() => setMenuOpen(true)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-border)] text-[color:var(--color-white)] transition hover:border-[color:var(--color-red)]"
-              aria-label="Open menu"
-            >
-              <span className="space-y-1.5">
-                <span className="block h-0.5 w-6 bg-white" />
-                <span className="block h-0.5 w-6 bg-white" />
-                <span className="block h-0.5 w-6 bg-white" />
-              </span>
-            </button>
-          </div>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm font-medium text-white md:hidden"
+            aria-label="Open navigation menu"
+          >
+            Menu
+          </button>
         </div>
       </header>
 
@@ -246,27 +322,27 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black text-white"
+            className="fixed inset-0 z-[60] bg-black/95 px-6 py-6 md:hidden"
           >
-            <div className="flex h-full flex-col px-8 py-8">
+            <div className="flex h-full flex-col">
               <div className="flex items-center justify-between">
                 <MO3Logo className="h-10 w-auto" />
                 <button
                   type="button"
                   onClick={() => setMenuOpen(false)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-border)] text-white"
-                  aria-label="Close menu"
+                  className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white"
                 >
-                  ×
+                  Close
                 </button>
               </div>
-              <nav className="mt-16 flex flex-1 flex-col justify-center gap-10 text-center">
+
+              <nav className="flex flex-1 flex-col justify-center gap-5">
                 {navItems.map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-[48px] uppercase tracking-[0.2em] transition hover:text-[color:var(--color-red)]"
+                    className="rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] px-5 py-4 text-center text-xl uppercase tracking-[0.2em] text-white"
                   >
                     {item.label}
                   </a>
@@ -277,445 +353,433 @@ export default function Homepage({ siteConfig, clients, sections }: HomepageProp
         ) : null}
       </AnimatePresence>
 
-      <section id="home" className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,rgba(0,189,125,0.12),transparent_30%),linear-gradient(180deg,#071311_0%,#050b09_100%)]">
-        <HeroCanvas />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,189,125,0.12),transparent_35%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_25%)]" />
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-8">
-          <div className="flex flex-1 flex-col justify-center">
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="font-mono text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-gray-light)]"
+      <section id="home" className="relative min-h-screen overflow-hidden">
+        <div className="absolute inset-0">
+          {currentHero.videoUrl ? (
+            <video
+              key={currentHero.videoUrl}
+              className="h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={currentHero.posterUrl ?? undefined}
             >
-              Cinematic Portfolio
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.7 }}
-              className="mt-8 font-display text-[70px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[96px] md:text-[120px]"
-            >
-              STORIES
-            </motion.h1>
-            <motion.h2
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.7 }}
-              className="mt-3 font-display text-[70px] uppercase leading-[0.95] tracking-[0.02em] text-transparent text-stroke-white sm:text-[96px] md:text-[120px]"
-            >
-              IN MOTION
-            </motion.h2>
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 1.0, duration: 0.5, ease: "easeOut" }}
-              className="mx-auto mt-10 h-[2px] w-20 origin-left bg-[color:var(--color-red)]"
-            />
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.6 }}
-              className="mt-8 max-w-2xl font-mono text-[14px] uppercase tracking-[0.34em] text-[color:var(--color-gray-light)]"
-            >
-              Direction · Production · Post · Delivery
-            </motion.p>
-          </div>
+              <source src={currentHero.videoUrl} />
+            </video>
+          ) : (
+            <div className="h-full w-full bg-[radial-gradient(circle_at_top,#331010_0%,#120404_45%,#000000_100%)]" />
+          )}
         </div>
-        <div className="absolute left-6 bottom-10 hidden flex-col items-center gap-4 text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)] md:flex">
-          <div className="relative h-24 w-px bg-[color:var(--color-border)]">
-            <span className="absolute -top-2 left-1/2 block h-3 w-3 -translate-x-1/2 rounded-full bg-[color:var(--color-red)] animate-pulse" />
-          </div>
-          <span className="rotate-90">SCROLL</span>
-        </div>
-        <div className="absolute right-6 bottom-10 hidden flex-col items-end gap-4 text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)] md:flex">
-          {socialLinks.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] text-[color:var(--color-white)] transition hover:border-[color:var(--color-red)] hover:text-[color:var(--color-red)]"
-              aria-label={social.label}
-            >
-              {social.icon}
-            </a>
-          ))}
-        </div>
-      </section>
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0.72)_55%,rgba(0,0,0,0.92)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(227,18,18,0.35),transparent_30%)]" />
 
-      <section id="about" className="border-t border-[color:var(--color-border)] bg-[linear-gradient(180deg,#0d1b18_0%,#10201d_100%)] px-6 py-24">
-        <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <ScrollReveal direction="up" delay={100}>
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="space-y-8"
-            >
-            <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">Our Story</p>
-            <div className="space-y-3">
-              <h2 className="font-display text-[48px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[64px] md:text-[80px]">
-                WHERE IDEAS
-                <br />
-                TAKE
-                <br />
-                SHAPE
-              </h2>
-            </div>
-            <p className="max-w-2xl text-[16px] leading-[1.7] text-[color:var(--color-gray-light)]">
-              {siteConfig.aboutText ||
-                "MO3 Production creates cinematic video content with a premium, atmospheric look for clients who want unforgettable visual storytelling."}
+        <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-end px-4 pb-16 pt-32 sm:px-6 sm:pb-20">
+          <div className="max-w-4xl">
+            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-gray-light)]">
+              MO3 Production
             </p>
-            <a
-              href={whatsappHref || "#contact"}
-              target={whatsappHref ? "_blank" : undefined}
-              rel={whatsappHref ? "noreferrer" : undefined}
-              className="inline-flex items-center rounded-full bg-[color:var(--color-red)] px-8 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-[color:var(--color-red-dim)]"
-            >
-              START YOUR PROJECT →
-            </a>
-            </motion.div>
-          </ScrollReveal>
+            <h1 className="mt-5 text-5xl uppercase leading-[0.9] text-white sm:text-7xl lg:text-[6.5rem]">
+              {currentHero.title}
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-[color:var(--color-gray-light)] sm:text-lg">
+              {currentHero.subtitle}
+            </p>
 
-          <ScrollReveal direction="up" delay={200}>
-            <motion.div
-            ref={statsRef}
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="grid gap-6"
-          >
-            <div className="rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] px-8 py-10 text-center">
-              <p className="text-[72px] font-[400] leading-none text-[color:var(--color-red)]">{projectsCount}+</p>
-              <p className="mt-4 text-[13px] uppercase tracking-[0.45em] text-[color:var(--color-gray)]">Projects Delivered</p>
-            </div>
-            <div className="rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] px-8 py-10 text-center">
-              <p className="text-[72px] font-[400] leading-none text-[color:var(--color-red)]">{clientsCount}+</p>
-              <p className="mt-4 text-[13px] uppercase tracking-[0.45em] text-[color:var(--color-gray)]">Happy Clients</p>
-            </div>
-            <div className="rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] px-8 py-10 text-center">
-              <p className="text-[72px] font-[400] leading-none text-[color:var(--color-red)]">{yearsCount}</p>
-              <p className="mt-4 text-[13px] uppercase tracking-[0.45em] text-[color:var(--color-gray)]">Years of Excellence</p>
-            </div>
-            </motion.div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--color-black)] px-6 py-24">
-        <ScrollReveal direction="scale" delay={100}>
-          <div className="mx-auto max-w-7xl text-center">
-            <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-[color:var(--color-red)]">Trusted By</p>
-            <h2 className="mt-4 font-display text-[48px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[64px]">Our Clients</h2>
-          </div>
-        </ScrollReveal>
-
-        <div className="mt-16 space-y-8 overflow-hidden">
-          <div className="marquee overflow-hidden">
-            <div className="marquee-track flex items-center gap-6">
-              {marqueeClients.map((client, index) => (
-                <TiltCard
-                  key={`track-a-${client.id}-${index}`}
-                  intensity={8}
-                  className="group inline-flex h-24 w-44 items-center justify-center rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 transition duration-500 hover:scale-105 hover:grayscale-0"
-                >
-                  {client.logo ? (
-                    <Image
-                      src={client.logo}
-                      alt={client.name}
-                      fill
-                      className="object-contain"
-                      sizes="176px"
-                    />
-                  ) : (
-                    <span className="text-sm text-[color:var(--color-gray)]">{client.name}</span>
-                  )}
-                </TiltCard>
-              ))}
-            </div>
-          </div>
-
-          <div className="marquee overflow-hidden">
-            <div className="marquee-track marquee-reverse flex items-center gap-6">
-              {marqueeClients.map((client, index) => (
-                <TiltCard
-                  key={`track-b-${client.id}-${index}`}
-                  intensity={8}
-                  className="group inline-flex h-24 w-44 items-center justify-center rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 transition duration-500 hover:scale-105 hover:grayscale-0"
-                >
-                  {client.logo ? (
-                    <Image
-                      src={client.logo}
-                      alt={client.name}
-                      fill
-                      className="object-contain"
-                      sizes="176px"
-                    />
-                  ) : (
-                    <span className="text-sm text-[color:var(--color-gray)]">{client.name}</span>
-                  )}
-                </TiltCard>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="work" className="border-t border-[color:var(--color-border)] bg-[linear-gradient(180deg,#10201d_0%,#0d1b18_100%)] px-6 py-24">
-        <div className="mx-auto max-w-7xl">
-          {visibleSections.length ? (
-            visibleSections.map((section, index) => (
-              <motion.div
-                key={section.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.7 }}
-                className="mb-24"
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <a
+                href={currentHero.ctaLink}
+                target={currentHero.ctaLink.startsWith("http") ? "_blank" : undefined}
+                rel={currentHero.ctaLink.startsWith("http") ? "noreferrer" : undefined}
+                className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-primary)] px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-[color:var(--color-red-dim)]"
               >
-                <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                  <div className="relative overflow-visible">
-                    <span className="pointer-events-none absolute left-0 top-0 z-0 text-[120px] font-[400] leading-[0.9] text-[color:var(--color-border)] opacity-40">0{index + 1}</span>
-                    <h3 className="relative font-display text-[40px] uppercase leading-[0.95] tracking-[0.02em] text-white sm:text-[56px] md:text-[64px]">{section.title}</h3>
-                  </div>
-                  <a
-                    href="#work"
-                    className="text-sm uppercase tracking-[0.35em] text-[color:var(--color-red)] transition hover:text-[color:var(--color-red-dim)]"
+                {currentHero.ctaLabel}
+              </a>
+              <a
+                href="#work"
+                className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] bg-black/30 px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:border-[color:var(--color-primary)]"
+              >
+                View Work
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.3fr_1fr]">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">About MO3</p>
+            <h2 className="mt-4 text-4xl uppercase leading-tight text-white sm:text-6xl">
+              Premium production with a sharp visual identity.
+            </h2>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-[color:var(--color-gray-light)]">
+              {siteConfig.aboutText ||
+                "MO3 Production develops commercials, reels, branded films, and digital campaigns with a cinematic finish and disciplined execution from concept to delivery."}
+            </p>
+          </div>
+
+          <div ref={statsRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {statsToRender.map((stat) => (
+              <div
+                key={stat.id}
+                className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
+              >
+                <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
+                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} />
+                </p>
+                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-[color:var(--color-gray)]">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Clients</p>
+          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Brands that trust MO3</h2>
+
+          <div className="mt-12 space-y-5">
+            <div className="marquee">
+              <div className="marquee-track gap-5">
+                {marqueeClients.map((client, index) => (
+                  <div
+                    key={`client-a-${client.id}-${index}`}
+                    className="group relative flex h-24 w-44 shrink-0 items-center justify-center rounded-[28px] border border-[color:var(--color-border)] bg-black px-5"
                   >
-                    VIEW ALL →
-                  </a>
-                </div>
-                <WorkShowcase3D 
-                  works={section.works}
-                  onSelect={(work) => setSelectedWork(work)}
-                />
-                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                  {section.works.length > 0 ? (
-                    section.works.map((work) => (
-                      <TiltCard
+                    {client.logo ? (
+                      <Image
+                        src={client.logo}
+                        alt={client.name}
+                        fill
+                        className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
+                        sizes="176px"
+                      />
+                    ) : (
+                      <span className="text-sm text-[color:var(--color-gray-light)]">{client.name}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="marquee">
+              <div className="marquee-track marquee-reverse gap-5">
+                {marqueeClients.map((client, index) => (
+                  <div
+                    key={`client-b-${client.id}-${index}`}
+                    className="group relative flex h-24 w-44 shrink-0 items-center justify-center rounded-[28px] border border-[color:var(--color-border)] bg-black px-5"
+                  >
+                    {client.logo ? (
+                      <Image
+                        src={client.logo}
+                        alt={client.name}
+                        fill
+                        className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
+                        sizes="176px"
+                      />
+                    ) : (
+                      <span className="text-sm text-[color:var(--color-gray-light)]">{client.name}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Selected Work</p>
+          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Stories designed for impact</h2>
+
+          <div className="mt-14 space-y-16">
+            {sections.map((section) => {
+              const isReels = section.slug === "reels" || section.title.toLowerCase().includes("reel");
+
+              return (
+                <div key={section.id} className="space-y-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)]">
+                        {isReels ? "Portrait Format" : "Featured Category"}
+                      </p>
+                      <h3 className="mt-2 text-3xl uppercase text-white sm:text-5xl">{section.title}</h3>
+                    </div>
+                    <span className="text-sm uppercase tracking-[0.25em] text-[color:var(--color-primary)]">
+                      {section.works.length} Projects
+                    </span>
+                  </div>
+
+                  <div className={`grid gap-5 ${isReels ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
+                    {section.works.map((work) => (
+                      <button
                         key={work.id}
-                        intensity={12}
-                        className="rounded-[2rem]"
+                        type="button"
+                        onClick={() => setSelectedWork(work)}
+                        id={`work-card-${work.id}`}
+                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-left transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
                       >
-                        <button
-                          type="button"
-                          onClick={() => setSelectedWork(work)}
-                          id={`work-card-${work.id}`}
-                          className="group relative overflow-hidden rounded-[2rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] text-left transition duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-red)]/40"
-                        >
-                        <div className="relative aspect-[16/9] overflow-hidden bg-black">
+                        <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
                           {work.thumbnail ? (
                             <Image
                               src={work.thumbnail}
                               alt={work.title}
                               fill
-                              className="object-cover transition duration-700 group-hover:scale-105"
-                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className="object-cover transition duration-500 group-hover:scale-105"
+                              sizes={isReels ? "(max-width: 768px) 100vw, 25vw" : "(max-width: 768px) 100vw, 33vw"}
                             />
                           ) : (
                             <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">No thumbnail</div>
                           )}
-                          <div className="absolute inset-0 bg-black/25 transition duration-300 group-hover:bg-black/70" />
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover:opacity-100">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--color-red)] text-white shadow-[0_0_0_8px_rgba(227,18,18,0.12)] transition duration-300 group-hover:scale-105">
-                              <svg viewBox="0 0 24 24" className="h-7 w-7 fill-white" aria-hidden="true">
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
-                            </div>
-                          </div>
+                          <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
                         </div>
-                        <div className="p-6">
-                          <p className="text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-red)]">{work.client}</p>
-                          <h4 className="mt-4 text-xl font-semibold text-white">{work.title}</h4>
-                          {work.locationCity ? (
-                            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-gray-light)]">
-                              {work.locationCity}
-                              {work.locationCountry ? `, ${work.locationCountry}` : ""}
-                            </p>
+                        <div className="space-y-3 p-5">
+                          <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-primary)]">
+                            {work.client || "MO3 Production"}
+                          </p>
+                          <h4 className="text-xl font-semibold text-white">{work.title}</h4>
+                          {work.description ? (
+                            <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
                           ) : null}
                         </div>
-                        </button>
-                      </TiltCard>
-                    ))
-                  ) : (
-                    [0, 1, 2].map((i) => <PlaceholderWorkCard key={i} />)
-                  )}
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="space-y-24">
-              {[
-                { title: "Commercial Ads", number: "01" },
-                { title: "Reels", number: "02" },
-                { title: "Podcast", number: "03" },
-              ].map((section) => (
-                <motion.div
-                  key={section.number}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ duration: 0.7 }}
-                >
-                  <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="relative overflow-visible">
-                      <span className="pointer-events-none absolute left-0 top-0 z-0 text-[120px] font-[400] leading-[0.9] text-[color:var(--color-border)] opacity-40">
-                        {section.number}
-                      </span>
-                      <h3 className="relative text-[40px] leading-[0.95] tracking-[-1px] text-white sm:text-[56px] md:text-[64px]">
-                        {section.title}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                    {[0, 1, 2].map((i) => (
-                      <PlaceholderWorkCard key={i} />
+                      </button>
                     ))}
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       <WorkMap
         works={allWorks}
         onSelectWork={(workId) => {
-          setSelectedWork(allWorks.find((work) => work.id === workId) ?? null);
+          const work = allWorks.find((item) => item.id === workId) ?? null;
+          setSelectedWork(work);
           const card = document.getElementById(`work-card-${workId}`);
           card?.scrollIntoView({ behavior: "smooth", block: "center" });
-          card?.focus?.();
         }}
       />
 
-      <section className="bg-[color:var(--bg-primary)] 
-                    py-20 px-4 text-center" id="contact">
-        <div className="mx-auto max-w-4xl">
-          
-          <p className="mb-3 font-mono text-[11px] uppercase 
-                        tracking-[6px] text-[color:var(--color-primary)]">
-            GET IN TOUCH
-          </p>
-          <h2 className="font-display text-5xl uppercase md:text-7xl 
-                         text-[color:var(--text-primary)] 
-                         leading-none mb-4">
-            LET'S CREATE SOMETHING TOGETHER
-          </h2>
-          <div className="mx-auto mb-8 h-[2px] w-16 bg-[color:var(--color-primary)]" />
+      <section id="testimonials" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Testimonials</p>
+          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">What clients say after launch</h2>
 
-          <a
-            href={whatsappHref || "#contact"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 rounded-full
-                       bg-[color:var(--color-primary)] px-8 py-4 text-white font-medium
-                       text-lg hover:bg-[color:var(--color-red-dim)] transition-colors
-                       mb-12 shadow-lg shadow-[rgba(0,189,125,0.24)]"
-          >
-            <svg className="h-5 w-5" fill="currentColor" 
-                 viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            Start Your Project
-          </a>
+          <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {testimonialsToRender.map((testimonial) => (
+              <article
+                key={testimonial.id}
+                className="rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
+              >
+                <div className="flex items-start gap-4">
+                  {testimonial.photo ? (
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-[color:var(--color-border)]">
+                      <Image src={testimonial.photo} alt={testimonial.name} fill className="object-cover" sizes="56px" />
+                    </div>
+                  ) : (
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-black text-lg font-semibold text-[color:var(--color-primary)]">
+                      {testimonial.name.slice(0, 1)}
+                    </div>
+                  )}
 
-          <div className="flex items-center justify-center 
-                          gap-6 flex-wrap">
-            
-            <a href={makeExternalUrl(siteConfig.instagram)}
-               target="_blank"
-               rel="noopener noreferrer"
-               className="flex flex-col items-center gap-2 
-                          text-[color:var(--text-secondary)]
-                          hover:text-[color:var(--color-primary)] transition-colors group">
-              <div className="flex h-12 w-12 items-center justify-center
-                              rounded-full border 
-                              border-[color:var(--border-color)]
-                              group-hover:border-[color:var(--color-primary)] 
-                              transition-colors">
-                <svg className="h-5 w-5" fill="currentColor" 
-                     viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-                </svg>
-              </div>
-              <span className="text-xs">Instagram</span>
-            </a>
+                  <div>
+                    <div className="flex flex-wrap gap-1 text-[color:var(--color-primary)]">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <span key={index}>{index < testimonial.rating ? "★" : "☆"}</span>
+                      ))}
+                    </div>
+                    <p className="mt-4 text-base leading-7 text-[color:var(--color-gray-light)]">“{testimonial.quote}”</p>
+                  </div>
+                </div>
 
-            <a href={makeExternalUrl(siteConfig.facebook)}
-               target="_blank"
-               rel="noopener noreferrer"
-               className="flex flex-col items-center gap-2
-                          text-[color:var(--text-secondary)]
-                          hover:text-[color:var(--color-primary)] transition-colors group">
-              <div className="flex h-12 w-12 items-center justify-center
-                              rounded-full border
-                              border-[color:var(--border-color)]
-                              group-hover:border-[color:var(--color-primary)]
-                              transition-colors">
-                <svg className="h-5 w-5" fill="currentColor"
-                     viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </div>
-              <span className="text-xs">Facebook</span>
-            </a>
-
-            <a href={makeExternalUrl(siteConfig.behance)}
-               target="_blank"
-               rel="noopener noreferrer"
-               className="flex flex-col items-center gap-2
-                          text-[color:var(--text-secondary)]
-                          hover:text-[color:var(--color-primary)] transition-colors group">
-              <div className="flex h-12 w-12 items-center justify-center
-                              rounded-full border
-                              border-[color:var(--border-color)]
-                              group-hover:border-[color:var(--color-primary)]
-                              transition-colors">
-                <svg className="h-5 w-5" fill="currentColor"
-                     viewBox="0 0 24 24">
-                  <path d="M6.938 4.503c.702 0 1.34.06 1.92.188.577.13 1.07.33 1.485.61.41.28.733.65.96 1.12.225.47.34 1.05.34 1.73 0 .74-.17 1.36-.507 1.86-.338.5-.837.9-1.502 1.22.906.26 1.576.72 2.022 1.37.448.66.665 1.45.665 2.36 0 .75-.13 1.39-.41 1.93-.28.55-.67 1-1.16 1.35-.48.348-1.05.6-1.69.755-.64.16-1.31.24-2.01.24H0V4.51h6.938v-.007zM16.94 6.422v1.73h-5.137V6.422h5.137zM6.588 9.52H3.434v3.145h3.154c.78 0 1.38-.17 1.8-.5.42-.34.63-.85.63-1.56 0-.37-.06-.68-.19-.94-.13-.27-.31-.49-.54-.66-.23-.17-.51-.3-.82-.38-.32-.08-.67-.11-1.05-.11h.17v.005zm-.143 5.287H3.434v3.573h3.03c.37 0 .72-.04 1.06-.11.34-.07.64-.19.9-.37.26-.17.47-.4.63-.7.16-.3.24-.67.24-1.11 0-.87-.26-1.48-.77-1.84-.52-.36-1.2-.54-2.07-.54l-.01.1zm13.613-4.42c-.37-.4-.9-.6-1.62-.6-.46 0-.85.08-1.16.25-.31.17-.57.38-.77.63-.2.26-.34.54-.43.84-.09.3-.14.59-.16.87h4.77c-.07-.74-.26-1.39-.63-1.99zm.007 5.48c-.35.34-.87.51-1.56.51-.46 0-.85-.08-1.18-.23-.32-.16-.59-.36-.8-.6-.21-.25-.36-.52-.46-.81-.1-.3-.16-.58-.18-.86H24c.04-1.88-.4-3.35-1.32-4.41-.92-1.05-2.27-1.58-4.06-1.58-.77 0-1.48.14-2.13.42-.65.28-1.2.66-1.66 1.15-.46.49-.82 1.07-1.08 1.74-.26.67-.39 1.4-.39 2.18 0 .8.12 1.54.37 2.21.25.67.61 1.25 1.07 1.73.46.48 1.02.85 1.68 1.12.66.27 1.4.4 2.23.4 1.12 0 2.07-.25 2.83-.76.77-.5 1.32-1.33 1.65-2.48h-2.39c-.1.36-.32.65-.65.98l-.01.02z"/>
-                </svg>
-              </div>
-              <span className="text-xs">Behance</span>
-            </a>
-
-            <a href="tel:+201066298201"
-               className="flex flex-col items-center gap-2
-                          text-[color:var(--text-secondary)]
-                          hover:text-[color:var(--color-primary)] transition-colors group">
-              <div className="flex h-12 w-12 items-center justify-center
-                              rounded-full border
-                              border-[color:var(--border-color)]
-                              group-hover:border-[color:var(--color-primary)]
-                              transition-colors">
-                <svg className="h-5 w-5" fill="none"
-                     stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 7V5z"/>
-                </svg>
-              </div>
-              <span className="text-xs">01066298201</span>
-            </a>
-
-          </div>
-
-          <div className="mt-16 border-t 
-                          border-[color:var(--border-color)] pt-8">
-            <p className="text-xs text-[color:var(--text-muted)]">
-              © 2025 MO3 Production. All rights reserved.
-            </p>
+                <div className="mt-6 border-t border-[color:var(--color-border)] pt-4">
+                  <p className="text-lg font-semibold text-white">{testimonial.name}</p>
+                  <p className="text-sm text-[color:var(--color-gray)]">
+                    {testimonial.role} · {testimonial.company}
+                  </p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
+      <section id="egypt-map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Across Egypt</p>
+            <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Governorates where MO3 has delivered work</h2>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[color:var(--color-gray-light)]">
+              Tap a highlighted governorate to see where the team has already worked. The active list is managed from the admin panel.
+            </p>
+
+            <div className="mt-8 rounded-[34px] border border-[color:var(--color-border)] bg-[linear-gradient(180deg,#130505_0%,#080808_100%)] p-5 sm:p-8">
+              <div className="relative mx-auto aspect-[0.85] max-w-[520px] overflow-hidden rounded-[28px] border border-[color:var(--color-border)] bg-[radial-gradient(circle_at_top,rgba(227,18,18,0.14),transparent_30%),linear-gradient(180deg,#111111_0%,#050505_100%)]">
+                <div className="absolute inset-[8%] rounded-[40%_26%_42%_30%/18%_20%_48%_50%] border border-[color:var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]" />
+
+                {EGYPT_GOVERNORATES.map((governorate) => {
+                  const active = activeGovernorateSet.has(governorate.slug);
+
+                  return (
+                    <button
+                      key={governorate.slug}
+                      type="button"
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition sm:px-4 ${
+                        active
+                          ? "border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_0_24px_rgba(227,18,18,0.38)]"
+                          : "border-[color:var(--color-border)] bg-black/80 text-[color:var(--color-gray)]"
+                      }`}
+                      style={{ top: governorate.top, left: governorate.left }}
+                      aria-pressed={active}
+                    >
+                      {governorate.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6">
+            <p className="text-sm uppercase tracking-[0.28em] text-[color:var(--color-primary)]">Active Governorates</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {activeGovernorates.length ? (
+                activeGovernorates.map((item) => (
+                  <span
+                    key={item.id}
+                    className="rounded-full border border-[color:var(--color-primary)] bg-[rgba(227,18,18,0.12)] px-4 py-2 text-sm text-white"
+                  >
+                    {item.name}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm leading-7 text-[color:var(--color-gray-light)]">No governorates are active yet.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-5xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">FAQ</p>
+          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Everything clients usually ask</h2>
+
+          <div className="mt-12 space-y-4">
+            {faqsToRender.map((faq) => {
+              const open = openFaqId === faq.id;
+
+              return (
+                <div key={faq.id} className="overflow-hidden rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)]">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaqId(open ? null : faq.id)}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-7"
+                  >
+                    <span className="text-lg font-semibold text-white">{faq.question}</span>
+                    <span className="text-2xl text-[color:var(--color-primary)]">{open ? "−" : "+"}</span>
+                  </button>
+                  {open ? (
+                    <div className="border-t border-[color:var(--color-border)] px-5 py-5 text-sm leading-7 text-[color:var(--color-gray-light)] sm:px-7">
+                      {faq.answer}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Contact</p>
+            <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Let’s build the next campaign</h2>
+            <p className="mt-6 max-w-xl text-base leading-8 text-[color:var(--color-gray-light)]">
+              Send the brief through WhatsApp and MO3 will follow up with timing, scope, and production direction.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--surface)] px-5 py-3 text-sm font-medium text-white transition hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handleContactSubmit} className="rounded-[32px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-5 sm:p-7">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-2 text-sm text-[color:var(--color-gray-light)]">
+                <span>Name</span>
+                <input
+                  required
+                  value={contactState.name}
+                  onChange={(event) => setContactState((current) => ({ ...current, name: event.target.value }))}
+                  className="rounded-2xl px-4 py-3"
+                  placeholder="Your name"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-[color:var(--color-gray-light)]">
+                <span>Company</span>
+                <input
+                  value={contactState.company}
+                  onChange={(event) => setContactState((current) => ({ ...current, company: event.target.value }))}
+                  className="rounded-2xl px-4 py-3"
+                  placeholder="Brand or company"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-[color:var(--color-gray-light)] sm:col-span-2">
+                <span>Service</span>
+                <input
+                  value={contactState.service}
+                  onChange={(event) => setContactState((current) => ({ ...current, service: event.target.value }))}
+                  className="rounded-2xl px-4 py-3"
+                  placeholder="Commercial, reels, post-production..."
+                />
+              </label>
+              <label className="space-y-2 text-sm text-[color:var(--color-gray-light)] sm:col-span-2">
+                <span>Project details</span>
+                <textarea
+                  required
+                  value={contactState.message}
+                  onChange={(event) => setContactState((current) => ({ ...current, message: event.target.value }))}
+                  className="min-h-[180px] rounded-[24px] px-4 py-3"
+                  placeholder="Tell MO3 what you want to produce."
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-[color:var(--color-red-dim)]"
+            >
+              Send on WhatsApp
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <footer className="border-t border-[color:var(--color-border)] bg-black px-4 py-6 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-[color:var(--color-gray)] sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 MO3 Production. All rights reserved.</p>
+          <p>Always dark. Always cinematic.</p>
+        </div>
+      </footer>
+
       <VideoLightbox work={selectedWork} onClose={() => setSelectedWork(null)} />
-      <Toaster position="top-right" />
     </main>
   );
 }

@@ -137,7 +137,7 @@ function SortableWorkRow({
         <span
           className={classNames(
             "inline-flex rounded-full px-2 py-1 text-xs font-semibold",
-            work.isVisible ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-700 text-slate-400"
+            work.isVisible ? "bg-[rgba(227,18,18,0.12)] text-white" : "bg-slate-700 text-slate-400"
           )}
         >
           {work.isVisible ? "Visible" : "Hidden"}
