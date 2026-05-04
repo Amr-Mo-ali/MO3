@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 interface WorkPayload {
   title: string;
   client: string;
-  videoUrl: string;
+  videoUrl: string | null;
   thumbnail: string;
   description: string;
 }
@@ -16,8 +16,11 @@ interface VideoLightboxProps {
   onClose: () => void;
 }
 
-function resolveEmbedUrl(videoUrl: string) {
-  const url = videoUrl.trim();
+function resolveEmbedUrl(videoUrl: string | null) {
+  const url = videoUrl?.trim() ?? "";
+  if (!url) {
+    return "";
+  }
 
   const youtubeMatch = url.match(
     /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/i
@@ -52,6 +55,9 @@ export default function VideoLightbox({ work, onClose }: VideoLightboxProps) {
   }
 
   const embedUrl = resolveEmbedUrl(work.videoUrl);
+  if (!embedUrl) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

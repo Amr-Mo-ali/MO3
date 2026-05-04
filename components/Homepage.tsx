@@ -129,6 +129,14 @@ export default function Homepage({
   const statsRef = useRef<HTMLDivElement | null>(null);
   const whatsappHref = getWhatsAppHref(siteConfig.whatsapp);
 
+  function openWork(work: Work | null) {
+    if (!work?.videoUrl?.trim()) {
+      return;
+    }
+
+    setSelectedWork(work);
+  }
+
   const allWorks = useMemo(
     () =>
       sections.flatMap((section) =>
@@ -406,31 +414,67 @@ export default function Homepage({
         </div>
       </section>
 
-      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.3fr_1fr]">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">About MO3</p>
-            <h2 className="mt-4 text-4xl uppercase leading-tight text-white sm:text-6xl">
-              Premium production with a sharp visual identity.
-            </h2>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-[color:var(--color-gray-light)]">
-              {siteConfig.aboutText ||
-                "MO3 Production develops commercials, reels, branded films, and digital campaigns with a cinematic finish and disciplined execution from concept to delivery."}
-            </p>
-          </div>
+      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Selected Work</p>
+          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Stories designed for impact</h2>
 
-          <div ref={statsRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {statsToRender.map((stat) => (
-              <div
-                key={stat.id}
-                className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
-              >
-                <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
-                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} />
-                </p>
-                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-[color:var(--color-gray)]">{stat.label}</p>
-              </div>
-            ))}
+          <div className="mt-14 space-y-16">
+            {sections.map((section) => {
+              const isReels = section.slug === "reels" || section.title.toLowerCase().includes("reel");
+
+              return (
+                <div key={section.id} className="space-y-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)]">
+                        {isReels ? "Portrait Format" : "Featured Category"}
+                      </p>
+                      <h3 className="mt-2 text-3xl uppercase text-white sm:text-5xl">{section.title}</h3>
+                    </div>
+                    <span className="text-sm uppercase tracking-[0.25em] text-[color:var(--color-primary)]">
+                      {section.works.length} Projects
+                    </span>
+                  </div>
+
+                  <div className={`grid gap-5 ${isReels ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
+                    {section.works.map((work) => (
+                      <button
+                        key={work.id}
+                        type="button"
+                        onClick={() => openWork(work)}
+                        id={`work-card-${work.id}`}
+                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-left transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
+                      >
+                        <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
+                          {work.thumbnail ? (
+                            <Image
+                              src={work.thumbnail}
+                              alt={work.title}
+                              fill
+                              className="object-cover transition duration-500 group-hover:scale-105"
+                              sizes={isReels ? "(max-width: 768px) 100vw, 25vw" : "(max-width: 768px) 100vw, 33vw"}
+                            />
+                          ) : (
+                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">No thumbnail</div>
+                          )}
+                          <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
+                        </div>
+                        <div className="space-y-3 p-5">
+                          <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-primary)]">
+                            {work.client || "MO3 Production"}
+                          </p>
+                          <h4 className="text-xl font-semibold text-white">{work.title}</h4>
+                          {work.description ? (
+                            <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
+                          ) : null}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -490,67 +534,31 @@ export default function Homepage({
         </div>
       </section>
 
-      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">Selected Work</p>
-          <h2 className="mt-4 text-4xl uppercase text-white sm:text-6xl">Stories designed for impact</h2>
+      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.3fr_1fr]">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]">About MO3</p>
+            <h2 className="mt-4 text-4xl uppercase leading-tight text-white sm:text-6xl">
+              Premium production with a sharp visual identity.
+            </h2>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-[color:var(--color-gray-light)]">
+              {siteConfig.aboutText ||
+                "MO3 Production develops commercials, reels, branded films, and digital campaigns with a cinematic finish and disciplined execution from concept to delivery."}
+            </p>
+          </div>
 
-          <div className="mt-14 space-y-16">
-            {sections.map((section) => {
-              const isReels = section.slug === "reels" || section.title.toLowerCase().includes("reel");
-
-              return (
-                <div key={section.id} className="space-y-8">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)]">
-                        {isReels ? "Portrait Format" : "Featured Category"}
-                      </p>
-                      <h3 className="mt-2 text-3xl uppercase text-white sm:text-5xl">{section.title}</h3>
-                    </div>
-                    <span className="text-sm uppercase tracking-[0.25em] text-[color:var(--color-primary)]">
-                      {section.works.length} Projects
-                    </span>
-                  </div>
-
-                  <div className={`grid gap-5 ${isReels ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
-                    {section.works.map((work) => (
-                      <button
-                        key={work.id}
-                        type="button"
-                        onClick={() => setSelectedWork(work)}
-                        id={`work-card-${work.id}`}
-                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-left transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
-                      >
-                        <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
-                          {work.thumbnail ? (
-                            <Image
-                              src={work.thumbnail}
-                              alt={work.title}
-                              fill
-                              className="object-cover transition duration-500 group-hover:scale-105"
-                              sizes={isReels ? "(max-width: 768px) 100vw, 25vw" : "(max-width: 768px) 100vw, 33vw"}
-                            />
-                          ) : (
-                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">No thumbnail</div>
-                          )}
-                          <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
-                        </div>
-                        <div className="space-y-3 p-5">
-                          <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-primary)]">
-                            {work.client || "MO3 Production"}
-                          </p>
-                          <h4 className="text-xl font-semibold text-white">{work.title}</h4>
-                          {work.description ? (
-                            <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
-                          ) : null}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+          <div ref={statsRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {statsToRender.map((stat) => (
+              <div
+                key={stat.id}
+                className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
+              >
+                <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
+                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} />
+                </p>
+                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-[color:var(--color-gray)]">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -559,7 +567,7 @@ export default function Homepage({
         works={allWorks}
         onSelectWork={(workId) => {
           const work = allWorks.find((item) => item.id === workId) ?? null;
-          setSelectedWork(work);
+          openWork(work);
           const card = document.getElementById(`work-card-${workId}`);
           card?.scrollIntoView({ behavior: "smooth", block: "center" });
         }}
