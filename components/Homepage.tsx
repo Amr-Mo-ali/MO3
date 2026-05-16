@@ -6,12 +6,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { usePublicLanguage } from "@/app/providers";
-import { getStaticCopy, translateSectionTitle, translateText } from "@/lib/public-i18n";
+import { getProjectCount, getStaticCopy, translateSectionTitle, translateText } from "@/lib/public-i18n";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
 import type { Client, FAQ, HeroConfig, SectionWithWorks, Stat, Testimonial, Work } from "@/types";
 
 const WorkMap = dynamic(() => import("@/components/WorkMap"), { ssr: false });
+
+const NAV_SECTION_IDS = new Set(["home", "work", "about", "clients", "map", "contact"]);
 
 interface SiteConfigValues {
   aboutText: string;
@@ -210,6 +212,7 @@ export default function Homepage({
           ]
       ).map((testimonial) => ({
         ...testimonial,
+        name: translateText(language, testimonial.name),
         role: translateText(language, testimonial.role),
         company: translateText(language, testimonial.company),
         quote: translateText(language, testimonial.quote),
@@ -246,16 +249,21 @@ export default function Homepage({
   );
 
   useEffect(() => {
-    const sectionElements = document.querySelectorAll("section[id]");
+    const sectionElements = Array.from(document.querySelectorAll<HTMLElement>("section[id]")).filter((section) =>
+      NAV_SECTION_IDS.has(section.id)
+    );
+
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visibleEntries[0]) {
+          setActiveSection(visibleEntries[0].target.id);
+        }
       },
-      { rootMargin: "-40% 0px -40% 0px", threshold: 0.2 }
+      { rootMargin: "-35% 0px -45% 0px", threshold: [0.2, 0.35, 0.5, 0.7] }
     );
 
     sectionElements.forEach((section) => observer.observe(section));
@@ -317,28 +325,20 @@ export default function Homepage({
   const currentHero = {
     ...(heroConfig ?? {
       id: "fallback",
-      title: "Cinematic stories built for brands that need to be remembered.",
-      subtitle: "Commercials, reels, branded films, and premium post-production from concept to delivery.",
-      ctaLabel: "Start Your Project",
+      title: copy.hero.title,
+      subtitle: copy.hero.subtitle,
+      ctaLabel: copy.hero.cta,
       ctaLink: whatsappHref || "#contact",
       videoUrl: "",
       posterUrl: null,
       isVisible: true,
     }),
-    title: translateText(language, heroConfig?.title ?? "Cinematic stories built for brands that need to be remembered."),
-    subtitle: translateText(
-      language,
-      heroConfig?.subtitle ?? "Commercials, reels, branded films, and premium post-production from concept to delivery."
-    ),
-    ctaLabel: translateText(language, heroConfig?.ctaLabel ?? "Start Your Project"),
+    title: translateText(language, heroConfig?.title ?? copy.hero.title),
+    subtitle: translateText(language, heroConfig?.subtitle ?? copy.hero.subtitle),
+    ctaLabel: translateText(language, heroConfig?.ctaLabel ?? copy.hero.cta),
   };
 
-  const translatedAboutText =
-    translateText(language, siteConfig.aboutText) ||
-    translateText(
-      language,
-      "MO3 Production develops commercials, reels, branded films, and digital campaigns with a cinematic finish and disciplined execution from concept to delivery."
-    );
+  const translatedAboutText = translateText(language, siteConfig.aboutText) || copy.about.body;
 
   return (
     <main dir={copy.direction} className="relative overflow-x-hidden bg-[color:var(--background)] text-[color:var(--foreground)]">
@@ -348,7 +348,7 @@ export default function Homepage({
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--color-border)] bg-black/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <a href="#home" className="flex items-center" onClick={(event) => { event.preventDefault(); handleAnchorClick("#home"); }}>
-            <MO3Logo className="h-11 w-auto sm:h-12" />
+            <MO3Logo className="h-11 w-auto sm:h-12" alt={copy.labels.logoAlt} />
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
@@ -357,11 +357,16 @@ export default function Homepage({
                 key={item.href}
                 type="button"
                 onClick={() => handleAnchorClick(item.href)}
-                className={`text-sm transition ${isArabic ? "font-semibold tracking-normal" : "uppercase tracking-[0.28em]"} ${
-                  activeSection === item.href.slice(1) ? "text-white" : "text-[color:var(--color-gray)] hover:text-white"
+                className={`group relative pb-2 text-sm transition-colors duration-300 ${isArabic ? "font-semibold tracking-normal" : "uppercase tracking-[0.28em]"} ${
+                  activeSection === item.href.slice(1) ? "text-[#E31212]" : "text-[color:var(--color-gray)] hover:text-white"
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                <span
+                  className={`absolute inset-x-0 -bottom-px h-0.5 origin-center rounded-full bg-[#E31212] transition-transform duration-300 ${
+                    activeSection === item.href.slice(1) ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
               </button>
             ))}
           </nav>
@@ -397,7 +402,7 @@ export default function Homepage({
           >
             <div className="flex h-full flex-col">
               <div className="flex items-center justify-between">
-                <MO3Logo className="h-10 w-auto" />
+                <MO3Logo className="h-10 w-auto" alt={copy.labels.logoAlt} />
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -422,7 +427,11 @@ export default function Homepage({
                     key={item.href}
                     type="button"
                     onClick={() => handleAnchorClick(item.href)}
-                    className={`rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] px-5 py-4 text-center text-xl text-white ${isArabic ? "font-semibold" : "uppercase tracking-[0.2em]"}`}
+                    className={`rounded-3xl border px-5 py-4 text-center text-xl transition-colors duration-300 ${
+                      activeSection === item.href.slice(1)
+                        ? "border-[#E31212] bg-[rgba(227,18,18,0.12)] text-[#E31212]"
+                        : "border-[color:var(--color-border)] bg-[color:var(--surface)] text-white hover:border-[#E31212] hover:text-[#E31212]"
+                    } ${isArabic ? "font-semibold" : "uppercase tracking-[0.2em]"}`}
                   >
                     {item.label}
                   </button>
@@ -457,7 +466,7 @@ export default function Homepage({
         <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-end px-4 pb-16 pt-32 sm:px-6 sm:pb-20">
           <div className="max-w-4xl">
             <p className={isArabic ? "text-sm font-semibold text-[color:var(--color-gray-light)]" : "font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-gray-light)]"}>
-              MO3 Production
+              {copy.labels.brand}
             </p>
             <h1 className={isArabic ? "mt-5 text-4xl leading-tight text-white sm:text-6xl lg:text-7xl" : "mt-5 text-5xl uppercase leading-[0.9] text-white sm:text-7xl lg:text-[6.5rem]"}>
               {currentHero.title}
@@ -487,70 +496,38 @@ export default function Homepage({
         </div>
       </section>
 
-      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{copy.work.selected}</p>
-          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.work.title}</h2>
+          <p className={sectionEyebrowClass}>{copy.about.eyebrow}</p>
+          <h2 className={`mt-4 max-w-4xl text-4xl leading-tight text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.about.title}</h2>
+          <p className="mt-6 max-w-4xl text-base leading-8 text-[color:var(--color-gray-light)]">
+            {translatedAboutText}
+          </p>
+        </div>
+      </section>
 
-          <div className="mt-14 space-y-16">
-            {translatedSections.map((section) => {
-              const isReels = section.slug === "reels" || section.title.toLowerCase().includes("reel");
-
-              return (
-                <div key={section.id} className="space-y-8">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className={mutedEyebrowClass}>{isReels ? copy.work.portrait : copy.work.featured}</p>
-                      <h3 className={`mt-2 text-3xl text-white sm:text-5xl ${isArabic ? "" : "uppercase"}`}>{section.title}</h3>
-                    </div>
-                    <span className={`text-sm text-[color:var(--color-primary)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.25em]"}`}>
-                      {section.works.length.toLocaleString(copy.locale)} {copy.labels.projects}
-                    </span>
-                  </div>
-
-                  <div className={`grid gap-5 ${isReels ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
-                    {section.works.map((work) => (
-                      <button
-                        key={work.id}
-                        type="button"
-                        onClick={() => openWork(work)}
-                        id={`work-card-${work.id}`}
-                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-start transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
-                      >
-                        <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
-                          {work.thumbnail ? (
-                            <Image
-                              src={work.thumbnail}
-                              alt={work.title}
-                              fill
-                              className="object-cover transition duration-500 group-hover:scale-105"
-                              sizes={isReels ? "(max-width: 768px) 100vw, 25vw" : "(max-width: 768px) 100vw, 33vw"}
-                            />
-                          ) : (
-                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">{copy.labels.noThumbnail}</div>
-                          )}
-                          <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
-                        </div>
-                        <div className="space-y-3 p-5">
-                          <p className={sectionEyebrowClass}>{work.client || "MO3 Production"}</p>
-                          <h4 className="text-xl font-semibold text-white">{work.title}</h4>
-                          {work.description ? (
-                            <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
-                          ) : null}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+      <section className="border-t border-[color:var(--color-border)] bg-[color:var(--surface)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <p className={sectionEyebrowClass}>{copy.labels.statistics}</p>
+          <div ref={statsRef} className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {statsToRender.map((stat) => (
+              <div
+                key={stat.id}
+                className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
+              >
+                <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
+                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} locale={copy.locale} />
+                </p>
+                <p className={`mt-3 text-sm text-[color:var(--color-gray)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.28em]"}`}>{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{isArabic ? "العملاء" : "Clients"}</p>
+          <p className={sectionEyebrowClass}>{copy.clients.eyebrow}</p>
           <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.clients.title}</h2>
 
           <div className="mt-12 space-y-5">
@@ -595,46 +572,70 @@ export default function Homepage({
         </div>
       </section>
 
-      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.3fr_1fr]">
-          <div>
-            <p className={sectionEyebrowClass}>{copy.about.eyebrow}</p>
-            <h2 className={`mt-4 text-4xl leading-tight text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.about.title}</h2>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-[color:var(--color-gray-light)]">
-              {translatedAboutText}
-            </p>
-          </div>
+      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <p className={sectionEyebrowClass}>{copy.work.selected}</p>
+          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.work.title}</h2>
 
-          <div ref={statsRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {statsToRender.map((stat) => (
-              <div
-                key={stat.id}
-                className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
-              >
-                <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
-                  <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} locale={copy.locale} />
-                </p>
-                <p className={`mt-3 text-sm text-[color:var(--color-gray)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.28em]"}`}>{stat.label}</p>
-              </div>
-            ))}
+          <div className="mt-14 space-y-16">
+            {translatedSections.map((section) => {
+              const isReels = section.slug === "reels" || section.title.toLowerCase().includes("reel");
+
+              return (
+                <div key={section.id} className="space-y-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className={mutedEyebrowClass}>{isReels ? copy.work.portrait : copy.work.featured}</p>
+                      <h3 className={`mt-2 text-3xl text-white sm:text-5xl ${isArabic ? "" : "uppercase"}`}>{section.title}</h3>
+                    </div>
+                    <span className={`text-sm text-[color:var(--color-primary)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.18em]"}`}>
+                      {getProjectCount(section.works.length, language)}
+                    </span>
+                  </div>
+
+                  <div className={`grid gap-5 ${isReels ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
+                    {section.works.map((work) => (
+                      <button
+                        key={work.id}
+                        type="button"
+                        onClick={() => openWork(work)}
+                        id={`work-card-${work.id}`}
+                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-start transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
+                      >
+                        <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
+                          {work.thumbnail ? (
+                            <Image
+                              src={work.thumbnail}
+                              alt={work.title}
+                              fill
+                              className="object-cover transition duration-500 group-hover:scale-105"
+                              sizes={isReels ? "(max-width: 768px) 100vw, 25vw" : "(max-width: 768px) 100vw, 33vw"}
+                            />
+                          ) : (
+                            <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">{copy.labels.noThumbnail}</div>
+                          )}
+                          <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
+                        </div>
+                        <div className="space-y-3 p-5">
+                          <p className={sectionEyebrowClass}>{work.client || copy.labels.projectFallbackClient}</p>
+                          <h4 className="text-xl font-semibold text-white">{work.title}</h4>
+                          {work.description ? (
+                            <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
+                          ) : null}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <WorkMap
-        works={allWorks}
-        onSelectWork={(workId) => {
-          const work = allWorks.find((item) => item.id === workId) ?? null;
-          openWork(work);
-          const card = document.getElementById(`work-card-${workId}`);
-          card?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }}
-        language={language}
-      />
-
       <section id="testimonials" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{isArabic ? "آراء العملاء" : "Testimonials"}</p>
+          <p className={sectionEyebrowClass}>{copy.testimonials.eyebrow}</p>
           <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.testimonials.title}</h2>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -676,9 +677,20 @@ export default function Homepage({
         </div>
       </section>
 
+      <WorkMap
+        works={allWorks}
+        onSelectWork={(workId) => {
+          const work = allWorks.find((item) => item.id === workId) ?? null;
+          openWork(work);
+          const card = document.getElementById(`work-card-${workId}`);
+          card?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }}
+        language={language}
+      />
+
       <section id="faq" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
-          <p className={sectionEyebrowClass}>{isArabic ? "الأسئلة الشائعة" : "FAQ"}</p>
+          <p className={sectionEyebrowClass}>{copy.faq.eyebrow}</p>
           <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.faq.title}</h2>
 
           <div className="mt-12 space-y-4">

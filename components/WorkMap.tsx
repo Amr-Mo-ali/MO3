@@ -97,7 +97,7 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
   }, [mappableWorks, selectedWorkId]);
 
   return (
-    <section id="work-map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
+    <section id="map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className={copy.isArabic ? "text-sm font-semibold text-[color:var(--color-primary)]" : "font-mono text-xs uppercase tracking-[0.35em] text-[color:var(--color-primary)]"}>

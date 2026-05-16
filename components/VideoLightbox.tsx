@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePublicLanguage } from "@/app/providers";
+import { getStaticCopy } from "@/lib/public-i18n";
 
 interface WorkPayload {
   title: string;
@@ -36,6 +38,9 @@ function resolveEmbedUrl(videoUrl: string | null) {
 }
 
 export default function VideoLightbox({ work, onClose }: VideoLightboxProps) {
+  const { language } = usePublicLanguage();
+  const copy = getStaticCopy(language);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -79,7 +84,7 @@ export default function VideoLightbox({ work, onClose }: VideoLightboxProps) {
             type="button"
             onClick={onClose}
             className="absolute right-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-950 text-lg text-white transition hover:bg-white/10"
-            aria-label="Close video"
+            aria-label={copy.labels.closeVideo}
           >
             ×
           </button>
