@@ -107,22 +107,22 @@ export default function AdminStatsPage() {
         <p className="mt-2 text-sm text-slate-400">Manage the animated counters shown on the homepage.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6 md:grid-cols-2 xl:grid-cols-3">
-        <input value={formState.label} onChange={(event) => setFormState((current) => ({ ...current, label: event.target.value }))} placeholder="Label" className="rounded-3xl px-4 py-3" required />
-        <input value={formState.value} onChange={(event) => setFormState((current) => ({ ...current, value: event.target.value }))} placeholder="Value" className="rounded-3xl px-4 py-3" required />
-        <input value={formState.prefix} onChange={(event) => setFormState((current) => ({ ...current, prefix: event.target.value }))} placeholder="Prefix (optional)" className="rounded-3xl px-4 py-3" />
-        <input value={formState.suffix} onChange={(event) => setFormState((current) => ({ ...current, suffix: event.target.value }))} placeholder="Suffix (optional)" className="rounded-3xl px-4 py-3" />
-        <input value={formState.order} onChange={(event) => setFormState((current) => ({ ...current, order: event.target.value }))} placeholder="Order" className="rounded-3xl px-4 py-3" />
+      <form onSubmit={handleSubmit} className="admin-card grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
+        <input value={formState.label} onChange={(event) => setFormState((current) => ({ ...current, label: event.target.value }))} placeholder="Label" className="form-input px-4 py-3" required />
+        <input value={formState.value} onChange={(event) => setFormState((current) => ({ ...current, value: event.target.value }))} placeholder="Value" className="form-input px-4 py-3" required />
+        <input value={formState.prefix} onChange={(event) => setFormState((current) => ({ ...current, prefix: event.target.value }))} placeholder="Prefix (optional)" className="form-input px-4 py-3" />
+        <input value={formState.suffix} onChange={(event) => setFormState((current) => ({ ...current, suffix: event.target.value }))} placeholder="Suffix (optional)" className="form-input px-4 py-3" />
+        <input value={formState.order} onChange={(event) => setFormState((current) => ({ ...current, order: event.target.value }))} placeholder="Order" className="form-input px-4 py-3" />
         <label className="inline-flex items-center gap-3 text-sm text-slate-300">
           <input type="checkbox" checked={formState.isVisible} onChange={(event) => setFormState((current) => ({ ...current, isVisible: event.target.checked }))} className="h-4 w-4" />
           Visible on site
         </label>
         <div className="flex gap-3 md:col-span-2 xl:col-span-3">
-          <button type="submit" className="rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold text-white">
+          <button type="submit" className="btn-primary text-sm font-semibold">
             {editingId ? "Update Stat" : "Add Stat"}
           </button>
           {editingId ? (
-            <button type="button" onClick={resetForm} className="rounded-full border border-[color:var(--color-border)] px-6 py-3 text-sm text-white">
+            <button type="button" onClick={resetForm} className="btn-secondary text-sm text-white">
               Cancel
             </button>
           ) : null}
@@ -131,7 +131,7 @@ export default function AdminStatsPage() {
 
       <div className="grid gap-4">
         {stats.map((stat) => (
-          <div key={stat.id} className="flex flex-col gap-4 rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div key={stat.id} className="admin-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xl font-semibold text-white">
                 {stat.prefix ?? ""}
@@ -141,8 +141,8 @@ export default function AdminStatsPage() {
               <p className="mt-1 text-sm text-slate-400">{stat.label}</p>
             </div>
             <div className="flex gap-3">
-              <button type="button" onClick={() => startEdit(stat)} className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white">Edit</button>
-              <button type="button" onClick={() => handleDelete(stat.id)} className="rounded-full bg-[color:var(--color-primary)] px-4 py-2 text-sm text-white">Delete</button>
+              <button type="button" onClick={() => startEdit(stat)} className="btn-secondary px-4 py-2 text-sm text-white">Edit</button>
+              <button type="button" onClick={() => handleDelete(stat.id)} className="btn-primary px-4 py-2 text-sm">Delete</button>
             </div>
           </div>
         ))}

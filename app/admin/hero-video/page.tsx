@@ -74,7 +74,7 @@ export default function AdminHeroVideoPage() {
         <p className="mt-2 text-sm text-slate-400">Manage the fullscreen homepage video, title, and CTA.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6">
+      <form onSubmit={handleSubmit} className="admin-card space-y-6 p-6">
         <div className="grid gap-4">
           <label className="space-y-2 text-sm text-slate-300">
             <span>Title</span>
@@ -82,7 +82,7 @@ export default function AdminHeroVideoPage() {
               required
               value={formState.title}
               onChange={(event) => setFormState((current) => ({ ...current, title: event.target.value }))}
-              className="min-h-[120px] rounded-3xl px-4 py-3"
+              className="form-input min-h-[120px] px-4 py-3"
             />
           </label>
 
@@ -91,7 +91,7 @@ export default function AdminHeroVideoPage() {
             <textarea
               value={formState.subtitle}
               onChange={(event) => setFormState((current) => ({ ...current, subtitle: event.target.value }))}
-              className="min-h-[120px] rounded-3xl px-4 py-3"
+              className="form-input min-h-[120px] px-4 py-3"
             />
           </label>
         </div>
@@ -103,7 +103,7 @@ export default function AdminHeroVideoPage() {
               required
               value={formState.ctaLabel}
               onChange={(event) => setFormState((current) => ({ ...current, ctaLabel: event.target.value }))}
-              className="rounded-3xl px-4 py-3"
+              className="form-input px-4 py-3"
             />
           </label>
           <label className="space-y-2 text-sm text-slate-300">
@@ -112,7 +112,7 @@ export default function AdminHeroVideoPage() {
               required
               value={formState.ctaLink}
               onChange={(event) => setFormState((current) => ({ ...current, ctaLink: event.target.value }))}
-              className="rounded-3xl px-4 py-3"
+              className="form-input px-4 py-3"
             />
           </label>
           <label className="space-y-2 text-sm text-slate-300">
@@ -121,7 +121,7 @@ export default function AdminHeroVideoPage() {
               required
               value={formState.videoUrl}
               onChange={(event) => setFormState((current) => ({ ...current, videoUrl: event.target.value }))}
-              className="rounded-3xl px-4 py-3"
+              className="form-input px-4 py-3"
               placeholder="https://..."
             />
             <p className="mt-1 text-xs text-[#555]">
@@ -154,7 +154,7 @@ export default function AdminHeroVideoPage() {
             <input
               value={formState.posterUrl}
               onChange={(event) => setFormState((current) => ({ ...current, posterUrl: event.target.value }))}
-              className="rounded-3xl px-4 py-3"
+              className="form-input px-4 py-3"
               placeholder="https://..."
             />
           </label>
@@ -170,7 +170,7 @@ export default function AdminHeroVideoPage() {
           Hero section visible
         </label>
 
-        <button type="submit" disabled={isSaving} className="rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold text-white">
+        <button type="submit" disabled={isSaving} className="btn-primary text-sm font-semibold disabled:opacity-70">
           {isSaving ? "Saving..." : "Save Hero Video"}
         </button>
       </form>

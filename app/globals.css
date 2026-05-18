@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Poppins:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
   color-scheme: dark;
   --font-sans: "Poppins";
-  --font-display: "Oswald";
+  --font-display: "Bebas Neue";
   --font-mono: "JetBrains Mono";
   --font-arabic: "Cairo";
 
@@ -94,6 +94,101 @@ h5,
 h6 {
   font-family: var(--font-display), system-ui, sans-serif;
   color: var(--foreground);
+  letter-spacing: 0.04em;
+}
+
+.section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.section-sm {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.section-label {
+  color: #e31212;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.section-subtitle {
+  max-width: 600px;
+  color: #888888;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.section-divider {
+  margin-top: 1rem;
+  height: 2px;
+  width: 64px;
+  background: #e31212;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.card-surface {
+  border: 1px solid #222222;
+  border-radius: 0.75rem;
+  background: #111111;
+}
+
+.work-card {
+  border: 1px solid #222222;
+  border-radius: 0.75rem;
+  background: #111111;
+}
+
+.admin-card {
+  border: 1px solid #222222;
+  border-radius: 0.75rem;
+  background: #111111;
+}
+
+.form-input {
+  border: 1px solid #333333;
+  border-radius: 0.5rem;
+  background: #0a0a0a;
+}
+
+.btn-primary {
+  border-radius: 0.5rem;
+  background: #e31212;
+  padding: 0.5rem 1.5rem;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  border: 1px solid #333333;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.5rem;
+}
+
+html[data-public-language="ar"] .section-label,
+html[data-public-language="ar"] .section-title {
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-public-language="ar"] .section-title {
+  line-height: 1.1;
 }
 
 button,
@@ -306,8 +401,9 @@ input[type="number"],
 textarea,
 select {
   width: 100%;
-  border: 1px solid var(--border-color);
-  background: var(--surface);
+  border: 1px solid #333333;
+  border-radius: 0.5rem;
+  background: #0a0a0a;
   color: var(--text-primary);
 }
 

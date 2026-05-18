@@ -143,21 +143,21 @@ function SortableWorkRow({
         <button
           type="button"
           onClick={() => onToggleVisible(work.id, !work.isVisible)}
-          className="mr-3 rounded-md bg-slate-900 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
+          className="btn-secondary mr-3 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
         >
           {work.isVisible ? "Hide" : "Show"}
         </button>
         <button
           type="button"
           onClick={() => onEdit(work)}
-          className="mr-2 rounded-md bg-[#1f1f1f] px-3 py-1 text-xs font-medium text-[#E31212] transition hover:bg-slate-800"
+          className="btn-secondary mr-2 px-3 py-1 text-xs font-medium text-[#E31212] transition hover:bg-slate-800"
         >
           Edit
         </button>
         <button
           type="button"
           onClick={() => onDelete(work)}
-          className="rounded-md bg-slate-900 px-3 py-1 text-xs font-medium text-slate-300 transition hover:bg-slate-800"
+          className="btn-secondary px-3 py-1 text-xs font-medium text-slate-300 transition hover:bg-slate-800"
         >
           Delete
         </button>
@@ -541,20 +541,20 @@ export default function AdminWorksPage() {
         <button
           type="button"
           onClick={openCreateDrawer}
-          className="inline-flex items-center justify-center rounded-full bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d]"
+          className="btn-primary inline-flex items-center justify-center px-5 py-3 text-sm font-semibold transition hover:bg-[#b10d0d]"
         >
           Add Work
         </button>
       </div>
 
-      <div className="grid gap-4 rounded-3xl border border-slate-800 bg-[#111111] p-5">
+      <div className="admin-card grid gap-4 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-300">Filter by Section</label>
             <select
               value={selectedSectionId}
               onChange={(event) => setSelectedSectionId(event.target.value)}
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212] sm:w-auto"
+              className="form-input w-full px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212] sm:w-auto"
             >
               <option value="">All Sections</option>
               {sections.map((section: any) => (
@@ -570,7 +570,7 @@ export default function AdminWorksPage() {
               type="button"
               onClick={handleBulkDelete}
               disabled={!selectedIds.length}
-              className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-secondary px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Delete Selected
             </button>
@@ -578,7 +578,7 @@ export default function AdminWorksPage() {
               type="button"
               onClick={handleBulkToggle}
               disabled={!selectedIds.length}
-              className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-secondary px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Toggle Visibility
             </button>
@@ -630,7 +630,7 @@ export default function AdminWorksPage() {
 
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-slate-950/70 px-4 py-8 backdrop-blur-sm">
-          <div className="relative h-full w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-800 bg-[#111111] p-8 shadow-2xl sm:p-10">
+          <div className="admin-card relative h-full w-full max-w-2xl overflow-y-auto p-8 shadow-2xl sm:p-10">
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
@@ -688,7 +688,7 @@ export default function AdminWorksPage() {
                   <input
                     value={formState.videoUrl}
                     onChange={(event) => updateField("videoUrl", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                     placeholder="Google Drive, YouTube, Vimeo, or direct MP4"
                   />
                   <p className="mt-1 text-xs text-[#555]">
@@ -703,7 +703,7 @@ export default function AdminWorksPage() {
                 <div
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={handleDrop}
-                  className="group rounded-3xl border border-dashed border-slate-700 bg-slate-950/80 px-4 py-8 text-center transition hover:border-[#E31212]"
+                  className="group rounded-xl border border-dashed border-slate-700 bg-slate-950/80 px-4 py-8 text-center transition hover:border-[#E31212]"
                 >
                   <input
                     type="file"
@@ -729,7 +729,7 @@ export default function AdminWorksPage() {
                       <img
                         src={thumbnailPreview}
                         alt="Thumbnail preview"
-                        className="mx-auto h-48 w-full max-w-sm rounded-3xl object-cover border border-slate-700"
+                        className="mx-auto h-48 w-full max-w-sm rounded-xl border border-slate-700 object-cover"
                       />
                     </div>
                   )}
@@ -742,7 +742,7 @@ export default function AdminWorksPage() {
                   <textarea
                     value={formState.description}
                     onChange={(event) => updateField("description", event.target.value)}
-                    className="min-h-[120px] w-full rounded-3xl border border-slate-700 bg-slate-950 px-4 py-4 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input min-h-[120px] w-full px-4 py-4 text-slate-100 outline-none focus:border-[#E31212]"
                     placeholder="Project description"
                   />
                 </label>
@@ -752,7 +752,7 @@ export default function AdminWorksPage() {
                     <input
                       value={formState.tags}
                       onChange={(event) => updateField("tags", event.target.value)}
-                      className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                       placeholder="Comma-separated tags"
                     />
                   </label>
@@ -762,12 +762,12 @@ export default function AdminWorksPage() {
                       type="number"
                       value={formState.order}
                       onChange={(event) => updateField("order", event.target.value)}
-                      className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                       placeholder="Display order"
                     />
                   </label>
                 </div>
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/60 p-5">
+                <div className="admin-card bg-slate-950/60 p-5">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-slate-100">Interactive map</p>
@@ -792,7 +792,7 @@ export default function AdminWorksPage() {
                       <input
                         value={formState.locationLabel}
                         onChange={(event) => updateField("locationLabel", event.target.value)}
-                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                         placeholder="Headquarters, studio, campus..."
                       />
                     </label>
@@ -801,7 +801,7 @@ export default function AdminWorksPage() {
                       <input
                         value={formState.locationCity}
                         onChange={(event) => updateField("locationCity", event.target.value)}
-                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                      className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                         placeholder="Cairo"
                       />
                     </label>
@@ -810,7 +810,7 @@ export default function AdminWorksPage() {
                       <input
                         value={formState.locationCountry}
                         onChange={(event) => updateField("locationCountry", event.target.value)}
-                        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                      className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                         placeholder="Egypt"
                       />
                     </label>
@@ -820,7 +820,7 @@ export default function AdminWorksPage() {
                         <input
                           value={formState.locationLat}
                           onChange={(event) => updateField("locationLat", event.target.value)}
-                          className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                          className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                           placeholder="30.0444"
                         />
                       </label>
@@ -829,7 +829,7 @@ export default function AdminWorksPage() {
                         <input
                           value={formState.locationLng}
                           onChange={(event) => updateField("locationLng", event.target.value)}
-                          className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                          className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                           placeholder="31.2357"
                         />
                       </label>
@@ -856,14 +856,14 @@ export default function AdminWorksPage() {
                     setDrawerOpen(false);
                     resetForm();
                   }}
-                  className="rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
+                  className="btn-secondary px-5 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving || uploadingThumbnail}
-                  className="rounded-2xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-primary px-5 py-3 text-sm font-semibold transition hover:bg-[#b10d0d] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSaving ? "Saving..." : isEditing ? "Update work" : "Create work"}
                 </button>

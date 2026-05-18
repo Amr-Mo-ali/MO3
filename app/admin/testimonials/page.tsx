@@ -112,24 +112,24 @@ export default function AdminTestimonialsPage() {
         <p className="mt-2 text-sm text-slate-400">Manage client testimonials for the homepage.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6 md:grid-cols-2">
-        <input value={formState.name} onChange={(event) => setFormState((current) => ({ ...current, name: event.target.value }))} placeholder="Name" className="rounded-3xl px-4 py-3" required />
-        <input value={formState.role} onChange={(event) => setFormState((current) => ({ ...current, role: event.target.value }))} placeholder="Role" className="rounded-3xl px-4 py-3" required />
-        <input value={formState.company} onChange={(event) => setFormState((current) => ({ ...current, company: event.target.value }))} placeholder="Company" className="rounded-3xl px-4 py-3" required />
-        <input value={formState.rating} onChange={(event) => setFormState((current) => ({ ...current, rating: event.target.value }))} placeholder="Rating 1-5" className="rounded-3xl px-4 py-3" required />
-        <input value={formState.photo} onChange={(event) => setFormState((current) => ({ ...current, photo: event.target.value }))} placeholder="Photo URL (optional)" className="rounded-3xl px-4 py-3 md:col-span-2" />
-        <textarea value={formState.quote} onChange={(event) => setFormState((current) => ({ ...current, quote: event.target.value }))} placeholder="Quote" className="min-h-[140px] rounded-3xl px-4 py-3 md:col-span-2" required />
-        <input value={formState.order} onChange={(event) => setFormState((current) => ({ ...current, order: event.target.value }))} placeholder="Order" className="rounded-3xl px-4 py-3" />
+      <form onSubmit={handleSubmit} className="admin-card grid gap-4 p-6 md:grid-cols-2">
+        <input value={formState.name} onChange={(event) => setFormState((current) => ({ ...current, name: event.target.value }))} placeholder="Name" className="form-input px-4 py-3" required />
+        <input value={formState.role} onChange={(event) => setFormState((current) => ({ ...current, role: event.target.value }))} placeholder="Role" className="form-input px-4 py-3" required />
+        <input value={formState.company} onChange={(event) => setFormState((current) => ({ ...current, company: event.target.value }))} placeholder="Company" className="form-input px-4 py-3" required />
+        <input value={formState.rating} onChange={(event) => setFormState((current) => ({ ...current, rating: event.target.value }))} placeholder="Rating 1-5" className="form-input px-4 py-3" required />
+        <input value={formState.photo} onChange={(event) => setFormState((current) => ({ ...current, photo: event.target.value }))} placeholder="Photo URL (optional)" className="form-input px-4 py-3 md:col-span-2" />
+        <textarea value={formState.quote} onChange={(event) => setFormState((current) => ({ ...current, quote: event.target.value }))} placeholder="Quote" className="form-input min-h-[140px] px-4 py-3 md:col-span-2" required />
+        <input value={formState.order} onChange={(event) => setFormState((current) => ({ ...current, order: event.target.value }))} placeholder="Order" className="form-input px-4 py-3" />
         <label className="inline-flex items-center gap-3 text-sm text-slate-300">
           <input type="checkbox" checked={formState.isVisible} onChange={(event) => setFormState((current) => ({ ...current, isVisible: event.target.checked }))} className="h-4 w-4" />
           Visible on site
         </label>
         <div className="flex gap-3 md:col-span-2">
-          <button type="submit" className="rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold text-white">
+          <button type="submit" className="btn-primary text-sm font-semibold">
             {editingId ? "Update Testimonial" : "Add Testimonial"}
           </button>
           {editingId ? (
-            <button type="button" onClick={resetForm} className="rounded-full border border-[color:var(--color-border)] px-6 py-3 text-sm text-white">
+            <button type="button" onClick={resetForm} className="btn-secondary text-sm text-white">
               Cancel
             </button>
           ) : null}
@@ -138,7 +138,7 @@ export default function AdminTestimonialsPage() {
 
       <div className="grid gap-4">
         {testimonials.map((item) => (
-          <div key={item.id} className="rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--surface)] p-5">
+          <div key={item.id} className="admin-card p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-lg font-semibold text-white">{item.name}</p>
@@ -146,8 +146,8 @@ export default function AdminTestimonialsPage() {
                 <p className="mt-3 text-sm leading-7 text-slate-300">{item.quote}</p>
               </div>
               <div className="flex gap-3">
-                <button type="button" onClick={() => startEdit(item)} className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white">Edit</button>
-                <button type="button" onClick={() => handleDelete(item.id)} className="rounded-full bg-[color:var(--color-primary)] px-4 py-2 text-sm text-white">Delete</button>
+                <button type="button" onClick={() => startEdit(item)} className="btn-secondary px-4 py-2 text-sm text-white">Edit</button>
+                <button type="button" onClick={() => handleDelete(item.id)} className="btn-primary px-4 py-2 text-sm">Delete</button>
               </div>
             </div>
           </div>

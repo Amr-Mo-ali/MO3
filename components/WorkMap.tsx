@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { divIcon, latLngBounds, type LatLngTuple } from "leaflet";
+import Container from "@/components/Container";
+import SectionHeading from "@/components/SectionHeading";
 import type { PublicLanguage } from "@/lib/public-i18n";
 import { getStaticCopy } from "@/lib/public-i18n";
 import type { Work } from "@/types";
@@ -97,22 +99,16 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
   }, [mappableWorks, selectedWorkId]);
 
   return (
-    <section id="map" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className={copy.isArabic ? "text-sm font-semibold text-[color:var(--color-primary)]" : "font-mono text-xs uppercase tracking-[0.35em] text-[color:var(--color-primary)]"}>
-            {copy.map.eyebrow}
-          </p>
-          <h2 className={`mt-4 text-4xl tracking-[0.04em] text-[color:var(--color-white)] sm:text-6xl ${copy.isArabic ? "" : "font-display uppercase"}`}>
-            {copy.map.title}
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[color:var(--color-gray-light)] sm:text-base">
-            {copy.map.body}
-          </p>
-        </div>
+    <section id="map" className="section border-t border-[color:var(--color-border)] bg-[color:var(--background)]">
+      <Container>
+        <SectionHeading
+          label={copy.map.eyebrow}
+          title={copy.map.title}
+          subtitle={copy.map.body}
+        />
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(280px,0.9fr)]">
-          <div className="relative overflow-hidden rounded-[32px] border border-[color:var(--color-border)] bg-[#081512] shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
+          <div className="card-surface relative overflow-hidden bg-[#081512] shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
             <div className="pointer-events-none absolute inset-0 z-[400] bg-[radial-gradient(circle_at_top_left,rgba(227,18,18,0.18),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)]" />
 
             {mappableWorks.length ? (
@@ -178,15 +174,15 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
                     setSelectedWorkId(work.id);
                     onSelectWork?.(work.id);
                   }}
-                  className={`group rounded-[24px] border p-4 text-start transition duration-200 ${
+                  className={`card-surface group p-4 text-start transition duration-200 ${
                     isActive
                       ? "border-[color:var(--color-primary)] bg-[rgba(227,18,18,0.12)] text-[color:var(--color-white)] shadow-[0_24px_48px_rgba(227,18,18,0.16)]"
-                      : "border-[color:var(--color-border)] bg-[color:rgba(255,255,255,0.04)] text-[color:var(--color-white)] hover:border-[color:var(--color-primary)]/60 hover:bg-[color:rgba(255,255,255,0.07)]"
+                      : "text-[color:var(--color-white)] hover:border-[color:var(--color-primary)]/60 hover:bg-[color:rgba(255,255,255,0.07)]"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className={copy.isArabic ? "text-sm font-semibold text-[color:var(--color-primary)]" : `font-mono text-[11px] uppercase tracking-[0.24em] ${isActive ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-gray)]"}`}>
+                      <p className={`section-label ${isActive ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-gray)]"}`}>
                         {work.sectionTitle}
                       </p>
                       <h3 className="mt-2 text-lg font-semibold">{work.title}</h3>
@@ -203,7 +199,7 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
             })}
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

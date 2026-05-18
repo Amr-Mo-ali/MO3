@@ -8,7 +8,9 @@ import { Toaster } from "react-hot-toast";
 import { usePublicLanguage } from "@/app/providers";
 import { getProjectCount, getStaticCopy, translateSectionTitle, translateText } from "@/lib/public-i18n";
 import { parseVideoUrl } from "@/lib/video-utils";
+import Container from "@/components/Container";
 import MO3Logo from "@/components/MO3Logo";
+import SectionHeading from "@/components/SectionHeading";
 import VideoLightbox from "@/components/VideoLightbox";
 import type { Client, FAQ, HeroConfig, SectionWithWorks, Stat, Testimonial, Work } from "@/types";
 
@@ -116,12 +118,6 @@ export default function Homepage({
 
   const statsRef = useRef<HTMLDivElement | null>(null);
   const whatsappHref = getWhatsAppHref(siteConfig.whatsapp);
-  const sectionEyebrowClass = isArabic
-    ? "text-sm font-semibold text-[color:var(--color-primary)]"
-    : "font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-primary)]";
-  const mutedEyebrowClass = isArabic
-    ? "text-sm font-semibold text-[color:var(--color-gray)]"
-    : "font-mono text-[11px] uppercase tracking-[0.35em] text-[color:var(--color-gray)]";
 
   function openWork(work: Work | null) {
     if (!work?.videoUrl?.trim()) {
@@ -348,7 +344,7 @@ export default function Homepage({
       <div className="film-grain" />
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--color-border)] bg-black/75 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <Container className="flex items-center justify-between gap-4 py-4">
           <a href="#home" className="flex items-center" onClick={(event) => { event.preventDefault(); handleAnchorClick("#home"); }}>
             <MO3Logo className="h-11 w-auto sm:h-12" alt={copy.labels.logoAlt} />
           </a>
@@ -377,7 +373,7 @@ export default function Homepage({
             <button
               type="button"
               onClick={() => setLanguage(isArabic ? "en" : "ar")}
-              className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)]"
+              className="btn-secondary text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)]"
               aria-label={copy.labels.switchLanguage}
             >
               {copy.labels.switchLanguage}
@@ -385,13 +381,13 @@ export default function Homepage({
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm font-medium text-white md:hidden"
+              className="btn-secondary inline-flex items-center justify-center text-sm font-medium text-white md:hidden"
               aria-label={copy.labels.openMenu}
             >
               {copy.labels.menu}
             </button>
           </div>
-        </div>
+        </Container>
       </header>
 
       <AnimatePresence>
@@ -409,14 +405,14 @@ export default function Homepage({
                   <button
                     type="button"
                     onClick={() => setLanguage(isArabic ? "en" : "ar")}
-                    className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white"
+                    className="btn-secondary text-sm text-white"
                   >
                     {copy.labels.switchLanguage}
                   </button>
                   <button
                     type="button"
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-full border border-[color:var(--color-border)] px-4 py-2 text-sm text-white"
+                    className="btn-secondary text-sm text-white"
                   >
                     {copy.labels.close}
                   </button>
@@ -429,7 +425,7 @@ export default function Homepage({
                     key={item.href}
                     type="button"
                     onClick={() => handleAnchorClick(item.href)}
-                    className={`rounded-3xl border px-5 py-4 text-center text-xl transition-colors duration-300 ${
+                    className={`rounded-lg border px-5 py-4 text-center text-xl transition-colors duration-300 ${
                       activeSection === item.href.slice(1)
                         ? "border-[#E31212] bg-[rgba(227,18,18,0.12)] text-[#E31212]"
                         : "border-[color:var(--color-border)] bg-[color:var(--surface)] text-white hover:border-[#E31212] hover:text-[#E31212]"
@@ -482,15 +478,15 @@ export default function Homepage({
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0.72)_55%,rgba(0,0,0,0.92)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(227,18,18,0.35),transparent_30%)]" />
 
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-end px-4 pb-16 pt-32 sm:px-6 sm:pb-20">
+        <Container className="relative z-10 flex min-h-screen items-end pb-16 pt-32 sm:pb-20">
           <div className="max-w-4xl">
-            <p className={isArabic ? "text-sm font-semibold text-[color:var(--color-gray-light)]" : "font-mono text-[11px] uppercase tracking-[0.4em] text-[color:var(--color-gray-light)]"}>
+            <p className="section-label text-[color:var(--color-gray-light)]">
               {copy.labels.brand}
             </p>
-            <h1 className={isArabic ? "mt-5 text-4xl leading-tight text-white sm:text-6xl lg:text-7xl" : "mt-5 text-5xl uppercase leading-[0.9] text-white sm:text-7xl lg:text-[6.5rem]"}>
+            <h1 className="section-title mt-5 text-white">
               {currentHero.title}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[color:var(--color-gray-light)] sm:text-lg">
+            <p className="section-subtitle mt-6 max-w-[600px] text-[color:var(--color-gray-light)]">
               {currentHero.subtitle}
             </p>
 
@@ -499,40 +495,44 @@ export default function Homepage({
                 href={currentHero.ctaLink}
                 target={currentHero.ctaLink.startsWith("http") ? "_blank" : undefined}
                 rel={currentHero.ctaLink.startsWith("http") ? "noreferrer" : undefined}
-                className={`inline-flex items-center justify-center rounded-full bg-[color:var(--color-primary)] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
+                className={`btn-primary inline-flex items-center justify-center text-sm font-semibold transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
                 {currentHero.ctaLabel}
               </a>
               <button
                 type="button"
                 onClick={() => handleAnchorClick("#work")}
-                className={`inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] bg-black/30 px-7 py-3 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
+                className={`btn-secondary inline-flex items-center justify-center bg-black/30 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
                 {copy.work.view}
               </button>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section id="about" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{copy.about.eyebrow}</p>
-          <h2 className={`mt-4 max-w-4xl text-4xl leading-tight text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.about.title}</h2>
-          <p className="mt-6 max-w-4xl text-base leading-8 text-[color:var(--color-gray-light)]">
-            {translatedAboutText}
-          </p>
-        </div>
+      <section id="about" className="section border-t border-[color:var(--color-border)] bg-[color:var(--background)]">
+        <Container>
+          <SectionHeading
+            label={copy.about.eyebrow}
+            title={copy.about.title}
+            subtitle={translatedAboutText}
+          />
+        </Container>
       </section>
 
-      <section className="border-t border-[color:var(--color-border)] bg-[color:var(--surface)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{copy.labels.statistics}</p>
+      <section className="section border-t border-[color:var(--color-border)] bg-[color:var(--surface)]">
+        <Container>
+          <SectionHeading
+            label={copy.labels.statistics}
+            title={copy.labels.statistics}
+            subtitle="A quick snapshot of production volume, partnerships, and years in motion."
+          />
           <div ref={statsRef} className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {statsToRender.map((stat) => (
               <div
                 key={stat.id}
-                className="rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
+                className="card-surface p-6"
               >
                 <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
                   <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} locale={copy.locale} />
@@ -541,13 +541,16 @@ export default function Homepage({
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section id="clients" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{copy.clients.eyebrow}</p>
-          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.clients.title}</h2>
+      <section id="clients" className="section border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)]">
+        <Container>
+          <SectionHeading
+            label={copy.clients.eyebrow}
+            title={copy.clients.title}
+            subtitle="Trusted by brands looking for cinematic craft, fast turnaround, and production discipline."
+          />
 
           <div className="mt-12 space-y-5">
             <div className="marquee">
@@ -555,7 +558,7 @@ export default function Homepage({
                 {marqueeClients.map((client, index) => (
                   <div
                     key={`client-a-${client.id}-${index}`}
-                    className="group relative flex h-24 w-44 shrink-0 items-center justify-center rounded-[28px] border border-[color:var(--color-border)] bg-black px-5"
+                    className="card-surface group relative flex h-24 w-44 shrink-0 items-center justify-center px-5"
                   >
                     <Image
                       src={client.logo}
@@ -574,7 +577,7 @@ export default function Homepage({
                 {marqueeClients.map((client, index) => (
                   <div
                     key={`client-b-${client.id}-${index}`}
-                    className="group relative flex h-24 w-44 shrink-0 items-center justify-center rounded-[28px] border border-[color:var(--color-border)] bg-black px-5"
+                    className="card-surface group relative flex h-24 w-44 shrink-0 items-center justify-center px-5"
                   >
                     <Image
                       src={client.logo}
@@ -588,13 +591,16 @@ export default function Homepage({
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section id="work" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{copy.work.selected}</p>
-          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.work.title}</h2>
+      <section id="work" className="section border-t border-[color:var(--color-border)] bg-[color:var(--background)]">
+        <Container>
+          <SectionHeading
+            label={copy.work.selected}
+            title={copy.work.title}
+            subtitle="Explore featured campaigns, branded stories, and vertical reels from across the portfolio."
+          />
 
           <div className="mt-14 space-y-16">
             {translatedSections.map((section) => {
@@ -604,8 +610,8 @@ export default function Homepage({
                 <div key={section.id} className="space-y-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <p className={mutedEyebrowClass}>{isReels ? copy.work.portrait : copy.work.featured}</p>
-                      <h3 className={`mt-2 text-3xl text-white sm:text-5xl ${isArabic ? "" : "uppercase"}`}>{section.title}</h3>
+                      <p className="section-label text-[color:var(--color-gray)]">{isReels ? copy.work.portrait : copy.work.featured}</p>
+                      <h3 className="mt-2 text-4xl text-white sm:text-5xl">{section.title}</h3>
                     </div>
                     <span className={`text-sm text-[color:var(--color-primary)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.18em]"}`}>
                       {getProjectCount(section.works.length, language)}
@@ -619,7 +625,7 @@ export default function Homepage({
                         type="button"
                         onClick={() => openWork(work)}
                         id={`work-card-${work.id}`}
-                        className="group overflow-hidden rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] text-start transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
+                        className="work-card group overflow-hidden text-start transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
                       >
                         <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
                           {work.thumbnail ? (
@@ -636,7 +642,7 @@ export default function Homepage({
                           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
                         </div>
                         <div className="space-y-3 p-5">
-                          <p className={sectionEyebrowClass}>{work.client || copy.labels.projectFallbackClient}</p>
+                          <p className="section-label">{work.client || copy.labels.projectFallbackClient}</p>
                           <h4 className="text-xl font-semibold text-white">{work.title}</h4>
                           {work.description ? (
                             <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
@@ -649,19 +655,22 @@ export default function Homepage({
               );
             })}
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section id="testimonials" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <p className={sectionEyebrowClass}>{copy.testimonials.eyebrow}</p>
-          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.testimonials.title}</h2>
+      <section id="testimonials" className="section border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)]">
+        <Container>
+          <SectionHeading
+            label={copy.testimonials.eyebrow}
+            title={copy.testimonials.title}
+            subtitle="What collaborators say after the brief, the production days, and the final delivery."
+          />
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {testimonialsToRender.map((testimonial) => (
               <article
                 key={testimonial.id}
-                className="rounded-[30px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-6"
+                className="card-surface p-6"
               >
                 <div className="flex items-start gap-4">
                   {testimonial.photo ? (
@@ -693,7 +702,7 @@ export default function Homepage({
               </article>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       <WorkMap
@@ -707,17 +716,20 @@ export default function Homepage({
         language={language}
       />
 
-      <section id="faq" className="border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)] px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-5xl">
-          <p className={sectionEyebrowClass}>{copy.faq.eyebrow}</p>
-          <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.faq.title}</h2>
+      <section id="faq" className="section border-t border-[color:var(--color-border)] bg-[color:var(--surface-strong)]">
+        <Container>
+          <SectionHeading
+            label={copy.faq.eyebrow}
+            title={copy.faq.title}
+            subtitle="Quick answers on scope, process, timelines, and how to start a project with MO3."
+          />
 
           <div className="mt-12 space-y-4">
             {faqsToRender.map((faq) => {
               const open = openFaqId === faq.id;
 
               return (
-                <div key={faq.id} className="overflow-hidden rounded-[28px] border border-[color:var(--color-border)] bg-[color:var(--surface)]">
+                <div key={faq.id} className="card-surface overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenFaqId(open ? null : faq.id)}
@@ -735,15 +747,18 @@ export default function Homepage({
               );
             })}
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section id="contact" className="border-t border-[color:var(--color-border)] bg-[color:var(--background)] px-4 py-20 sm:px-6">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+      <section id="contact" className="section border-t border-[color:var(--color-border)] bg-[color:var(--background)]">
+        <Container className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <p className={sectionEyebrowClass}>{copy.contact.eyebrow}</p>
-            <h2 className={`mt-4 text-4xl text-white sm:text-6xl ${isArabic ? "" : "uppercase"}`}>{copy.contact.title}</h2>
-            <p className="mt-6 max-w-xl text-base leading-8 text-[color:var(--color-gray-light)]">
+            <div className="section-header items-start text-left">
+              <p className="section-label">{copy.contact.eyebrow}</p>
+              <h2 className="section-title mt-4 text-white">{copy.contact.title}</h2>
+              <div className="section-divider" />
+            </div>
+            <p className="section-subtitle mt-6 max-w-[600px] text-left">
               {copy.contact.body}
             </p>
 
@@ -754,7 +769,7 @@ export default function Homepage({
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--surface)] px-5 py-3 text-sm font-medium text-white transition hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                  className="btn-secondary inline-flex items-center justify-center bg-[color:var(--surface)] text-sm font-medium text-white transition hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
                 >
                   {link.label}
                 </a>
@@ -762,7 +777,7 @@ export default function Homepage({
             </div>
           </div>
 
-          <form onSubmit={handleContactSubmit} className="rounded-[32px] border border-[color:var(--color-border)] bg-[color:var(--surface)] p-5 sm:p-7">
+          <form onSubmit={handleContactSubmit} className="admin-card p-5 sm:p-7">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 text-sm text-[color:var(--color-gray-light)]">
                 <span>{copy.contact.name}</span>
@@ -770,7 +785,7 @@ export default function Homepage({
                   required
                   value={contactState.name}
                   onChange={(event) => setContactState((current) => ({ ...current, name: event.target.value }))}
-                  className="rounded-2xl px-4 py-3"
+                  className="form-input px-4 py-3"
                   placeholder={copy.contact.namePlaceholder}
                 />
               </label>
@@ -779,7 +794,7 @@ export default function Homepage({
                 <input
                   value={contactState.company}
                   onChange={(event) => setContactState((current) => ({ ...current, company: event.target.value }))}
-                  className="rounded-2xl px-4 py-3"
+                  className="form-input px-4 py-3"
                   placeholder={copy.contact.companyPlaceholder}
                 />
               </label>
@@ -788,7 +803,7 @@ export default function Homepage({
                 <input
                   value={contactState.service}
                   onChange={(event) => setContactState((current) => ({ ...current, service: event.target.value }))}
-                  className="rounded-2xl px-4 py-3"
+                  className="form-input px-4 py-3"
                   placeholder={copy.contact.servicePlaceholder}
                 />
               </label>
@@ -798,7 +813,7 @@ export default function Homepage({
                   required
                   value={contactState.message}
                   onChange={(event) => setContactState((current) => ({ ...current, message: event.target.value }))}
-                  className="min-h-[180px] rounded-[24px] px-4 py-3"
+                  className="form-input min-h-[180px] px-4 py-3"
                   placeholder={copy.contact.detailsPlaceholder}
                 />
               </label>
@@ -806,19 +821,19 @@ export default function Homepage({
 
             <button
               type="submit"
-              className={`mt-6 inline-flex w-full items-center justify-center rounded-full bg-[color:var(--color-primary)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
+              className={`btn-primary mt-6 inline-flex w-full items-center justify-center text-sm font-semibold transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
             >
               {copy.contact.button}
             </button>
           </form>
-        </div>
+        </Container>
       </section>
 
-      <footer className="border-t border-[color:var(--color-border)] bg-black px-4 py-6 sm:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-[color:var(--color-gray)] sm:flex-row sm:items-center sm:justify-between">
+      <footer className="section-sm border-t border-[color:var(--color-border)] bg-black">
+        <Container className="flex flex-col gap-3 text-sm text-[color:var(--color-gray)] sm:flex-row sm:items-center sm:justify-between">
           <p>{copy.footer.rights}</p>
           <p>{copy.footer.tagline}</p>
-        </div>
+        </Container>
       </footer>
 
       {selectedWork?.videoUrl ? (
