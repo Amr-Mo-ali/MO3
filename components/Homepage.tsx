@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { usePublicLanguage } from "@/app/providers";
 import { getProjectCount, getStaticCopy, translateSectionTitle, translateText } from "@/lib/public-i18n";
+import { parseVideoUrl } from "@/lib/video-utils";
 import MO3Logo from "@/components/MO3Logo";
 import VideoLightbox from "@/components/VideoLightbox";
 import type { Client, FAQ, HeroConfig, SectionWithWorks, Stat, Testimonial, Work } from "@/types";
@@ -337,6 +338,7 @@ export default function Homepage({
     subtitle: translateText(language, heroConfig?.subtitle ?? copy.hero.subtitle),
     ctaLabel: translateText(language, heroConfig?.ctaLabel ?? copy.hero.cta),
   };
+  const heroVideo = currentHero.videoUrl ? parseVideoUrl(currentHero.videoUrl) : null;
 
   const translatedAboutText = translateText(language, siteConfig.aboutText) || copy.about.body;
 
@@ -444,18 +446,35 @@ export default function Homepage({
 
       <section id="home" className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0">
-          {currentHero.videoUrl ? (
-            <video
-              key={currentHero.videoUrl}
-              className="h-full w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster={currentHero.posterUrl ?? undefined}
-            >
-              <source src={currentHero.videoUrl} />
-            </video>
+          {heroVideo ? (
+            <div className="absolute inset-0">
+              {heroVideo.isEmbed ? (
+                <iframe
+                  src={heroVideo.embedUrl}
+                  className="absolute inset-0 h-full w-full"
+                  style={{
+                    border: "none",
+                    pointerEvents: "none",
+                    transform: "scale(1.15)",
+                    transformOrigin: "center",
+                  }}
+                  allow="autoplay; fullscreen"
+                  title="Hero video"
+                />
+              ) : (
+                <video
+                  key={heroVideo.streamUrl}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  poster={currentHero.posterUrl ?? undefined}
+                  className="absolute inset-0 h-full w-full object-cover"
+                >
+                  <source src={heroVideo.streamUrl} type="video/mp4" />
+                </video>
+              )}
+            </div>
           ) : (
             <div className="h-full w-full bg-[radial-gradient(circle_at_top,#331010_0%,#120404_45%,#000000_100%)]" />
           )}
@@ -802,7 +821,13 @@ export default function Homepage({
         </div>
       </footer>
 
-      <VideoLightbox work={selectedWork} onClose={() => setSelectedWork(null)} />
+      {selectedWork?.videoUrl ? (
+        <VideoLightbox
+          url={selectedWork.videoUrl}
+          title={selectedWork.title}
+          onClose={() => setSelectedWork(null)}
+        />
+      ) : null}
     </main>
   );
 }

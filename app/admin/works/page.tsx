@@ -5,6 +5,7 @@ import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from 
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import toast, { Toaster } from "react-hot-toast";
+import { parseVideoUrl } from "@/lib/video-utils";
 
 function classNames(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -12,34 +13,28 @@ function classNames(...classes: Array<string | false | null | undefined>) {
 
 function VideoPreview({ url }: { url: string }) {
   if (!url) return null;
-
-  let embedUrl = "";
-
-  if (url.includes("youtube.com") || url.includes("youtu.be")) {
-    const videoId = url.includes("youtu.be")
-      ? url.split("youtu.be/")[1]?.split("?")[0]
-      : url.split("v=")[1]?.split("&")[0];
-    if (videoId) {
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    }
-  } else if (url.includes("vimeo.com")) {
-    const videoId = url.split("vimeo.com/")[1]?.split("?")[0];
-    if (videoId) {
-      embedUrl = `https://player.vimeo.com/video/${videoId}`;
-    }
-  }
-
-  if (!embedUrl) return null;
+  const video = parseVideoUrl(url);
 
   return (
-    <div className="mt-2 aspect-video w-full overflow-hidden rounded-lg bg-slate-950">
-      <iframe
-        src={embedUrl}
-        title="Video preview"
-        className="h-full w-full"
-        allowFullScreen
-        allow="autoplay"
-      />
+    <div className="mt-2">
+      <p className="mb-1 text-xs text-[#666]">Preview:</p>
+      <div className="aspect-video w-full overflow-hidden rounded-lg border border-[#333] bg-slate-950">
+        {video.isEmbed ? (
+          <iframe
+            src={video.embedUrl}
+            title="Video preview"
+            className="h-full w-full"
+            allowFullScreen
+            allow="autoplay"
+          />
+        ) : (
+          <video
+            src={video.streamUrl}
+            controls
+            className="h-full w-full"
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -694,8 +689,11 @@ export default function AdminWorksPage() {
                     value={formState.videoUrl}
                     onChange={(event) => updateField("videoUrl", event.target.value)}
                     className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
-                    placeholder="YouTube or Vimeo link"
+                    placeholder="Google Drive, YouTube, Vimeo, or direct MP4"
                   />
+                  <p className="mt-1 text-xs text-[#555]">
+                    Supports: Google Drive share link • YouTube • Vimeo • Direct MP4
+                  </p>
                   <VideoPreview url={formState.videoUrl} />
                 </label>
               </div>

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { parseVideoUrl } from "@/lib/video-utils";
 
 export default function AdminHeroVideoPage() {
   const [formState, setFormState] = useState({
@@ -14,6 +15,7 @@ export default function AdminHeroVideoPage() {
     isVisible: true,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const previewVideo = formState.videoUrl ? parseVideoUrl(formState.videoUrl) : null;
 
   useEffect(() => {
     void loadHeroConfig();
@@ -122,6 +124,30 @@ export default function AdminHeroVideoPage() {
               className="rounded-3xl px-4 py-3"
               placeholder="https://..."
             />
+            <p className="mt-1 text-xs text-[#555]">
+              Supports: Google Drive share link • YouTube • Vimeo • Direct MP4
+            </p>
+            {previewVideo ? (
+              <div className="mt-2">
+                <p className="mb-1 text-xs text-[#666]">Preview:</p>
+                <div className="aspect-video w-full overflow-hidden rounded-lg border border-[#333]">
+                  {previewVideo.isEmbed ? (
+                    <iframe
+                      src={previewVideo.embedUrl}
+                      className="h-full w-full"
+                      allowFullScreen
+                      title="Hero video preview"
+                    />
+                  ) : (
+                    <video
+                      src={previewVideo.streamUrl}
+                      controls
+                      className="h-full w-full"
+                    />
+                  )}
+                </div>
+              </div>
+            ) : null}
           </label>
           <label className="space-y-2 text-sm text-slate-300">
             <span>Poster URL</span>
