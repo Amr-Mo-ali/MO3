@@ -325,7 +325,7 @@ export default function AdminClientsPage() {
         <button
           type="button"
           onClick={openCreateDrawer}
-          className="inline-flex items-center justify-center rounded-full bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d]"
+          className="btn-primary inline-flex items-center justify-center px-5 py-3 text-sm font-semibold transition hover:bg-[#b10d0d]"
         >
           Add Client
         </button>
@@ -333,8 +333,8 @@ export default function AdminClientsPage() {
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={clients.map((client: any) => client.id)} strategy={verticalListSortingStrategy}>
-          <div className="overflow-hidden rounded-3xl border border-slate-800 bg-[#111111]">
-            <div className="overflow-x-auto">
+          <div className="admin-card overflow-hidden">
+            <div className="touch-scroll overflow-x-auto">
               <table className="min-w-full border-collapse text-left text-sm">
                 <thead className="bg-[#0e0e0e]">
                   <tr>
@@ -372,7 +372,7 @@ export default function AdminClientsPage() {
       {drawerOpen && (
         <div className="fixed inset-0 z-40 overflow-hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setDrawerOpen(false)} />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-md bg-[#121212] p-6 shadow-2xl sm:w-[420px]">
+          <aside className="touch-scroll absolute right-0 top-0 h-full w-full bg-[#121212] p-4 shadow-2xl sm:w-[420px] sm:max-w-md sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-semibold text-white">
@@ -385,7 +385,7 @@ export default function AdminClientsPage() {
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="rounded-full bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10"
+                className="btn-secondary px-3 py-2 text-sm text-slate-200 hover:bg-white/10"
               >
                 Close
               </button>
@@ -398,7 +398,7 @@ export default function AdminClientsPage() {
                   type="text"
                   value={formState.name}
                   onChange={(event) => updateField("name", event.target.value)}
-                  className="w-full rounded-3xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212]"
+                  className="form-input w-full px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212]"
                   placeholder="Studio Name"
                 />
               </div>
@@ -406,12 +406,12 @@ export default function AdminClientsPage() {
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Logo Upload</label>
                 <div
-                  className="group relative flex h-48 items-center justify-center rounded-3xl border-2 border-dashed border-slate-700 bg-slate-950 transition hover:border-[#E31212]"
+                  className="group relative flex h-48 items-center justify-center rounded-xl border-2 border-dashed border-slate-700 bg-slate-950 transition hover:border-[#E31212]"
                   onDrop={handleDrop}
                   onDragOver={(event) => event.preventDefault()}
                 >
                   {logoPreview ? (
-                    <img src={logoPreview} alt="Logo preview" className="h-full w-full rounded-3xl object-contain" />
+                    <img src={logoPreview} alt="Logo preview" className="h-full w-full rounded-xl object-contain" />
                   ) : (
                     <div className="text-center text-sm text-slate-500 group-hover:text-slate-300">
                       <p>Drag & drop a logo here</p>
@@ -437,7 +437,7 @@ export default function AdminClientsPage() {
                   type="number"
                   value={formState.order}
                   onChange={(event) => updateField("order", event.target.value)}
-                  className="w-full rounded-3xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212]"
+                  className="form-input w-full px-4 py-3 text-sm text-slate-100 outline-none focus:border-[#E31212]"
                   placeholder="Leave empty to append"
                 />
               </div>
@@ -457,7 +457,7 @@ export default function AdminClientsPage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full rounded-3xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#b10d0d] disabled:opacity-60"
+                className="btn-primary w-full px-5 py-3 text-sm font-semibold transition hover:bg-[#b10d0d] disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : isEditing ? "Update Client" : "Create Client"}
               </button>

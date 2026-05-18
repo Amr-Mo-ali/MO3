@@ -18,7 +18,7 @@ export default async function AdminPlacesPage() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--card-bg)] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+      <div className="admin-card p-8 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
         <p className="font-mono text-sm uppercase tracking-[0.35em] text-[color:var(--color-primary)]">Map Coverage</p>
         <h1 className="mt-4 text-4xl font-semibold text-[color:var(--foreground)]">Work locations</h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted)]">
@@ -27,13 +27,14 @@ export default async function AdminPlacesPage() {
         </p>
         <Link
           href="/admin/works"
-          className="mt-6 inline-flex rounded-full bg-[color:var(--color-primary)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[color:var(--color-red-dim)]"
+          className="btn-primary mt-6 inline-flex px-5 py-3 text-sm font-semibold transition hover:bg-[color:var(--color-red-dim)]"
         >
           Manage works
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--card-bg)]">
+      <div className="admin-card overflow-hidden">
+        <div className="touch-scroll overflow-x-auto">
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="bg-[color:var(--surface-strong)] text-[color:var(--muted)]">
             <tr>
@@ -68,6 +69,7 @@ export default async function AdminPlacesPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

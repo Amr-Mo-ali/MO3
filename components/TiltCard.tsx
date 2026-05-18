@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Props {
   children: React.ReactNode
@@ -14,6 +14,16 @@ export default function TiltCard({
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [isFocused, setIsFocused] = useState(false)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const media = window.matchMedia('(pointer: coarse)')
+    const updateTouchState = () => setIsTouchDevice(media.matches || 'ontouchstart' in window)
+    updateTouchState()
+    media.addEventListener('change', updateTouchState)
+    return () => media.removeEventListener('change', updateTouchState)
+  }, [])
 
   const applyTilt = (x: number, y: number) => {
     const el = ref.current
@@ -55,7 +65,7 @@ export default function TiltCard({
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (window.innerWidth < 768) return
+    if (isTouchDevice || window.innerWidth < 768) return
     const el = ref.current
     if (!el) return
     const rect = el.getBoundingClientRect()
@@ -71,6 +81,7 @@ export default function TiltCard({
   }
 
   const handleFocus = () => {
+    if (isTouchDevice) return
     setIsFocused(true)
     // Apply slight tilt on focus for keyboard users
     applyTilt(0.5, 0.5)
@@ -88,12 +99,12 @@ export default function TiltCard({
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}
       onBlur={handleBlur}
-      tabIndex={0}
+      tabIndex={isTouchDevice ? -1 : 0}
       className={`relative outline-none ${className}`}
-      style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+      style={isTouchDevice ? undefined : { transformStyle: 'preserve-3d', willChange: 'transform' }}
       role="region"
     >
-      <div className="tilt-shine absolute inset-0 pointer-events-none z-10 opacity-0 transition-opacity duration-300" />
+      {!isTouchDevice ? <div className="tilt-shine absolute inset-0 pointer-events-none z-10 opacity-0 transition-opacity duration-300" /> : null}
       {children}
     </div>
   )

@@ -26,6 +26,11 @@ export default function HeroCanvas() {
     let animId: number
     let mouse = { x: 0, y: 0 }
     let particles: Particle[] = []
+    const connection = (navigator as Navigator & {
+      connection?: { effectiveType?: string; saveData?: boolean }
+    }).connection
+    const isSlowConnection =
+      Boolean(connection?.saveData) || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType ?? '')
 
     const resize = () => {
       canvas.width = canvas.offsetWidth
@@ -46,7 +51,7 @@ export default function HeroCanvas() {
       'rgba(180,0,0,',
     ]
 
-    const particleCount = window.innerWidth < 768 ? 30 : 80
+    const particleCount = window.innerWidth < 768 ? 20 : isSlowConnection ? 40 : 80
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
@@ -92,6 +97,8 @@ export default function HeroCanvas() {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
         ctx.fillStyle = `${p.color}${dynamicOpacity})`
         ctx.fill()
+
+        if (isSlowConnection) return
 
         particles.slice(i + 1).forEach(p2 => {
           const dx = p.x - p2.x

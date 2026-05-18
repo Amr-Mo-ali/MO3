@@ -31,6 +31,7 @@ function VideoPreview({ url }: { url: string }) {
           <video
             src={video.streamUrl}
             controls
+            playsInline
             className="h-full w-full"
           />
         )}
@@ -585,7 +586,7 @@ export default function AdminWorksPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="touch-scroll overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-y-2 text-left">
             <thead>
               <tr className="text-sm uppercase tracking-[0.2em] text-slate-500">
@@ -629,8 +630,8 @@ export default function AdminWorksPage() {
       </div>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-slate-950/70 px-4 py-8 backdrop-blur-sm">
-          <div className="admin-card relative h-full w-full max-w-2xl overflow-y-auto p-8 shadow-2xl sm:p-10">
+        <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-slate-950/70 px-0 py-0 backdrop-blur-sm sm:px-4 sm:py-8">
+          <div className="touch-scroll admin-card relative h-full w-full overflow-y-auto p-4 shadow-2xl sm:max-w-2xl sm:p-10">
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
@@ -652,7 +653,7 @@ export default function AdminWorksPage() {
                   <input
                     value={formState.title}
                     onChange={(event) => updateField("title", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                     placeholder="Project title"
                   />
                 </label>
@@ -661,7 +662,7 @@ export default function AdminWorksPage() {
                   <input
                     value={formState.client}
                     onChange={(event) => updateField("client", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                     placeholder="Client name"
                   />
                 </label>
@@ -673,7 +674,7 @@ export default function AdminWorksPage() {
                   <select
                     value={formState.sectionId}
                     onChange={(event) => updateField("sectionId", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-slate-100 outline-none focus:border-[#E31212]"
                   >
                     <option value="">Select a section</option>
                     {sections.map((section: any) => (

@@ -19,7 +19,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
       <AdminDarkMode />
       <div className="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
         <Sidebar />
-        <main className="bg-[color:var(--surface)] p-4 text-[color:var(--foreground)] sm:p-6 lg:p-8">{children}</main>
+        <main className="bg-[color:var(--surface)] p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-[color:var(--foreground)] sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

@@ -142,6 +142,7 @@ export default function AdminHeroVideoPage() {
                     <video
                       src={previewVideo.streamUrl}
                       controls
+                      playsInline
                       className="h-full w-full"
                     />
                   )}

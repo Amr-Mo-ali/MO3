@@ -55,27 +55,49 @@ html[data-public-language="ar"] {
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 html {
+  width: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 96px;
   overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
+  width: 100%;
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-x: none;
 }
 
 section[id] {
   scroll-margin-top: 96px;
+}
+
+main,
+section,
+header,
+footer,
+iframe {
+  max-width: 100%;
 }
 
 img,
@@ -98,26 +120,34 @@ h6 {
 }
 
 .section {
-  padding-top: 5rem;
-  padding-bottom: 5rem;
-}
-
-.section-sm {
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
 
+.section-sm {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
 .section-label {
   color: #e31212;
-  font-size: 11px;
+  font-size: clamp(0.625rem, 1.5vw, 0.6875rem);
   font-weight: 700;
   letter-spacing: 6px;
   text-transform: uppercase;
 }
 
+.hero-title {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .section-title {
   font-family: var(--font-display), system-ui, sans-serif;
-  font-size: clamp(48px, 8vw, 96px);
+  font-size: clamp(2rem, 8vw, 5rem);
   line-height: 0.95;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -126,7 +156,7 @@ h6 {
 .section-subtitle {
   max-width: 600px;
   color: #888888;
-  font-size: 16px;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   line-height: 1.75;
 }
 
@@ -148,24 +178,30 @@ h6 {
   border: 1px solid #222222;
   border-radius: 0.75rem;
   background: #111111;
+  min-width: 0;
 }
 
 .work-card {
   border: 1px solid #222222;
   border-radius: 0.75rem;
   background: #111111;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .admin-card {
   border: 1px solid #222222;
   border-radius: 0.75rem;
   background: #111111;
+  min-width: 0;
 }
 
 .form-input {
   border: 1px solid #333333;
   border-radius: 0.5rem;
   background: #0a0a0a;
+  min-height: 48px;
+  font-size: 16px;
 }
 
 .btn-primary {
@@ -173,12 +209,14 @@ h6 {
   background: #e31212;
   padding: 0.5rem 1.5rem;
   color: #ffffff;
+  min-height: 48px;
 }
 
 .btn-secondary {
   border: 1px solid #333333;
   border-radius: 0.5rem;
   padding: 0.5rem 1.5rem;
+  min-height: 48px;
 }
 
 html[data-public-language="ar"] .section-label,
@@ -189,6 +227,40 @@ html[data-public-language="ar"] .section-title {
 
 html[data-public-language="ar"] .section-title {
   line-height: 1.1;
+}
+
+html[data-public-language="ar"] .hero-title {
+  letter-spacing: normal;
+  line-height: 1.08;
+  text-transform: none;
+}
+
+.mobile-menu-link {
+  width: 100%;
+  min-height: 48px;
+  border-bottom: 1px solid #222222;
+  padding: 1rem 2rem;
+  color: #ffffff;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 3rem;
+  line-height: 1;
+  text-align: left;
+}
+
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hero-subtitle {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 button,
@@ -405,6 +477,65 @@ select {
   border-radius: 0.5rem;
   background: #0a0a0a;
   color: var(--text-primary);
+  font-size: 16px;
+}
+
+.h-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+
+  .section-sm {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 10vw, 8rem);
+  }
+
+  .hero-subtitle {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
+
+  .mobile-social-grid {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .section-header {
+    gap: 0;
+  }
+
+  .section-subtitle {
+    max-width: 100%;
+  }
+
+  .marquee-track {
+    gap: 0.75rem;
+  }
+
+  .work-map-marker {
+    gap: 0;
+  }
+
+  .work-map-marker__label {
+    display: none;
+  }
 }
 
 input:focus-visible,

@@ -9,6 +9,7 @@ export default function MO3Logo({ className = "", alt = "MO3 Media Production Lo
         width={260}
         height={110}
         priority
+        sizes="(max-width: 768px) 140px, 260px"
         className="h-auto w-auto"
         style={{ maxHeight: className?.includes('h-[5') ? undefined : 'auto' }}
       />

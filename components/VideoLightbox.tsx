@@ -50,7 +50,7 @@ export default function VideoLightbox({ url, title, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[#333] text-[#888] transition-colors hover:border-[#E31212] hover:text-white"
+            className="ml-auto flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-[#333] text-[#888] transition-colors hover:border-[#E31212] hover:text-white"
             aria-label="Close video"
           >
             X
@@ -75,6 +75,7 @@ export default function VideoLightbox({ url, title, onClose }: Props) {
               src={video.streamUrl}
               controls
               autoPlay
+              playsInline
               className="h-full w-full"
             />
           )}

@@ -299,13 +299,14 @@ export default function AdminSectionsPage() {
         <button
           type="button"
           onClick={openAddDrawer}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#E31212]/20 transition hover:brightness-105"
+          className="btn-primary inline-flex items-center justify-center px-5 py-3 text-sm font-semibold shadow-lg shadow-[#E31212]/20 transition hover:brightness-105"
         >
           Add Section
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[#111111]">
+      <div className="admin-card overflow-hidden">
+        <div className="touch-scroll overflow-x-auto">
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="bg-[#0f0f0f] text-slate-500">
             <tr>
@@ -348,11 +349,12 @@ export default function AdminSectionsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-stretch bg-black/50 p-6">
-          <div className="ml-auto h-full w-full max-w-xl rounded-[32px] bg-[#111111] p-8 shadow-2xl shadow-black/50">
+        <div className="fixed inset-0 z-50 flex items-stretch bg-black/50 p-0 sm:p-6">
+          <div className="touch-scroll ml-auto h-full w-full bg-[#111111] p-4 shadow-2xl shadow-black/50 sm:max-w-xl sm:rounded-[32px] sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.35em] text-[#E31212]">Section form</p>
@@ -363,7 +365,7 @@ export default function AdminSectionsPage() {
               <button
                 type="button"
                 onClick={closeDrawer}
-                className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-slate-200 transition hover:bg-white/10"
+                className="btn-secondary px-4 py-3 text-sm text-slate-200 transition hover:bg-white/10"
               >
                 Close
               </button>
@@ -376,7 +378,7 @@ export default function AdminSectionsPage() {
                   type="text"
                   value={formState.title}
                   onChange={(event) => handleFormChange("title", event.target.value)}
-                  className="w-full rounded-3xl border border-white/10 bg-[#0f0f0f] px-4 py-3 text-white outline-none transition focus:border-[#E31212]"
+                  className="form-input w-full px-4 py-3 text-white outline-none transition focus:border-[#E31212]"
                 />
               </div>
 
@@ -386,7 +388,7 @@ export default function AdminSectionsPage() {
                   type="text"
                   value={formState.slug}
                   onChange={(event) => handleFormChange("slug", slugify(event.target.value))}
-                  className="w-full rounded-3xl border border-white/10 bg-[#0f0f0f] px-4 py-3 text-white outline-none transition focus:border-[#E31212]"
+                  className="form-input w-full px-4 py-3 text-white outline-none transition focus:border-[#E31212]"
                 />
               </div>
 
@@ -397,12 +399,12 @@ export default function AdminSectionsPage() {
                     type="number"
                     value={formState.order}
                     onChange={(event) => handleFormChange("order", Number(event.target.value))}
-                    className="w-full rounded-3xl border border-white/10 bg-[#0f0f0f] px-4 py-3 text-white outline-none transition focus:border-[#E31212]"
+                    className="form-input w-full px-4 py-3 text-white outline-none transition focus:border-[#E31212]"
                   />
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-300">Visible</label>
-                  <div className="flex items-center gap-3 rounded-3xl bg-[#0f0f0f] px-4 py-3">
+                  <div className="flex items-center gap-3 rounded-xl bg-[#0f0f0f] px-4 py-3">
                     <input
                       id="visible"
                       type="checkbox"
@@ -421,14 +423,14 @@ export default function AdminSectionsPage() {
                 <button
                   type="button"
                   onClick={closeDrawer}
-                  className="rounded-2xl border border-white/10 px-5 py-3 text-sm text-slate-200 transition hover:bg-white/5"
+                  className="btn-secondary px-5 py-3 text-sm text-slate-200 transition hover:bg-white/5"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="rounded-2xl bg-[#E31212] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105"
+                  className="btn-primary px-5 py-3 text-sm font-semibold transition hover:brightness-105"
                 >
                   Save Section
                 </button>
@@ -439,8 +441,8 @@ export default function AdminSectionsPage() {
       )}
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
-          <div className="w-full max-w-lg rounded-[32px] bg-[#111111] p-8 text-white shadow-2xl shadow-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-0 sm:p-6">
+          <div className="w-full bg-[#111111] p-6 text-white shadow-2xl shadow-black/50 sm:max-w-lg sm:rounded-[32px] sm:p-8">
             <h3 className="text-xl font-semibold">Confirm deletion</h3>
             <p className="mt-4 text-sm leading-6 text-slate-400">
               Deleting <span className="font-semibold text-white">{deleteTarget.title}</span> will remove the section.
@@ -450,14 +452,14 @@ export default function AdminSectionsPage() {
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="rounded-2xl border border-white/10 px-5 py-3 text-sm text-slate-200 transition hover:bg-white/5"
+                className="btn-secondary px-5 py-3 text-sm text-slate-200 transition hover:bg-white/5"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-2xl bg-rose-500 px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+                className="btn-primary bg-rose-500 px-5 py-3 text-sm font-semibold transition hover:brightness-110"
               >
                 Delete section
               </button>

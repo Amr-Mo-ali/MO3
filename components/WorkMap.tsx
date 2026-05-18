@@ -116,7 +116,8 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
                 center={[26.8206, 30.8025]}
                 zoom={6}
                 scrollWheelZoom={false}
-                className="h-[520px] w-full"
+                touchZoom
+                className="h-[300px] w-full md:h-[420px] lg:h-[520px]"
                 zoomControl
               >
                 <TileLayer
@@ -155,7 +156,7 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
                 })}
               </MapContainer>
             ) : (
-              <div className="flex h-[520px] items-center justify-center bg-[#07110f]/92">
+              <div className="flex h-[300px] items-center justify-center bg-[#07110f]/92 md:h-[420px] lg:h-[520px]">
                 <div className="max-w-sm px-6 text-center">
                   <p className="text-sm text-[color:var(--color-white)]">{copy.labels.noMapProjects}</p>
                 </div>
@@ -163,7 +164,7 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
             )}
           </div>
 
-          <div className="grid content-start gap-3">
+          <div className="touch-scroll grid auto-cols-[85%] grid-flow-col gap-3 overflow-x-auto pb-2 lg:grid-flow-row lg:auto-cols-auto lg:content-start lg:overflow-visible">
             {mappableWorks.map((work) => {
               const isActive = work.id === selectedWorkId;
               return (
@@ -174,7 +175,7 @@ export default function WorkMap({ works, onSelectWork, language }: WorkMapProps)
                     setSelectedWorkId(work.id);
                     onSelectWork?.(work.id);
                   }}
-                  className={`card-surface group p-4 text-start transition duration-200 ${
+                  className={`card-surface group min-w-0 p-4 text-start transition duration-200 ${
                     isActive
                       ? "border-[color:var(--color-primary)] bg-[rgba(227,18,18,0.12)] text-[color:var(--color-white)] shadow-[0_24px_48px_rgba(227,18,18,0.16)]"
                       : "text-[color:var(--color-white)] hover:border-[color:var(--color-primary)]/60 hover:bg-[color:rgba(255,255,255,0.07)]"

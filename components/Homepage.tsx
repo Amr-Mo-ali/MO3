@@ -109,6 +109,8 @@ export default function Homepage({
   const [activeSection, setActiveSection] = useState("home");
   const [statsVisible, setStatsVisible] = useState(false);
   const [openFaqId, setOpenFaqId] = useState<string | null>(faqs[0]?.id ?? null);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [expandedWorkId, setExpandedWorkId] = useState<string | null>(null);
   const [contactState, setContactState] = useState({
     name: "",
     company: "",
@@ -125,6 +127,15 @@ export default function Homepage({
     }
 
     setSelectedWork(work);
+  }
+
+  function handleWorkCardClick(work: Work) {
+    if (isMobileViewport) {
+      setExpandedWorkId((current) => (current === work.id ? null : work.id));
+      return;
+    }
+
+    openWork(work);
   }
 
   function handleAnchorClick(href: string) {
@@ -246,6 +257,14 @@ export default function Homepage({
   );
 
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const handleViewportChange = () => setIsMobileViewport(media.matches);
+    handleViewportChange();
+    media.addEventListener("change", handleViewportChange);
+    return () => media.removeEventListener("change", handleViewportChange);
+  }, []);
+
+  useEffect(() => {
     const sectionElements = Array.from(document.querySelectorAll<HTMLElement>("section[id]")).filter((section) =>
       NAV_SECTION_IDS.has(section.id)
     );
@@ -283,6 +302,12 @@ export default function Homepage({
     observer.observe(statsRef.current);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!isMobileViewport) {
+      setExpandedWorkId(null);
+    }
+  }, [isMobileViewport]);
 
   useEffect(() => {
     if (!openFaqId && faqsToRender[0]?.id) {
@@ -346,7 +371,7 @@ export default function Homepage({
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--color-border)] bg-black/75 backdrop-blur-xl">
         <Container className="flex items-center justify-between gap-4 py-4">
           <a href="#home" className="flex items-center" onClick={(event) => { event.preventDefault(); handleAnchorClick("#home"); }}>
-            <MO3Logo className="h-11 w-auto sm:h-12" alt={copy.labels.logoAlt} />
+            <MO3Logo className="h-10 w-auto sm:h-12" alt={copy.labels.logoAlt} />
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
@@ -373,7 +398,7 @@ export default function Homepage({
             <button
               type="button"
               onClick={() => setLanguage(isArabic ? "en" : "ar")}
-              className="btn-secondary text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)]"
+              className="btn-secondary hidden text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] md:inline-flex"
               aria-label={copy.labels.switchLanguage}
             >
               {copy.labels.switchLanguage}
@@ -381,10 +406,14 @@ export default function Homepage({
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="btn-secondary inline-flex items-center justify-center text-sm font-medium text-white md:hidden"
+              className="btn-secondary inline-flex h-11 w-11 items-center justify-center px-0 text-sm font-medium text-white md:hidden"
               aria-label={copy.labels.openMenu}
             >
-              {copy.labels.menu}
+              <span className="flex flex-col gap-1">
+                <span className="block h-0.5 w-5 bg-white" />
+                <span className="block h-0.5 w-5 bg-white" />
+                <span className="block h-0.5 w-5 bg-white" />
+              </span>
             </button>
           </div>
         </Container>
@@ -396,12 +425,13 @@ export default function Homepage({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/95 px-6 py-6 md:hidden"
+            className="fixed inset-0 z-[200] bg-black/95 md:hidden"
+            onClick={() => setMenuOpen(false)}
           >
-            <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between">
+            <div className="touch-scroll flex h-full flex-col px-0 py-6" onClick={(event) => event.stopPropagation()}>
+              <Container className="flex items-center justify-between gap-4">
                 <MO3Logo className="h-10 w-auto" alt={copy.labels.logoAlt} />
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 md:hidden">
                   <button
                     type="button"
                     onClick={() => setLanguage(isArabic ? "en" : "ar")}
@@ -412,24 +442,22 @@ export default function Homepage({
                   <button
                     type="button"
                     onClick={() => setMenuOpen(false)}
-                    className="btn-secondary text-sm text-white"
+                    className="btn-secondary h-11 w-11 px-0 text-sm text-white"
                   >
-                    {copy.labels.close}
+                    X
                   </button>
                 </div>
-              </div>
+              </Container>
 
-              <nav className="flex flex-1 flex-col justify-center gap-5">
+              <nav className="mt-8 flex flex-1 flex-col justify-center">
                 {copy.nav.map((item) => (
                   <button
                     key={item.href}
                     type="button"
                     onClick={() => handleAnchorClick(item.href)}
-                    className={`rounded-lg border px-5 py-4 text-center text-xl transition-colors duration-300 ${
-                      activeSection === item.href.slice(1)
-                        ? "border-[#E31212] bg-[rgba(227,18,18,0.12)] text-[#E31212]"
-                        : "border-[color:var(--color-border)] bg-[color:var(--surface)] text-white hover:border-[#E31212] hover:text-[#E31212]"
-                    } ${isArabic ? "font-semibold" : "uppercase tracking-[0.2em]"}`}
+                    className={`mobile-menu-link transition-colors duration-300 ${
+                      activeSection === item.href.slice(1) ? "text-[#E31212]" : "text-white"
+                    }`}
                   >
                     {item.label}
                   </button>
@@ -478,15 +506,15 @@ export default function Homepage({
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0.72)_55%,rgba(0,0,0,0.92)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(227,18,18,0.35),transparent_30%)]" />
 
-        <Container className="relative z-10 flex min-h-screen items-end pb-16 pt-32 sm:pb-20">
+        <Container className="relative z-10 flex min-h-screen items-end pb-20 pt-28 sm:pb-20 sm:pt-32">
           <div className="max-w-4xl">
             <p className="section-label text-[color:var(--color-gray-light)]">
               {copy.labels.brand}
             </p>
-            <h1 className="section-title mt-5 text-white">
+            <h1 className="hero-title mt-5 text-white">
               {currentHero.title}
             </h1>
-            <p className="section-subtitle mt-6 max-w-[600px] text-[color:var(--color-gray-light)]">
+            <p className="hero-subtitle mt-6 max-w-[32rem] text-[14px] leading-6 text-[color:var(--color-gray-light)] sm:max-w-[600px] sm:text-base sm:leading-7">
               {currentHero.subtitle}
             </p>
 
@@ -495,20 +523,29 @@ export default function Homepage({
                 href={currentHero.ctaLink}
                 target={currentHero.ctaLink.startsWith("http") ? "_blank" : undefined}
                 rel={currentHero.ctaLink.startsWith("http") ? "noreferrer" : undefined}
-                className={`btn-primary inline-flex items-center justify-center text-sm font-semibold transition hover:bg-[color:var(--color-red-dim)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
+                className={`btn-primary inline-flex w-full items-center justify-center text-sm font-semibold transition hover:bg-[color:var(--color-red-dim)] sm:w-auto ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
                 {currentHero.ctaLabel}
               </a>
               <button
                 type="button"
                 onClick={() => handleAnchorClick("#work")}
-                className={`btn-secondary inline-flex items-center justify-center bg-black/30 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
+                className={`btn-secondary inline-flex w-full items-center justify-center bg-black/30 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] sm:w-auto ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
                 {copy.work.view}
               </button>
             </div>
           </div>
         </Container>
+
+        <button
+          type="button"
+          onClick={() => handleAnchorClick("#about")}
+          className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-xs uppercase tracking-[0.35em] text-white/80"
+        >
+          <span>Scroll</span>
+          <span className="h-10 w-px bg-[#E31212]" />
+        </button>
       </section>
 
       <section id="about" className="section border-t border-[color:var(--color-border)] bg-[color:var(--background)]">
@@ -528,16 +565,16 @@ export default function Homepage({
             title={copy.labels.statistics}
             subtitle="A quick snapshot of production volume, partnerships, and years in motion."
           />
-          <div ref={statsRef} className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div ref={statsRef} className="mt-10 grid grid-cols-2 gap-4 xl:grid-cols-4">
             {statsToRender.map((stat) => (
               <div
                 key={stat.id}
                 className="card-surface p-6"
               >
-                <p className="text-4xl font-semibold text-[color:var(--color-primary)] sm:text-5xl">
+                <p className="text-[clamp(3rem,15vw,5rem)] font-semibold leading-none text-[color:var(--color-primary)]">
                   <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} start={statsVisible} locale={copy.locale} />
                 </p>
-                <p className={`mt-3 text-sm text-[color:var(--color-gray)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.28em]"}`}>{stat.label}</p>
+                <p className={`mt-3 text-[11px] text-[color:var(--color-gray)] ${isArabic ? "font-semibold" : "uppercase tracking-[0.28em]"}`}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -552,39 +589,43 @@ export default function Homepage({
             subtitle="Trusted by brands looking for cinematic craft, fast turnaround, and production discipline."
           />
 
-          <div className="mt-12 space-y-5">
-            <div className="marquee">
-              <div className="marquee-track gap-5">
+          <div className="mt-12 space-y-4">
+            <div className="relative marquee">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[color:var(--surface-strong)] to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[color:var(--surface-strong)] to-transparent" />
+              <div className="marquee-track gap-3 sm:gap-5">
                 {marqueeClients.map((client, index) => (
                   <div
                     key={`client-a-${client.id}-${index}`}
-                    className="card-surface group relative flex h-24 w-44 shrink-0 items-center justify-center px-5"
+                    className="card-surface group relative flex h-16 w-32 shrink-0 items-center justify-center px-3 sm:h-24 sm:w-44 sm:px-5"
                   >
                     <Image
                       src={client.logo}
                       alt={client.name}
                       fill
-                      className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
-                      sizes="176px"
+                      className="object-contain p-3 grayscale transition duration-300 group-hover:grayscale-0 sm:p-5"
+                      sizes="(max-width: 767px) 128px, 176px"
                     />
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="marquee">
-              <div className="marquee-track marquee-reverse gap-5">
+            <div className="relative marquee">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[color:var(--surface-strong)] to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[color:var(--surface-strong)] to-transparent" />
+              <div className="marquee-track marquee-reverse gap-3 sm:gap-5">
                 {marqueeClients.map((client, index) => (
                   <div
                     key={`client-b-${client.id}-${index}`}
-                    className="card-surface group relative flex h-24 w-44 shrink-0 items-center justify-center px-5"
+                    className="card-surface group relative flex h-16 w-32 shrink-0 items-center justify-center px-3 sm:h-24 sm:w-44 sm:px-5"
                   >
                     <Image
                       src={client.logo}
                       alt={client.name}
                       fill
-                      className="object-contain p-5 grayscale transition duration-300 group-hover:grayscale-0"
-                      sizes="176px"
+                      className="object-contain p-3 grayscale transition duration-300 group-hover:grayscale-0 sm:p-5"
+                      sizes="(max-width: 767px) 128px, 176px"
                     />
                   </div>
                 ))}
@@ -619,12 +660,23 @@ export default function Homepage({
                   </div>
 
                   <div className={`grid gap-5 ${isReels ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
-                    {section.works.map((work) => (
-                      <button
+                    {section.works.map((work) => {
+                      const isExpanded = expandedWorkId === work.id;
+
+                      return (
+                      <article
                         key={work.id}
-                        type="button"
-                        onClick={() => openWork(work)}
+                        onClick={() => handleWorkCardClick(work)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            handleWorkCardClick(work);
+                          }
+                        }}
                         id={`work-card-${work.id}`}
+                        tabIndex={0}
+                        role="button"
+                        aria-expanded={isMobileViewport ? isExpanded : undefined}
                         className="work-card group overflow-hidden text-start transition hover:-translate-y-1 hover:border-[color:var(--color-primary)]"
                       >
                         <div className={`relative overflow-hidden bg-black ${isReels ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
@@ -640,16 +692,39 @@ export default function Homepage({
                             <div className="grid h-full place-items-center text-sm text-[color:var(--color-gray)]">{copy.labels.noThumbnail}</div>
                           )}
                           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(0,0,0,0.82)_100%)]" />
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openWork(work);
+                            }}
+                            className="btn-primary absolute bottom-4 left-4 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full px-0 text-lg md:opacity-0 md:transition md:duration-300 md:group-hover:opacity-100"
+                            aria-label={`Play ${work.title}`}
+                          >
+                            &gt;
+                          </button>
                         </div>
                         <div className="space-y-3 p-5">
                           <p className="section-label">{work.client || copy.labels.projectFallbackClient}</p>
                           <h4 className="text-xl font-semibold text-white">{work.title}</h4>
-                          {work.description ? (
-                            <p className="line-clamp-2 text-sm leading-6 text-[color:var(--color-gray-light)]">{work.description}</p>
+                          {work.description ? <p className={`text-sm leading-6 text-[color:var(--color-gray-light)] ${isMobileViewport && !isExpanded ? "line-clamp-2" : ""}`}>{work.description}</p> : null}
+                          {isMobileViewport ? (
+                            <div className={`overflow-hidden transition-[max-height,opacity] duration-300 ${isExpanded ? "max-h-28 opacity-100" : "max-h-0 opacity-0"}`}>
+                              <button
+                                type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openWork(work);
+                                }}
+                                className="btn-secondary mt-2 inline-flex w-full items-center justify-center text-sm font-semibold text-white"
+                              >
+                                Watch Project
+                              </button>
+                            </div>
                           ) : null}
                         </div>
-                      </button>
-                    ))}
+                      </article>
+                    )})}
                   </div>
                 </div>
               );
@@ -689,7 +764,7 @@ export default function Homepage({
                         <span key={index}>{index < testimonial.rating ? "★" : "☆"}</span>
                       ))}
                     </div>
-                    <p className="mt-4 text-base leading-7 text-[color:var(--color-gray-light)]">"{testimonial.quote}"</p>
+                    <p className="mt-4 text-[clamp(0.875rem,2.5vw,1rem)] leading-7 text-[color:var(--color-gray-light)]">"{testimonial.quote}"</p>
                   </div>
                 </div>
 
@@ -733,13 +808,13 @@ export default function Homepage({
                   <button
                     type="button"
                     onClick={() => setOpenFaqId(open ? null : faq.id)}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-start sm:px-7"
+                    className="flex min-h-14 w-full items-center justify-between gap-4 px-5 py-5 text-start sm:px-7"
                   >
-                    <span className="text-lg font-semibold text-white">{faq.question}</span>
+                    <span className="whitespace-normal text-base font-semibold text-white sm:text-lg">{faq.question}</span>
                     <span className="text-2xl text-[color:var(--color-primary)]">{open ? "-" : "+"}</span>
                   </button>
                   {open ? (
-                    <div className="border-t border-[color:var(--color-border)] px-5 py-5 text-sm leading-7 text-[color:var(--color-gray-light)] sm:px-7">
+                    <div className="border-t border-[color:var(--color-border)] px-5 py-5 text-[clamp(0.875rem,2.5vw,1rem)] leading-7 text-[color:var(--color-gray-light)] sm:px-7">
                       {faq.answer}
                     </div>
                   ) : null}
@@ -762,14 +837,14 @@ export default function Homepage({
               {copy.contact.body}
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mobile-social-grid mt-8 gap-3">
               {socialLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn-secondary inline-flex items-center justify-center bg-[color:var(--surface)] text-sm font-medium text-white transition hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                  className="btn-secondary inline-flex w-full items-center justify-center bg-[color:var(--surface)] text-sm font-medium text-white transition hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
                 >
                   {link.label}
                 </a>
@@ -777,7 +852,7 @@ export default function Homepage({
             </div>
           </div>
 
-          <form onSubmit={handleContactSubmit} className="admin-card p-5 sm:p-7">
+          <form onSubmit={handleContactSubmit} className="admin-card p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:p-7">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 text-sm text-[color:var(--color-gray-light)]">
                 <span>{copy.contact.name}</span>

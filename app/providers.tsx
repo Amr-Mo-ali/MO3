@@ -34,6 +34,25 @@ export default function Providers({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
   const [language, setLanguageState] = useState<PublicLanguage>("en");
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const motionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const connection = (navigator as Navigator & {
+      connection?: { effectiveType?: string; saveData?: boolean }
+    }).connection;
+    const updateMotionPreference = () => {
+      setReduceMotion(
+        motionMedia.matches ||
+          Boolean(connection?.saveData) ||
+          ["slow-2g", "2g", "3g"].includes(connection?.effectiveType ?? "")
+      );
+    };
+
+    updateMotionPreference();
+    motionMedia.addEventListener("change", updateMotionPreference);
+    return () => motionMedia.removeEventListener("change", updateMotionPreference);
+  }, []);
 
   useEffect(() => {
     if (isAdminRoute) {
@@ -75,10 +94,10 @@ export default function Providers({ children }: PropsWithChildren) {
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+          exit={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
         >
           {children}
         </motion.div>
