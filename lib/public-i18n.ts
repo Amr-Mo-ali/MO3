@@ -226,12 +226,12 @@ export function getStaticCopy(language: PublicLanguage) {
     direction: isArabic ? "rtl" : "ltr",
     locale: isArabic ? "ar-EG" : "en-US",
     nav: [
-      { label: t(language, "nav.home"), href: "#home" },
-      { label: t(language, "nav.work"), href: "#work" },
-      { label: t(language, "nav.about"), href: "#about" },
-      { label: t(language, "nav.clients"), href: "#clients" },
-      { label: t(language, "nav.map"), href: "#map" },
-      { label: t(language, "nav.contact"), href: "#contact" },
+      { label: t(language, "nav.home"), href: "/#home" },
+      { label: t(language, "nav.work"), href: "/#work" },
+      { label: t(language, "nav.about"), href: "/#about" },
+      { label: t(language, "nav.clients"), href: "/#clients" },
+      { label: t(language, "nav.map"), href: "/#map" },
+      { label: t(language, "nav.contact"), href: "/#contact" },
     ],
     labels: {
       menu: t(language, "labels.menu"),

@@ -7,8 +7,8 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { usePublicLanguage } from "@/app/providers";
 import { getProjectCount, getStaticCopy, translateSectionTitle, translateText } from "@/lib/public-i18n";
-import { parseVideoUrl } from "@/lib/video-utils";
 import Container from "@/components/Container";
+import HeroVideo from "@/components/HeroVideo";
 import MO3Logo from "@/components/MO3Logo";
 import SectionHeading from "@/components/SectionHeading";
 import VideoLightbox from "@/components/VideoLightbox";
@@ -48,6 +48,11 @@ function makeExternalUrl(value: string) {
 function getWhatsAppHref(value: string) {
   const digits = value.replace(/\D/g, "");
   return digits ? `https://wa.me/${digits}` : "";
+}
+
+function getSectionIdFromHref(href: string) {
+  const hashIndex = href.indexOf("#");
+  return hashIndex >= 0 ? href.slice(hashIndex + 1) : href.replace(/^#/, "");
 }
 
 function AnimatedNumber({
@@ -139,7 +144,9 @@ export default function Homepage({
   }
 
   function handleAnchorClick(href: string) {
-    const target = document.querySelector<HTMLElement>(href);
+    const hashIndex = href.indexOf("#");
+    const targetSelector = hashIndex >= 0 ? href.slice(hashIndex) : href;
+    const target = document.querySelector<HTMLElement>(targetSelector);
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
     setMenuOpen(false);
   }
@@ -359,8 +366,6 @@ export default function Homepage({
     subtitle: translateText(language, heroConfig?.subtitle ?? copy.hero.subtitle),
     ctaLabel: translateText(language, heroConfig?.ctaLabel ?? copy.hero.cta),
   };
-  const heroVideo = currentHero.videoUrl ? parseVideoUrl(currentHero.videoUrl) : null;
-
   const translatedAboutText = translateText(language, siteConfig.aboutText) || copy.about.body;
 
   return (
@@ -370,7 +375,7 @@ export default function Homepage({
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--color-border)] bg-black/75 backdrop-blur-xl">
         <Container className="flex items-center justify-between gap-4 py-4">
-          <a href="#home" className="flex items-center" onClick={(event) => { event.preventDefault(); handleAnchorClick("#home"); }}>
+          <a href="/#home" className="flex items-center" onClick={(event) => { event.preventDefault(); handleAnchorClick("/#home"); }}>
             <MO3Logo className="h-10 w-auto sm:h-12" alt={copy.labels.logoAlt} />
           </a>
 
@@ -381,13 +386,13 @@ export default function Homepage({
                 type="button"
                 onClick={() => handleAnchorClick(item.href)}
                 className={`group relative pb-2 text-sm transition-colors duration-300 ${isArabic ? "font-semibold tracking-normal" : "uppercase tracking-[0.28em]"} ${
-                  activeSection === item.href.slice(1) ? "text-[#E31212]" : "text-[color:var(--color-gray)] hover:text-white"
+                  activeSection === getSectionIdFromHref(item.href) ? "text-[#E31212]" : "text-[color:var(--color-gray)] hover:text-white"
                 }`}
               >
                 <span>{item.label}</span>
                 <span
                   className={`absolute inset-x-0 -bottom-px h-0.5 origin-center rounded-full bg-[#E31212] transition-transform duration-300 ${
-                    activeSection === item.href.slice(1) ? "scale-x-100" : "scale-x-0"
+                    activeSection === getSectionIdFromHref(item.href) ? "scale-x-100" : "scale-x-0"
                   }`}
                 />
               </button>
@@ -456,7 +461,7 @@ export default function Homepage({
                     type="button"
                     onClick={() => handleAnchorClick(item.href)}
                     className={`mobile-menu-link transition-colors duration-300 ${
-                      activeSection === item.href.slice(1) ? "text-[#E31212]" : "text-white"
+                      activeSection === getSectionIdFromHref(item.href) ? "text-[#E31212]" : "text-white"
                     }`}
                   >
                     {item.label}
@@ -470,34 +475,13 @@ export default function Homepage({
 
       <section id="home" className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0">
-          {heroVideo ? (
+          {currentHero.videoUrl ? (
             <div className="absolute inset-0">
-              {heroVideo.isEmbed ? (
-                <iframe
-                  src={heroVideo.embedUrl}
-                  className="absolute inset-0 h-full w-full"
-                  style={{
-                    border: "none",
-                    pointerEvents: "none",
-                    transform: "scale(1.15)",
-                    transformOrigin: "center",
-                  }}
-                  allow="autoplay; fullscreen"
-                  title="Hero video"
-                />
-              ) : (
-                <video
-                  key={heroVideo.streamUrl}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  poster={currentHero.posterUrl ?? undefined}
-                  className="absolute inset-0 h-full w-full object-cover"
-                >
-                  <source src={heroVideo.streamUrl} type="video/mp4" />
-                </video>
-              )}
+              <HeroVideo
+                url={currentHero.videoUrl}
+                posterUrl={currentHero.posterUrl}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             </div>
           ) : (
             <div className="h-full w-full bg-[radial-gradient(circle_at_top,#331010_0%,#120404_45%,#000000_100%)]" />
@@ -529,7 +513,7 @@ export default function Homepage({
               </a>
               <button
                 type="button"
-                onClick={() => handleAnchorClick("#work")}
+                onClick={() => handleAnchorClick("/#work")}
                 className={`btn-secondary inline-flex w-full items-center justify-center bg-black/30 text-sm font-semibold text-white transition hover:border-[color:var(--color-primary)] sm:w-auto ${isArabic ? "" : "uppercase tracking-[0.2em]"}`}
               >
                 {copy.work.view}
@@ -540,7 +524,7 @@ export default function Homepage({
 
         <button
           type="button"
-          onClick={() => handleAnchorClick("#about")}
+          onClick={() => handleAnchorClick("/#about")}
           className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-xs uppercase tracking-[0.35em] text-white/80"
         >
           <span>Scroll</span>

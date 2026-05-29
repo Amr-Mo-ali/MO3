@@ -7,6 +7,14 @@ export interface VideoData {
   isEmbed: boolean;
 }
 
+function buildYouTubeEmbedUrl(id: string) {
+  return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&playlist=${id}`;
+}
+
+function buildVimeoEmbedUrl(id: string) {
+  return `https://player.vimeo.com/video/${id}?autoplay=1&muted=1&loop=1&background=1&autopause=0`;
+}
+
 export function parseVideoUrl(url: string): VideoData {
   const trimmedUrl = url?.trim() ?? "";
 
@@ -30,7 +38,7 @@ export function parseVideoUrl(url: string): VideoData {
     const id = youtubeMatch[1];
     return {
       type: "youtube",
-      embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0`,
+      embedUrl: buildYouTubeEmbedUrl(id),
       streamUrl: trimmedUrl,
       isEmbed: true,
     };
@@ -41,7 +49,7 @@ export function parseVideoUrl(url: string): VideoData {
     const id = vimeoMatch[1];
     return {
       type: "vimeo",
-      embedUrl: `https://player.vimeo.com/video/${id}?autoplay=1&muted=1&loop=1&background=1`,
+      embedUrl: buildVimeoEmbedUrl(id),
       streamUrl: trimmedUrl,
       isEmbed: true,
     };

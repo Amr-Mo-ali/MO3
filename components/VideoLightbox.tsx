@@ -32,41 +32,34 @@ export default function VideoLightbox({ url, title, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-3 md:p-6"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
-      <div
-        className="relative w-full max-w-5xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="mb-3 flex items-center justify-between">
+      <div className="relative w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
+        <div className="mb-2 flex items-center justify-between px-1">
           {title ? (
-            <p className="truncate pr-4 text-sm font-medium text-white">
+            <p className="truncate pr-3 text-sm text-white">
               {title}
             </p>
           ) : null}
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-[#333] text-[#888] transition-colors hover:border-[#E31212] hover:text-white"
+            className="ml-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[#333] text-lg text-white hover:border-[#E31212]"
             aria-label="Close video"
           >
-            X
+            ✕
           </button>
         </div>
 
-        <div className="aspect-video w-full overflow-hidden rounded-2xl border border-[#222] bg-[#111]">
+        <div className="aspect-video w-full overflow-hidden rounded-xl bg-[#111]">
           {video.isEmbed ? (
             <iframe
-              src={
-                video.type === "youtube"
-                  ? video.embedUrl.replace("controls=0", "controls=1")
-                  : video.embedUrl
-              }
+              src={video.embedUrl}
               className="h-full w-full"
-              allow="autoplay; fullscreen"
+              allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
               title={title ?? "Video"}
             />
@@ -81,8 +74,12 @@ export default function VideoLightbox({ url, title, onClose }: Props) {
           )}
         </div>
 
-        <p className="mt-3 text-center text-xs text-[#555]">
+        <p className="mt-2 hidden text-center text-xs text-[#555] md:block">
           Press ESC or click outside to close
+        </p>
+
+        <p className="mt-2 text-center text-xs text-[#555] md:hidden">
+          Tap outside to close
         </p>
       </div>
     </div>
