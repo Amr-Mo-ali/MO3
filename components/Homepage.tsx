@@ -522,14 +522,6 @@ export default function Homepage({
           </div>
         </Container>
 
-        <button
-          type="button"
-          onClick={() => handleAnchorClick("/#about")}
-          className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-xs uppercase tracking-[0.35em] text-white/80"
-        >
-          <span>Scroll</span>
-          <span className="h-10 w-px bg-[#E31212]" />
-        </button>
       </section>
 
       <section id="about" className="section border-t border-[color:var(--color-border)] bg-[color:var(--background)]">
